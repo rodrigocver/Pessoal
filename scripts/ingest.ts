@@ -7,6 +7,7 @@ import { comLog } from "@/ingest/log";
 import { buscarDeputados, buscarSenadores, salvarParlamentares } from "@/ingest/parlamentares";
 import { ingerirDespesas, ingerirPresencas, ingerirProposicoes, ingerirVotacoes } from "@/ingest/camara";
 import { ingerirDespesasSenado, ingerirProposicoesSenado, ingerirVotacoesSenado } from "@/ingest/senado";
+import { calcularEstatisticas } from "@/ingest/estatisticas";
 import { anosDesde } from "@/ingest/util";
 
 const args = process.argv.slice(2);
@@ -31,13 +32,16 @@ const tarefas: Record<string, () => Promise<number>> = {
   "senado:votacoes": porAno(ingerirVotacoesSenado), // inclui o comparecimento
   "senado:proposicoes": porAno(ingerirProposicoesSenado),
   "senado:despesas": porAno(ingerirDespesasSenado),
+  estatisticas: calcularEstatisticas, // por último: depende de todo o resto
 };
 
 async function main() {
   const nomes = pedidas.length ? pedidas : Object.keys(tarefas);
   const desconhecidas = nomes.filter((n) => !tarefas[n]);
   if (desconhecidas.length) {
-    console.error(`Tarefas desconhecidas: ${desconhecidas.join(", ")}. Disponíveis: ${Object.keys(tarefas).join(", ")}`);
+    console.error(
+      `Tarefas desconhecidas: ${desconhecidas.join(", ")}. Disponíveis: ${Object.keys(tarefas).join(", ")}`,
+    );
     process.exit(1);
   }
   let falhou = false;

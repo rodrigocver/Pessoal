@@ -17,7 +17,8 @@ describe("meses", () => {
 
 describe("comparecimento", () => {
   it("conta como presente quem votou, presidiu ou registrou presença sem voto", () => {
-    for (const c of ["Sim", "Não", "Abstenção", "Votou", "P-NRV", "Presidente (art. 51 RISF)"]) expect(CODIGOS_PRESENTE.has(c)).toBe(true);
+    for (const c of ["Sim", "Não", "Abstenção", "Votou", "P-NRV", "Presidente (art. 51 RISF)"])
+      expect(CODIGOS_PRESENTE.has(c)).toBe(true);
     for (const c of ["NCom", "LS", "MIS", "AP", "LP"]) expect(CODIGOS_PRESENTE.has(c)).toBe(false);
   });
   it("traduz os códigos para rótulos legíveis", () => {
@@ -42,7 +43,9 @@ describe("parseIdentificacao", () => {
 
 describe("categoriaSenado", () => {
   it("encurta categorias conhecidas", () => {
-    expect(categoriaSenado("Aluguel de imóveis para escritório político, compreendendo...")).toBe("Aluguel de escritório político");
+    expect(categoriaSenado("Aluguel de imóveis para escritório político, compreendendo...")).toBe(
+      "Aluguel de escritório político",
+    );
     expect(categoriaSenado(null)).toBe("Não informada");
   });
 });

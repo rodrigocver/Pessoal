@@ -23,7 +23,11 @@ export function BotaoSeguir({
   return (
     <form action={acao}>
       <button
-        className={seguindo ? `${base} bg-destaque-suave text-destaque` : `${base} border border-destaque text-destaque hover:bg-destaque-suave`}
+        className={
+          seguindo
+            ? `${base} bg-destaque-suave text-destaque`
+            : `${base} border border-destaque text-destaque hover:bg-destaque-suave`
+        }
       >
         {seguindo ? "✓ Acompanhando" : "+ Acompanhar"}
       </button>

@@ -18,7 +18,10 @@ export function BarrasMensais({
         {dados.map((d) => (
           <div key={d.mes} className="flex h-full flex-1 flex-col items-center justify-end gap-1" title={d.dica}>
             {formatar && <span className="text-[10px] tabular-nums text-suave">{formatar(d.valor)}</span>}
-            <div className="w-full rounded-t bg-destaque" style={{ height: `${(d.valor / max) * 100}%`, minHeight: d.valor ? 2 : 0 }} />
+            <div
+              className="w-full rounded-t bg-destaque"
+              style={{ height: `${(d.valor / max) * 100}%`, minHeight: d.valor ? 2 : 0 }}
+            />
             <span className="text-[10px] text-suave">{rotuloMes(d.mes)}</span>
           </div>
         ))}

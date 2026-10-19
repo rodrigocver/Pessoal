@@ -3,14 +3,15 @@ import { parse } from "csv-parse";
 import { unzipSync } from "fflate";
 import { fetchComRetry } from "./http";
 
-
 /** Divide em lotes para não estourar o limite de parâmetros do Postgres. */
 export function* lotes<T>(itens: T[], tamanho = 1000): Generator<T[]> {
   for (let i = 0; i < itens.length; i += tamanho) yield itens.slice(i, i + tamanho);
 }
 
 export function hash(...partes: unknown[]): string {
-  return createHash("sha1").update(partes.map((p) => String(p ?? "")).join("|")).digest("hex");
+  return createHash("sha1")
+    .update(partes.map((p) => String(p ?? "")).join("|"))
+    .digest("hex");
 }
 
 /** Anos de `desde` até o ano corrente. */

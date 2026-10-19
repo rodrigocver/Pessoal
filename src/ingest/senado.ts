@@ -40,14 +40,22 @@ export interface VotacaoSenadoApi {
   ementa: string | null;
   resultadoVotacao: string | null;
   votacaoSecreta: string;
-  votos: { codigoParlamentar: number; siglaVotoParlamentar: string }[];
+  votos: { codigoParlamentar: number; siglaVotoParlamentar: string; siglaPartidoParlamentar?: string | null }[];
 }
 
 /**
  * O Senado não publica lista de presença. Usamos o comparecimento às votações nominais:
  * cada voto traz o código de comparecimento do senador. Estes indicam que ele estava no plenário.
  */
-export const CODIGOS_PRESENTE = new Set(["Sim", "Não", "Abstenção", "Votou", "Obstrução", "P-NRV", "Presidente (art. 51 RISF)"]);
+export const CODIGOS_PRESENTE = new Set([
+  "Sim",
+  "Não",
+  "Abstenção",
+  "Votou",
+  "Obstrução",
+  "P-NRV",
+  "Presidente (art. 51 RISF)",
+]);
 
 const ROTULOS_VOTO: Record<string, string> = {
   Votou: "Votou (secreto)",
@@ -70,9 +78,12 @@ export async function ingerirVotacoesSenado(ano: number): Promise<number> {
   for (const [ini, fim] of meses(ano)) {
     const [votacoes, orientacoes] = await Promise.all([
       getJson<VotacaoSenadoApi[]>(`${SENADO_API}/votacao?dataInicio=${ini}&dataFim=${fim}`),
-      getJson<{ votacoes: { sequencialVotacao: number; orientacoesLideranca: { partido: string | null; voto: string | null }[] }[] }>(
-        `${SENADO_API}/plenario/votacao/orientacaoBancada/${ini.replaceAll("-", "")}/${fim.replaceAll("-", "")}.json`,
-      ),
+      getJson<{
+        votacoes: {
+          sequencialVotacao: number;
+          orientacoesLideranca: { partido: string | null; voto: string | null }[];
+        }[];
+      }>(`${SENADO_API}/plenario/votacao/orientacaoBancada/${ini.replaceAll("-", "")}/${fim.replaceAll("-", "")}.json`),
     ]);
     for (const v of votacoes) porId.set(v.codigoSessaoVotacao, v);
     for (const o of orientacoes.votacoes) orientacoesPorSequencial.set(o.sequencialVotacao, o.orientacoesLideranca);
@@ -143,12 +154,18 @@ export async function ingerirVotacoesSenado(ano: number): Promise<number> {
       for (const voto of v.votos) {
         const parlamentarId = senadores.get(String(voto.codigoParlamentar));
         if (!parlamentarId) continue;
-        votos.push({ votacaoId, parlamentarId, voto: rotuloVotoSenado(voto.siglaVotoParlamentar) });
+        votos.push({
+          votacaoId,
+          parlamentarId,
+          voto: rotuloVotoSenado(voto.siglaVotoParlamentar),
+          partido: voto.siglaPartidoParlamentar ?? null,
+        });
         if (CODIGOS_PRESENTE.has(voto.siglaVotoParlamentar))
           presencas.set(`${sessaoId}-${parlamentarId}`, { sessaoId, parlamentarId });
       }
       for (const o of orientacoesPorSequencial.get(v.sequencialVotacao) ?? [])
-        if (o.voto && o.partido) orientacoes.push({ votacaoId, bancada: o.partido, orientacao: normalizarOrientacao(o.voto) });
+        if (o.voto && o.partido)
+          orientacoes.push({ votacaoId, bancada: o.partido, orientacao: normalizarOrientacao(o.voto) });
     }
 
     for (const ids of lotes([...votacaoPorExt.values()], 5000)) {
@@ -158,7 +175,8 @@ export async function ingerirVotacoesSenado(ano: number): Promise<number> {
     for (const ids of lotes([...sessaoPorExt.values()], 5000))
       await tx.delete(schema.presenca).where(inArray(schema.presenca.sessaoId, ids));
     for (const lote of lotes(votos, 5000)) await tx.insert(schema.voto).values(lote).onConflictDoNothing();
-    for (const lote of lotes([...presencas.values()], 5000)) await tx.insert(schema.presenca).values(lote).onConflictDoNothing();
+    for (const lote of lotes([...presencas.values()], 5000))
+      await tx.insert(schema.presenca).values(lote).onConflictDoNothing();
     for (const lote of lotes(orientacoes, 5000)) await tx.insert(schema.orientacao).values(lote).onConflictDoNothing();
     return votos.length;
   });
@@ -166,7 +184,15 @@ export async function ingerirVotacoesSenado(ano: number): Promise<number> {
 
 export function normalizarOrientacao(v: string): string {
   const s = v.trim().toUpperCase();
-  return s === "SIM" ? "Sim" : s === "NÃO" || s === "NAO" ? "Não" : s === "LIBERADO" ? "Liberado" : s === "OBSTRUÇÃO" ? "Obstrução" : v;
+  return s === "SIM"
+    ? "Sim"
+    : s === "NÃO" || s === "NAO"
+      ? "Não"
+      : s === "LIBERADO"
+        ? "Liberado"
+        : s === "OBSTRUÇÃO"
+          ? "Obstrução"
+          : v;
 }
 
 // ---------- Proposições de autoria ----------

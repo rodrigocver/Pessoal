@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 
 vi.mock("@/db/client", () => ({ db: {}, schema: {} }));
-const { ehSessaoDeliberativa, ehNominalDePlenario, proposicaoPrincipal, rotuloProposicao, mapDespesas } = await import("@/ingest/camara");
+const { ehSessaoDeliberativa, ehNominalDePlenario, proposicaoPrincipal, rotuloProposicao, mapDespesas } =
+  await import("@/ingest/camara");
 
 const evento = (descricaoTipo: string, situacao = "Encerrada") => ({
   id: 1,
@@ -83,6 +84,12 @@ describe("mapDespesas", () => {
     const r = mapDespesas([linha, linha], deputados);
     expect(r).toHaveLength(2);
     expect(r[0].chave).not.toBe(r[1].chave);
-    expect(r[0]).toMatchObject({ parlamentarId: 10, ano: 2025, mes: 2, valor: "1467.50", categoria: "COMBUSTÍVEIS E LUBRIFICANTES" });
+    expect(r[0]).toMatchObject({
+      parlamentarId: 10,
+      ano: 2025,
+      mes: 2,
+      valor: "1467.50",
+      categoria: "COMBUSTÍVEIS E LUBRIFICANTES",
+    });
   });
 });

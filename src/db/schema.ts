@@ -37,10 +37,7 @@ export const parlamentar = pgTable(
     emExercicio: boolean("em_exercicio").notNull().default(false),
     ...origem,
   },
-  (t) => [
-    uniqueIndex("parlamentar_casa_id_externo").on(t.casa, t.idExterno),
-    index("parlamentar_nome").on(t.nome),
-  ],
+  (t) => [uniqueIndex("parlamentar_casa_id_externo").on(t.casa, t.idExterno), index("parlamentar_nome").on(t.nome)],
 );
 
 export const sessao = pgTable(
@@ -60,8 +57,12 @@ export const sessao = pgTable(
 export const presenca = pgTable(
   "presenca",
   {
-    sessaoId: integer("sessao_id").notNull().references(() => sessao.id, { onDelete: "cascade" }),
-    parlamentarId: integer("parlamentar_id").notNull().references(() => parlamentar.id, { onDelete: "cascade" }),
+    sessaoId: integer("sessao_id")
+      .notNull()
+      .references(() => sessao.id, { onDelete: "cascade" }),
+    parlamentarId: integer("parlamentar_id")
+      .notNull()
+      .references(() => parlamentar.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.sessaoId, t.parlamentarId] }), index("presenca_parlamentar").on(t.parlamentarId)],
 );
@@ -85,9 +86,14 @@ export const votacao = pgTable(
 export const voto = pgTable(
   "voto",
   {
-    votacaoId: integer("votacao_id").notNull().references(() => votacao.id, { onDelete: "cascade" }),
-    parlamentarId: integer("parlamentar_id").notNull().references(() => parlamentar.id, { onDelete: "cascade" }),
+    votacaoId: integer("votacao_id")
+      .notNull()
+      .references(() => votacao.id, { onDelete: "cascade" }),
+    parlamentarId: integer("parlamentar_id")
+      .notNull()
+      .references(() => parlamentar.id, { onDelete: "cascade" }),
     voto: text("voto").notNull(), // Sim, Não, Abstenção, Obstrução, Artigo 17...
+    partido: text("partido"), // partido na data do voto — base do alinhamento partidário
   },
   (t) => [primaryKey({ columns: [t.votacaoId, t.parlamentarId] }), index("voto_parlamentar").on(t.parlamentarId)],
 );
@@ -96,7 +102,9 @@ export const voto = pgTable(
 export const orientacao = pgTable(
   "orientacao",
   {
-    votacaoId: integer("votacao_id").notNull().references(() => votacao.id, { onDelete: "cascade" }),
+    votacaoId: integer("votacao_id")
+      .notNull()
+      .references(() => votacao.id, { onDelete: "cascade" }),
     bancada: text("bancada").notNull(),
     orientacao: text("orientacao").notNull(),
   },
@@ -123,8 +131,12 @@ export const proposicao = pgTable(
 export const autoria = pgTable(
   "autoria",
   {
-    proposicaoId: integer("proposicao_id").notNull().references(() => proposicao.id, { onDelete: "cascade" }),
-    parlamentarId: integer("parlamentar_id").notNull().references(() => parlamentar.id, { onDelete: "cascade" }),
+    proposicaoId: integer("proposicao_id")
+      .notNull()
+      .references(() => proposicao.id, { onDelete: "cascade" }),
+    parlamentarId: integer("parlamentar_id")
+      .notNull()
+      .references(() => parlamentar.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.proposicaoId, t.parlamentarId] }), index("autoria_parlamentar").on(t.parlamentarId)],
 );
@@ -136,7 +148,9 @@ export const despesa = pgTable(
     casa: casaEnum("casa").notNull(),
     // As fontes não têm um id estável para todo registro; usamos um hash dos campos.
     chave: text("chave").notNull(),
-    parlamentarId: integer("parlamentar_id").notNull().references(() => parlamentar.id, { onDelete: "cascade" }),
+    parlamentarId: integer("parlamentar_id")
+      .notNull()
+      .references(() => parlamentar.id, { onDelete: "cascade" }),
     ano: integer("ano").notNull(),
     mes: integer("mes").notNull(),
     data: date("data"),
@@ -153,6 +167,31 @@ export const despesa = pgTable(
   ],
 );
 
+/**
+ * Métricas pré-calculadas por parlamentar e período ("2025", "legislatura"), recalculadas após a ingestão.
+ * Permitem comparar com a média da casa e do partido sem varrer tudo a cada página.
+ */
+export const estatistica = pgTable(
+  "estatistica",
+  {
+    parlamentarId: integer("parlamentar_id")
+      .notNull()
+      .references(() => parlamentar.id, { onDelete: "cascade" }),
+    periodo: text("periodo").notNull(),
+    sessoes: integer("sessoes").notNull(),
+    presencas: integer("presencas").notNull(),
+    votos: integer("votos").notNull(),
+    gastos: numeric("gastos", { precision: 14, scale: 2 }).notNull(),
+    proposicoes: integer("proposicoes").notNull(),
+    alinhPartidoIguais: integer("alinh_partido_iguais").notNull(),
+    alinhPartidoTotal: integer("alinh_partido_total").notNull(),
+    alinhGovernoIguais: integer("alinh_governo_iguais").notNull(),
+    alinhGovernoTotal: integer("alinh_governo_total").notNull(),
+    calculadoEm: timestamp("calculado_em", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.parlamentarId, t.periodo] })],
+);
+
 export const ingestaoLog = pgTable("ingestao_log", {
   id: serial("id").primaryKey(),
   tarefa: text("tarefa").notNull(),
@@ -166,21 +205,27 @@ export const ingestaoLog = pgTable("ingestao_log", {
 // ---------- Usuários (tabelas no formato do Auth.js) ----------
 
 export const usuario = pgTable("user", {
-  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   name: text("name"),
   email: text("email").unique(),
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
   // Resumo mensal por e-mail (MAIL-02). O token permite descadastrar sem login.
   resumoMensal: boolean("resumo_mensal").notNull().default(true),
-  tokenDescadastro: text("token_descadastro").notNull().$defaultFn(() => crypto.randomUUID()),
+  tokenDescadastro: text("token_descadastro")
+    .notNull()
+    .$defaultFn(() => crypto.randomUUID()),
   criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const conta = pgTable(
   "account",
   {
-    userId: text("userId").notNull().references(() => usuario.id, { onDelete: "cascade" }),
+    userId: text("userId")
+      .notNull()
+      .references(() => usuario.id, { onDelete: "cascade" }),
     type: text("type").notNull(),
     provider: text("provider").notNull(),
     providerAccountId: text("providerAccountId").notNull(),
@@ -197,7 +242,9 @@ export const conta = pgTable(
 
 export const sessaoUsuario = pgTable("session", {
   sessionToken: text("sessionToken").primaryKey(),
-  userId: text("userId").notNull().references(() => usuario.id, { onDelete: "cascade" }),
+  userId: text("userId")
+    .notNull()
+    .references(() => usuario.id, { onDelete: "cascade" }),
   expires: timestamp("expires", { mode: "date" }).notNull(),
 });
 
@@ -215,8 +262,12 @@ export const tokenVerificacao = pgTable(
 export const seguindo = pgTable(
   "seguindo",
   {
-    usuarioId: text("usuario_id").notNull().references(() => usuario.id, { onDelete: "cascade" }),
-    parlamentarId: integer("parlamentar_id").notNull().references(() => parlamentar.id, { onDelete: "cascade" }),
+    usuarioId: text("usuario_id")
+      .notNull()
+      .references(() => usuario.id, { onDelete: "cascade" }),
+    parlamentarId: integer("parlamentar_id")
+      .notNull()
+      .references(() => parlamentar.id, { onDelete: "cascade" }),
     desde: timestamp("desde", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.usuarioId, t.parlamentarId] })],

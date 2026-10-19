@@ -10,29 +10,53 @@ const num = (v: unknown) => Number(v ?? 0);
 
 // ---------- Busca ----------
 
-export async function buscarParlamentares(f: { q?: string; casa?: string; uf?: string; partido?: string; todos?: boolean }) {
+export async function buscarParlamentares(f: {
+  q?: string;
+  casa?: string;
+  uf?: string;
+  partido?: string;
+  todos?: boolean;
+}) {
   const filtros = [];
   if (f.q?.trim()) {
     const termo = `%${f.q.trim()}%`;
-    filtros.push(or(sql`unaccent(${parlamentar.nome}) ilike unaccent(${termo})`, ilike(parlamentar.nomeCompleto, termo)));
+    filtros.push(
+      or(sql`unaccent(${parlamentar.nome}) ilike unaccent(${termo})`, ilike(parlamentar.nomeCompleto, termo)),
+    );
   }
   if (f.casa === "CD" || f.casa === "SF") filtros.push(eq(parlamentar.casa, f.casa));
   if (f.uf) filtros.push(eq(parlamentar.uf, f.uf.toUpperCase()));
   if (f.partido) filtros.push(eq(parlamentar.partido, f.partido.toUpperCase()));
   if (!f.todos) filtros.push(eq(parlamentar.emExercicio, true));
-  return db.select().from(parlamentar).where(and(...filtros)).orderBy(asc(parlamentar.nome)).limit(60);
+  return db
+    .select()
+    .from(parlamentar)
+    .where(and(...filtros))
+    .orderBy(asc(parlamentar.nome))
+    .limit(60);
 }
 
 export async function opcoesFiltro() {
   const [ufs, partidos] = await Promise.all([
-    db.selectDistinct({ v: parlamentar.uf }).from(parlamentar).where(eq(parlamentar.emExercicio, true)).orderBy(parlamentar.uf),
-    db.selectDistinct({ v: parlamentar.partido }).from(parlamentar).where(eq(parlamentar.emExercicio, true)).orderBy(parlamentar.partido),
+    db
+      .selectDistinct({ v: parlamentar.uf })
+      .from(parlamentar)
+      .where(eq(parlamentar.emExercicio, true))
+      .orderBy(parlamentar.uf),
+    db
+      .selectDistinct({ v: parlamentar.partido })
+      .from(parlamentar)
+      .where(eq(parlamentar.emExercicio, true))
+      .orderBy(parlamentar.partido),
   ]);
   return { ufs: ufs.map((u) => u.v!).filter(Boolean), partidos: partidos.map((p) => p.v!).filter(Boolean) };
 }
 
 export async function obterParlamentar(casa: Casa, idExterno: string) {
-  const [p] = await db.select().from(parlamentar).where(and(eq(parlamentar.casa, casa), eq(parlamentar.idExterno, idExterno)));
+  const [p] = await db
+    .select()
+    .from(parlamentar)
+    .where(and(eq(parlamentar.casa, casa), eq(parlamentar.idExterno, idExterno)));
   return p ?? null;
 }
 
@@ -171,30 +195,77 @@ export async function gastos(p: Parlamentar, periodo: Periodo) {
     lancamentos: num(total[0]?.n),
     categorias: categorias.map((c) => ({ categoria: String(c.categoria), total: num(c.total) })),
     mensal: mensal.map((m) => ({ mes: `${m.ano}-${String(m.mes).padStart(2, "0")}`, total: num(m.total) })),
-    fornecedores: fornecedores.map((f) => ({ fornecedor: String(f.fornecedor ?? "—"), cnpjCpf: f.cnpj_cpf as string | null, total: num(f.total), n: num(f.n) })),
+    fornecedores: fornecedores.map((f) => ({
+      fornecedor: String(f.fornecedor ?? "—"),
+      cnpjCpf: f.cnpj_cpf as string | null,
+      total: num(f.total),
+      n: num(f.n),
+    })),
   };
 }
 
-// ---------- Resumo para os cartões da lista ----------
+// ---------- Estatísticas pré-calculadas (tabela estatistica) ----------
 
-/** Votos em que o parlamentar de fato votou (exclui ausências e presença sem voto). */
-export const VOTOS_EFETIVOS = ["Sim", "Não", "Abstenção", "Obstrução", "Votou (secreto)"];
+const razao = (a: unknown, b: unknown) => (num(b) ? num(a) / num(b) : null);
 
+export interface Indicadores {
+  presenca: number | null;
+  votos: number;
+  gastos: number;
+  proposicoes: number;
+  alinhPartido: number | null;
+  alinhGoverno: number | null;
+}
+
+/** Cartões da lista: lê a tabela pré-calculada (rápido mesmo com muitos parlamentares). */
 export async function resumos(ids: number[], periodo: Periodo) {
-  if (ids.length === 0) return new Map<number, { presenca: number | null; votos: number; gastos: number }>();
-  const ps = await db.select().from(parlamentar).where(sql`${parlamentar.id} in ${ids}`);
-  const itens = await Promise.all(
-    ps.map(async (p) => {
-      const [pr, vt, gs] = await Promise.all([
-        presenca(p, periodo),
-        db.execute(sql`select count(*) as n from voto vo join votacao v on v.id = vo.votacao_id
-          where vo.parlamentar_id = ${p.id} and vo.voto in ${VOTOS_EFETIVOS} and v.data >= ${periodo.inicio.toISOString()} and v.data < ${periodo.fim.toISOString()}`),
-        db.execute(sql`select coalesce(sum(valor),0) as t from despesa where parlamentar_id = ${p.id} and ano = ${periodo.inicio.getFullYear()}`),
-      ]);
-      return [p.id, { presenca: pr.percentual, votos: num(vt[0]?.n), gastos: num(gs[0]?.t) }] as const;
-    }),
-  );
-  return new Map(itens);
+  const r = new Map<number, Indicadores>();
+  if (ids.length === 0) return r;
+  const linhas = await db
+    .select()
+    .from(schema.estatistica)
+    .where(and(sql`${schema.estatistica.parlamentarId} in ${ids}`, eq(schema.estatistica.periodo, periodo.valor)));
+  for (const e of linhas)
+    r.set(e.parlamentarId, {
+      presenca: razao(e.presencas, e.sessoes),
+      votos: e.votos,
+      gastos: num(e.gastos),
+      proposicoes: e.proposicoes,
+      alinhPartido: razao(e.alinhPartidoIguais, e.alinhPartidoTotal),
+      alinhGoverno: razao(e.alinhGovernoIguais, e.alinhGovernoTotal),
+    });
+  return r;
+}
+
+/**
+ * Indicadores do parlamentar ao lado das médias do partido e da casa (só quem está em exercício).
+ * Médias simples por parlamentar — cada um pesa igual, independentemente de quantas sessões teve.
+ */
+export async function comparativo(p: Parlamentar, periodo: Periodo) {
+  const media = (filtro: ReturnType<typeof sql>) =>
+    db.execute(sql`
+      select count(*) as n,
+        avg(e.presencas::numeric / nullif(e.sessoes, 0)) as presenca,
+        avg(e.votos) as votos, avg(e.gastos) as gastos, avg(e.proposicoes) as proposicoes,
+        avg(e.alinh_partido_iguais::numeric / nullif(e.alinh_partido_total, 0)) as alinh_partido,
+        avg(e.alinh_governo_iguais::numeric / nullif(e.alinh_governo_total, 0)) as alinh_governo
+      from estatistica e join parlamentar x on x.id = e.parlamentar_id
+      where e.periodo = ${periodo.valor} and x.em_exercicio and x.casa = ${p.casa} and ${filtro}`);
+  const comoIndicadores = (m: Record<string, unknown> | undefined): Indicadores & { n: number } => ({
+    n: num(m?.n),
+    presenca: m?.presenca == null ? null : num(m.presenca),
+    votos: num(m?.votos),
+    gastos: num(m?.gastos),
+    proposicoes: num(m?.proposicoes),
+    alinhPartido: m?.alinh_partido == null ? null : num(m.alinh_partido),
+    alinhGoverno: m?.alinh_governo == null ? null : num(m.alinh_governo),
+  });
+  const [proprio, partido, casa] = await Promise.all([
+    resumos([p.id], periodo).then((r) => r.get(p.id) ?? null),
+    p.partido ? media(sql`x.partido = ${p.partido}`) : Promise.resolve([]),
+    media(sql`true`),
+  ]);
+  return { proprio, partido: comoIndicadores(partido[0]), casa: comoIndicadores(casa[0]) };
 }
 
 export async function ultimaAtualizacao() {
@@ -206,7 +277,10 @@ export async function ultimaAtualizacao() {
 
 export async function idsSeguidos(usuarioId: string | undefined): Promise<Set<number>> {
   if (!usuarioId) return new Set();
-  const r = await db.select({ id: schema.seguindo.parlamentarId }).from(schema.seguindo).where(eq(schema.seguindo.usuarioId, usuarioId));
+  const r = await db
+    .select({ id: schema.seguindo.parlamentarId })
+    .from(schema.seguindo)
+    .where(eq(schema.seguindo.usuarioId, usuarioId));
   return new Set(r.map((x) => x.id));
 }
 

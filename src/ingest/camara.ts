@@ -113,9 +113,9 @@ export async function ingerirVotacoes(ano: number): Promise<number> {
   const [{ dados: votacoes }, { dados: votadas }, { dados: votos }, { dados: orientacoes }] = await Promise.all([
     baixarJson<{ dados: VotacaoApi[] }>(arquivoJson("votacoes", ano)),
     baixarJson<{ dados: ProposicaoVotadaApi[] }>(arquivoJson("votacoesProposicoes", ano)),
-    baixarJson<{ dados: { idVotacao: string; voto: string; deputado_: { id: string | number } }[] }>(
-      arquivoJson("votacoesVotos", ano),
-    ),
+    baixarJson<{
+      dados: { idVotacao: string; voto: string; deputado_: { id: string | number; siglaPartido?: string } }[];
+    }>(arquivoJson("votacoesVotos", ano)),
     baixarJson<{ dados: { idVotacao: string; siglaBancada: string; orientacao: string }[] }>(
       arquivoJson("votacoesOrientacoes", ano),
     ),
@@ -168,7 +168,9 @@ export async function ingerirVotacoes(ano: number): Promise<number> {
     const linhasVoto = votos.flatMap((v) => {
       const votacaoId = votacaoPorExt.get(v.idVotacao);
       const parlamentarId = deputados.get(String(v.deputado_.id));
-      return votacaoId && parlamentarId ? [{ votacaoId, parlamentarId, voto: v.voto || "Não informado" }] : [];
+      return votacaoId && parlamentarId
+        ? [{ votacaoId, parlamentarId, voto: v.voto || "Não informado", partido: v.deputado_.siglaPartido || null }]
+        : [];
     });
     const linhasOrientacao = orientacoes.flatMap((o) => {
       const votacaoId = votacaoPorExt.get(o.idVotacao);
@@ -225,7 +227,9 @@ export async function ingerirProposicoes(ano: number): Promise<number> {
     autoresPorProposicao.set(String(a.idProposicao), lista);
   }
 
-  const relevantes = proposicoes.filter((p) => TIPOS_PROPOSICAO.has(p.siglaTipo) && autoresPorProposicao.has(String(p.id)));
+  const relevantes = proposicoes.filter(
+    (p) => TIPOS_PROPOSICAO.has(p.siglaTipo) && autoresPorProposicao.has(String(p.id)),
+  );
   if (relevantes.length === 0) return 0;
 
   return db.transaction(async (tx) => {
@@ -276,7 +280,16 @@ export function mapDespesas(linhas: Record<string, string>[], deputados: Map<str
   return linhas.flatMap((l) => {
     const parlamentarId = deputados.get(l.ideCadastro);
     if (!parlamentarId) return []; // lideranças partidárias e deputados de outras legislaturas
-    const base = hash(l.ideCadastro, l.ideDocumento, l.numParcela, l.txtNumero, l.datEmissao, l.vlrLiquido, l.txtCNPJCPF, l.numMes);
+    const base = hash(
+      l.ideCadastro,
+      l.ideDocumento,
+      l.numParcela,
+      l.txtNumero,
+      l.datEmissao,
+      l.vlrLiquido,
+      l.txtCNPJCPF,
+      l.numMes,
+    );
     const n = (ocorrencias.get(base) ?? 0) + 1;
     ocorrencias.set(base, n);
     return [

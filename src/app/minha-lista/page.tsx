@@ -13,7 +13,10 @@ export default async function MinhaLista() {
   if (!sessao?.user?.id) redirect("/entrar");
   const periodo = resolverPeriodo(undefined); // ano corrente
   const lista = await listaDoUsuario(sessao.user.id);
-  const r = await resumos(lista.map((p) => p.id), periodo);
+  const r = await resumos(
+    lista.map((p) => p.id),
+    periodo,
+  );
   return (
     <div className="flex flex-col gap-5">
       <div>
@@ -23,7 +26,10 @@ export default async function MinhaLista() {
       {lista.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-borda p-8 text-center">
           <p className="text-suave">Você ainda não acompanha ninguém.</p>
-          <Link href="/buscar" className="mt-3 inline-block rounded-full bg-destaque px-4 py-2 text-sm font-medium text-fundo">
+          <Link
+            href="/buscar"
+            className="mt-3 inline-block rounded-full bg-destaque px-4 py-2 text-sm font-medium text-fundo"
+          >
             Buscar parlamentares
           </Link>
         </div>

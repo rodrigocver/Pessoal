@@ -46,7 +46,10 @@ export default async function Inicio({ searchParams }: { searchParams: Promise<R
         <p className="mt-1 text-sm text-suave">
           Crie uma conta para salvar sua lista e receber, todo mês, o que seus parlamentares fizeram.
         </p>
-        <Link href="/entrar" className="mt-3 inline-block rounded-full bg-destaque px-4 py-2 text-sm font-medium text-fundo">
+        <Link
+          href="/entrar"
+          className="mt-3 inline-block rounded-full bg-destaque px-4 py-2 text-sm font-medium text-fundo"
+        >
           Criar conta grátis
         </Link>
       </section>

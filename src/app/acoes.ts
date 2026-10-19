@@ -29,7 +29,11 @@ export async function deixarDeSeguir(parlamentarId: number, caminho: string) {
 }
 
 export async function entrarComEmail(formData: FormData) {
-  await signIn(provedorEmail, { email: String(formData.get("email") ?? ""), redirectTo: "/minha-lista", redirect: false });
+  await signIn(provedorEmail, {
+    email: String(formData.get("email") ?? ""),
+    redirectTo: "/minha-lista",
+    redirect: false,
+  });
   redirect("/entrar/verifique");
 }
 

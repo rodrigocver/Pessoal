@@ -112,7 +112,10 @@ export async function salvarParlamentares(lista: NovoParlamentar[]): Promise<num
   const casa = lista[0].casa;
   await db.transaction(async (tx) => {
     // Quem não está mais em exercício perde a marca; os registros históricos são mantidos.
-    await tx.update(schema.parlamentar).set({ emExercicio: false }).where(dsql`${schema.parlamentar.casa} = ${casa}`);
+    await tx
+      .update(schema.parlamentar)
+      .set({ emExercicio: false })
+      .where(dsql`${schema.parlamentar.casa} = ${casa}`);
     await tx
       .insert(schema.parlamentar)
       .values(lista)
