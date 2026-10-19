@@ -7,6 +7,20 @@ on:
 jobs:
   verificar:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: fiscaliza
+          POSTGRES_PASSWORD: fiscaliza
+          POSTGRES_DB: fiscaliza_teste
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U fiscaliza"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -17,6 +31,9 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      - run: npm run test:integracao
+        env:
+          DATABASE_URL_TESTE: postgres://fiscaliza:fiscaliza@localhost:5432/fiscaliza_teste
       - run: npm run build
         env:
           # O build não acessa o banco (todas as páginas são dinâmicas), mas o cliente exige a variável.

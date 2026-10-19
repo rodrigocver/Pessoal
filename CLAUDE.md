@@ -8,9 +8,9 @@ Este repositório aceita contribuições feitas com ajuda de assistentes de cód
   consulta APIs do governo em tempo real.
 - **Idioma:** código, comentários, commits e textos em português, como o restante do projeto.
 - **Métricas têm duas implementações** que precisam concordar: `src/lib/consultas.ts` (páginas) e
-  `src/ingest/estatisticas.ts` (médias). Mudou uma, mude a outra.
+  `src/ingest/estatisticas.ts` (médias). Mudou uma, mude a outra; `tests/integracao/` confere que batem.
 - **Ingestão:** conversão em funções puras testadas com exemplo real da fonte; gravação idempotente.
   Antes de depender de um campo novo da fonte, baixe uma amostra real e confira o formato —
   `docs/FONTES.md` lista armadilhas já encontradas.
 - **Banco:** altere `src/db/schema.ts` e rode `npm run db:generate`; nunca edite migrações existentes.
-- **Antes de abrir o PR:** `npm run format && npm run lint && npm run typecheck && npm test && npm run build`.
+- **Antes de abrir o PR:** `npm run format && npm run lint && npm run typecheck && npm test && npm run test:integracao && npm run build`.

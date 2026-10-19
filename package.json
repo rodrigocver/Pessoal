@@ -14,7 +14,8 @@
     "ingest": "tsx scripts/ingest.ts",
     "format": "prettier --write src scripts tests",
     "resumo-mensal": "tsx scripts/resumo-mensal.ts",
-    "db:up": "docker compose up -d"
+    "db:up": "docker compose up -d",
+    "test:integracao": "vitest run --config vitest.integracao.config.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",

@@ -1,4 +1,5 @@
 # Postgres local para desenvolvimento: docker compose up -d
+# Cria dois bancos: fiscaliza (desenvolvimento) e fiscaliza_teste (testes de integração).
 services:
   db:
     image: postgres:16
@@ -10,5 +11,6 @@ services:
       - "5432:5432"
     volumes:
       - dados:/var/lib/postgresql/data
+      - ./docker/criar-banco-teste.sql:/docker-entrypoint-initdb.d/criar-banco-teste.sql:ro
 volumes:
   dados:

@@ -56,7 +56,7 @@ npm run dev                     # http://localhost:3000
 2. Faça a mudança com testes (veja abaixo).
 3. Rode as verificações (o CI roda as mesmas):
    ```bash
-   npm run format && npm run lint && npm run typecheck && npm test && npm run build
+   npm run format && npm run lint && npm run typecheck && npm test && npm run test:integracao && npm run build
    ```
 4. Abra o pull request preenchendo o modelo. Se mexeu na tela, inclua um print no celular.
 5. Um mantenedor revisa. Pedidos de ajuste são normais; responda nos comentários.
@@ -91,6 +91,10 @@ Tipos usados: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `perf`.
 ## Testes
 
 - `npm test` roda os testes unitários (Vitest), em `tests/`.
+- `npm run test:integracao` roda os testes com Postgres real, em `tests/integracao/`, num banco separado
+  (`fiscaliza_teste`, criado pelo `docker compose up -d`). Eles **apagam os dados** desse banco; por segurança
+  só rodam em bancos cujo nome termina em `_teste`. Mudou uma métrica? Ajuste o cenário em
+  `tests/integracao/dados.ts` e os valores esperados.
 - Toda função de conversão de dados novos precisa de teste com um exemplo real da fonte.
 - Correção de bug: inclua um teste que falhava antes da correção.
 
