@@ -1,0 +1,47 @@
+{
+  "MandatoParlamentar": {
+    "Parlamentar": {
+      "Codigo": "6351",
+      "Nome": "Janaína Farias",
+      "Mandatos": {
+        "Mandato": [
+          {
+            "CodigoMandato": "598",
+            "UfParlamentar": "CE",
+            "PrimeiraLegislaturaDoMandato": {
+              "NumeroLegislatura": "57",
+              "DataInicio": "2023-02-01",
+              "DataFim": "2027-01-31"
+            },
+            "DescricaoParticipacao": "2º Suplente",
+            "Suplentes": {
+              "Suplente": [
+                {
+                  "DescricaoParticipacao": "1º Suplente",
+                  "CodigoParlamentar": "6350",
+                  "NomeParlamentar": "Augusta Brito"
+                }
+              ]
+            },
+            "Exercicios": {
+              "Exercicio": [
+                {
+                  "CodigoExercicio": "3059",
+                  "DataInicio": "2024-04-02",
+                  "DataFim": "2024-07-30",
+                  "SiglaCausaAfastamento": "RET",
+                  "DescricaoCausaAfastamento": "Retorno do titular"
+                }
+              ]
+            },
+            "Titular": {
+              "DescricaoParticipacao": "Titular",
+              "CodigoParlamentar": "6336",
+              "NomeParlamentar": "Camilo Santana"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

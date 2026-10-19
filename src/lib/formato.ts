@@ -34,3 +34,17 @@ export type SlugCasa = keyof typeof CASAS;
 export const slugDaCasa = (casa: "CD" | "SF"): SlugCasa => (casa === "CD" ? "camara" : "senado");
 export const urlParlamentar = (p: { casa: "CD" | "SF"; idExterno: string }) =>
   `/parlamentar/${slugDaCasa(p.casa)}/${p.idExterno}`;
+
+const DIA_MS = 86_400_000;
+
+/** Duração legível entre duas datas (fim nulo = até hoje): "3 dias", "5 meses", "1 ano e 2 meses". */
+export function formatarDuracao(inicio: Date, fim: Date | null, hoje = new Date()): string {
+  const dias = Math.max(1, Math.round(((fim ?? hoje).getTime() - inicio.getTime()) / DIA_MS));
+  if (dias < 45) return `${dias} ${dias === 1 ? "dia" : "dias"}`;
+  const meses = Math.round(dias / 30.44);
+  if (meses < 12) return `${meses} meses`;
+  const anos = Math.floor(meses / 12);
+  const resto = meses % 12;
+  const a = `${anos} ${anos === 1 ? "ano" : "anos"}`;
+  return resto ? `${a} e ${resto} ${resto === 1 ? "mês" : "meses"}` : a;
+}

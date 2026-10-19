@@ -2,6 +2,9 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { and, eq } from "drizzle-orm";
 import { db, schema, sql } from "@/db/client";
 import {
+  afastadosAgora,
+  afastamentosDe,
+  vagasOcupadas,
   buscarParlamentares,
   detalhesVotacao,
   gastos,
@@ -145,5 +148,22 @@ describe("comparação", () => {
     expect((await parlamentarPorChave("senado/3"))?.nome).toBe("Carla Dias");
     expect(await parlamentarPorChave("outra/1")).toBeNull();
     expect(await parlamentarPorChave(undefined)).toBeNull();
+  });
+});
+
+describe("afastamentos e suplentes", () => {
+  it("titular afastado aparece na busca padrão, com quem ocupa a vaga", async () => {
+    expect((await buscarParlamentares({ q: "davi" })).map((p) => p.nome)).toEqual(["Davi Rocha"]);
+    const [a] = await afastamentosDe(c.davi);
+    expect(a).toMatchObject({ motivo: "Ministro de Estado", fim: null, definitivo: false });
+    expect(a.suplentes.map((s) => [s.nome, s.certeza, s.parlamentar?.idExterno])).toEqual([
+      ["Beto Lima", "datas", "2"],
+    ]);
+  });
+
+  it("suplente vê a vaga que ocupa; cartões sabem quem está afastado", async () => {
+    expect((await vagasOcupadas(c.beto)).map((v) => [v.titular.nome, v.fim])).toEqual([["Davi Rocha", null]]);
+    const af = await afastadosAgora([c.ana.id, c.davi.id]);
+    expect([...af.keys()]).toEqual([c.davi.id]);
   });
 });

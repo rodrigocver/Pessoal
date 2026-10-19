@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Parlamentar } from "@/lib/consultas";
-import { CASAS, formatarPct, formatarReais, slugDaCasa, urlParlamentar } from "@/lib/formato";
+import { CASAS, formatarData, formatarPct, formatarReais, slugDaCasa, urlParlamentar } from "@/lib/formato";
 import { Foto } from "./Foto";
 import { BotaoSeguir } from "./BotaoSeguir";
 
@@ -19,12 +19,14 @@ export function CartaoParlamentar({
   seguindo,
   logado,
   caminho,
+  afastado,
 }: {
   p: Parlamentar;
   resumo?: { presenca: number | null; votos: number; gastos: number };
   seguindo: boolean;
   logado: boolean;
   caminho: string;
+  afastado?: { desde: Date; motivo: string; definitivo: boolean };
 }) {
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-borda bg-superficie p-4">
@@ -37,6 +39,14 @@ export function CartaoParlamentar({
           <Identificacao p={p} />
         </div>
       </div>
+      {afastado && (
+        <p className="rounded-lg bg-alerta/10 px-3 py-2 text-xs">
+          <span className="font-semibold">
+            {afastado.definitivo ? "Deixou o mandato" : "Afastado · suplente no lugar"}
+          </span>{" "}
+          desde {formatarData(afastado.desde)} ({afastado.motivo})
+        </p>
+      )}
       {resumo && (
         <dl className="grid grid-cols-3 gap-2 text-center">
           <Numero rotulo="presença" valor={formatarPct(resumo.presenca)} />

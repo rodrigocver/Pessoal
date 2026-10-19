@@ -22,6 +22,28 @@ exercício. A expressão SQL única fica em `src/lib/exercicio.ts` (`sessaoConta
 Licenças curtas, em que o titular não é substituído, **continuam contando como ausência** (no Senado, o
 motivo aparece na lista de ausências).
 
+## Afastamentos e suplentes
+
+Quando o titular eleito se afasta (cargo no Executivo, licença longa, renúncia, perda de mandato), um suplente
+ocupa a vaga, vota e usa a cota parlamentar. O Fiscaliza destaca isso no topo do perfil, nos cartões, na busca
+e no resumo mensal.
+
+- **Afastamento:** na Câmara, cada evento "Saída" do histórico enquanto titular, até a próxima "Entrada"
+  (reassunção). Renovações sem volta no meio são o mesmo afastamento, com todos os motivos. O fim da legislatura
+  não conta. No Senado, os intervalos entre os exercícios do mandato do titular, com o motivo informado no fim do
+  exercício anterior.
+- **Saída definitiva:** renúncia, perda de mandato, cassação, falecimento.
+- **Retorno curto:** volta ao mandato de até 30 dias entre dois afastamentos (ex.: ministros que reassumem para
+  uma votação).
+- **Quem ocupou a vaga**, com o grau de certeza mostrado na tela:
+  - **Senado (oficial):** o mandato lista os suplentes; vale quem esteve em exercício durante o afastamento.
+  - **Câmara (pelas datas):** a Câmara não informa o vínculo. Casamos suplentes do mesmo estado e do mesmo partido
+    ou federação, com posse até 15 dias depois da saída do titular (45 para saídas definitivas) e saída até 2 dias
+    da volta dele. Uma posse preenche uma vaga só. Se sobrar mais de um candidato, vale o suplente já identificado
+    em outro afastamento do mesmo titular; se nem assim, todos aparecem como **possíveis**.
+- Implementação: `src/ingest/afastamentos.ts` (regras, testadas com casos reais em `tests/fixtures/`),
+  tabelas `afastamento` e `substituicao`, preenchidas pelas tarefas `camara:exercicio` e `senado:exercicio`.
+
 ## Presença
 
 **Câmara:** sessões deliberativas do plenário (`descricaoTipo = "Sessão Deliberativa"`, exceto

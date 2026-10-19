@@ -1,0 +1,70 @@
+{
+  "dados": [
+    {
+      "id": 141488,
+      "nome": "Paulo Teixeira",
+      "siglaPartido": "PT",
+      "siglaUf": "SP",
+      "idLegislatura": 57,
+      "dataHora": "2023-02-01T00:00",
+      "situacao": null,
+      "condicaoEleitoral": null,
+      "descricaoStatus": "Nome no início da legislatura / Partido no início da legislatura"
+    },
+    {
+      "id": 141488,
+      "nome": "Paulo Teixeira",
+      "siglaPartido": "PT",
+      "siglaUf": "SP",
+      "idLegislatura": 57,
+      "dataHora": "2023-02-01T12:05",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Entrada - Posse de Eleito Titular - Posse na Sessão Preparatória"
+    },
+    {
+      "id": 141488,
+      "nome": "Paulo Teixeira",
+      "siglaPartido": "PT",
+      "siglaUf": "SP",
+      "idLegislatura": 57,
+      "dataHora": "2023-02-02T18:38",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento sem prazo determinado - Ministro de Estado"
+    },
+    {
+      "id": 141488,
+      "nome": "Paulo Teixeira",
+      "siglaPartido": "PT",
+      "siglaUf": "SP",
+      "idLegislatura": 57,
+      "dataHora": "2025-02-01T13:58",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Entrada - Reassunção"
+    },
+    {
+      "id": 141488,
+      "nome": "Paulo Teixeira",
+      "siglaPartido": "PT",
+      "siglaUf": "SP",
+      "idLegislatura": 57,
+      "dataHora": "2025-02-03T15:59",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento sem prazo determinado - Ministro de Estado"
+    },
+    {
+      "id": 141488,
+      "nome": "Paulo Teixeira",
+      "siglaPartido": "PT",
+      "siglaUf": "SP",
+      "idLegislatura": 57,
+      "dataHora": "2026-03-31T16:26",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Entrada - Reassunção"
+    }
+  ]
+}

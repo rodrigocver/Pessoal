@@ -1,0 +1,246 @@
+{
+  "dados": [
+    {
+      "id": 226708,
+      "nome": "Dr. Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2023-02-01T00:00",
+      "situacao": null,
+      "condicaoEleitoral": null,
+      "descricaoStatus": "Nome no início da legislatura / Partido no início da legislatura"
+    },
+    {
+      "id": 226708,
+      "nome": "Dr. Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2023-09-13T14:53",
+      "situacao": "CONVOCADO",
+      "condicaoEleitoral": null,
+      "descricaoStatus": "DIVERSO - Convocação Eleito ou Suplente - Aguardando Convocação de Suplente"
+    },
+    {
+      "id": 226708,
+      "nome": "Dr. Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2023-09-13T15:00",
+      "situacao": "CONVOCADO",
+      "condicaoEleitoral": null,
+      "descricaoStatus": "DIVERSO - Convocação Eleito ou Suplente"
+    },
+    {
+      "id": 226708,
+      "nome": "Dr. Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2023-09-13T16:01",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "Entrada - Posse de Suplente - Posse como Suplente"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2024-07-18T15:26",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "Of. 27/2024, [SDR] 16/07/2024, 11h59"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2024-12-03T10:11",
+      "situacao": "SUPLENCIA",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "Saída - Afastamento sem prazo determinado - Afastamento de Suplente (automático)"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2024-12-06T17:00",
+      "situacao": "CONVOCADO",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "DIVERSO - Convocação Eleito ou Suplente - Aguardando Convocação de Suplente"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2024-12-06T17:10",
+      "situacao": "CONVOCADO",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "DIVERSO - Convocação Eleito ou Suplente"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2024-12-06T17:43",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "Entrada - Reassunção"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-02-01T08:38",
+      "situacao": "SUPLENCIA",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "Saída - Afastamento sem prazo determinado - Afastamento de Suplente (automático)"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-02-03T11:24",
+      "situacao": "CONVOCADO",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "DIVERSO - Convocação Eleito ou Suplente - Aguardando Convocação de Suplente"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-02-03T16:39",
+      "situacao": "CONVOCADO",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "DIVERSO - Convocação Eleito ou Suplente"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-02-03T16:41",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "Entrada - Reassunção"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-10-08T18:56",
+      "situacao": "SUPLENCIA",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "Saída - Afastamento sem prazo determinado - Afastamento de Suplente (automático)"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-10-09T11:03",
+      "situacao": "CONVOCADO",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "DIVERSO - Convocação Eleito ou Suplente - Aguardando Convocação de Suplente"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-10-09T14:15",
+      "situacao": "CONVOCADO",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "DIVERSO - Convocação Eleito ou Suplente"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-10-09T14:20",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "Entrada - Reassunção"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-11-13T10:10",
+      "situacao": "SUPLENCIA",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "Saída - Afastamento sem prazo determinado - Afastamento de Suplente (automático)"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-11-15T13:00",
+      "situacao": "CONVOCADO",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "DIVERSO - Convocação Eleito ou Suplente - Aguardando Convocação de Suplente"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-11-15T13:01",
+      "situacao": "CONVOCADO",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "DIVERSO - Convocação Eleito ou Suplente"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-11-15T13:02",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "Entrada - Reassunção"
+    },
+    {
+      "id": 226708,
+      "nome": "Allan Garcês",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2026-03-31T15:28",
+      "situacao": "SUPLENCIA",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "Saída - Afastamento sem prazo determinado - Afastamento de Suplente (automático)"
+    }
+  ]
+}

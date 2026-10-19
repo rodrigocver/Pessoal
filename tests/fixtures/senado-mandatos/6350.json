@@ -1,0 +1,68 @@
+{
+  "MandatoParlamentar": {
+    "Parlamentar": {
+      "Codigo": "6350",
+      "Nome": "Augusta Brito",
+      "Mandatos": {
+        "Mandato": [
+          {
+            "CodigoMandato": "598",
+            "UfParlamentar": "CE",
+            "PrimeiraLegislaturaDoMandato": {
+              "NumeroLegislatura": "57",
+              "DataInicio": "2023-02-01",
+              "DataFim": "2027-01-31"
+            },
+            "DescricaoParticipacao": "1º Suplente",
+            "Suplentes": {
+              "Suplente": [
+                {
+                  "DescricaoParticipacao": "2º Suplente",
+                  "CodigoParlamentar": "6351",
+                  "NomeParlamentar": "Janaína Farias"
+                }
+              ]
+            },
+            "Exercicios": {
+              "Exercicio": [
+                {
+                  "CodigoExercicio": "3087",
+                  "DataInicio": "2025-02-04",
+                  "DataFim": "2026-04-02",
+                  "SiglaCausaAfastamento": "RET",
+                  "DescricaoCausaAfastamento": "Retorno do titular"
+                },
+                {
+                  "CodigoExercicio": "3066",
+                  "DataInicio": "2024-07-31",
+                  "DataFim": "2025-02-01",
+                  "SiglaCausaAfastamento": "RET",
+                  "DescricaoCausaAfastamento": "Retorno do titular"
+                },
+                {
+                  "CodigoExercicio": "3052",
+                  "DataInicio": "2023-12-14",
+                  "DataFim": "2024-03-31",
+                  "SiglaCausaAfastamento": "LCS",
+                  "DescricaoCausaAfastamento": "Licença com convocação de suplente (sup 120 dias)"
+                },
+                {
+                  "CodigoExercicio": "3039",
+                  "DataInicio": "2023-02-02",
+                  "DataFim": "2023-12-12",
+                  "SiglaCausaAfastamento": "RET",
+                  "DescricaoCausaAfastamento": "Retorno do titular"
+                }
+              ]
+            },
+            "Titular": {
+              "DescricaoParticipacao": "Titular",
+              "CodigoParlamentar": "6336",
+              "NomeParlamentar": "Camilo Santana"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -71,6 +71,13 @@
       "when": 1792402069530,
       "tag": "0009_solid_silver_sable",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792404847666,
+      "tag": "0010_glossy_freak",
+      "breakpoints": true
     }
   ]
 }

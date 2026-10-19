@@ -17,6 +17,12 @@
 - Carga histórica completa da Câmara (2023–2026) leva ~6 min localmente.
 - Alinhamento: partido na data do voto; orientação do partido > federação > bloco (composição lida do nome abreviado do bloco). Tabela `estatistica` é recalculada pela tarefa `estatisticas` (última da ingestão, ~1 min).
 
+## Afastamentos e suplentes (pedido do dono do projeto)
+- Cobertura na legislatura: Câmara 229 afastamentos (179 com suplente identificado pelas datas, 19 com candidatos
+  possíveis, 31 sem suplente); Senado 36, todos com suplente oficial.
+- Aprendizado: casar só pelo horário erra (ministros reassumem juntos para votar). Estado + partido/federação +
+  alinhamento da volta + continuidade resolvem a maioria.
+
 ## Requisitos v1
 Todos concluídos, exceto DEPLOY-01 (publicação), que depende das contas externas (Fase 7, `DEPLOY.md`).
 

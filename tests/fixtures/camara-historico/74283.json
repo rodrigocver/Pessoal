@@ -1,0 +1,103 @@
+{
+  "dados": [
+    {
+      "id": 74283,
+      "nome": "Vicentinho",
+      "siglaPartido": "PT",
+      "siglaUf": "SP",
+      "idLegislatura": 57,
+      "dataHora": "2023-02-01T00:00",
+      "situacao": null,
+      "condicaoEleitoral": null,
+      "descricaoStatus": "Nome no início da legislatura / Partido no início da legislatura"
+    },
+    {
+      "id": 74283,
+      "nome": "Vicentinho",
+      "siglaPartido": "PT",
+      "siglaUf": "SP",
+      "idLegislatura": 57,
+      "dataHora": "2023-02-02T18:38",
+      "situacao": "CONVOCADO",
+      "condicaoEleitoral": null,
+      "descricaoStatus": "DIVERSO - Convocação Eleito ou Suplente - Aguardando Convocação de Suplente"
+    },
+    {
+      "id": 74283,
+      "nome": "Vicentinho",
+      "siglaPartido": "PT",
+      "siglaUf": "SP",
+      "idLegislatura": 57,
+      "dataHora": "2023-02-03T10:03",
+      "situacao": "CONVOCADO",
+      "condicaoEleitoral": null,
+      "descricaoStatus": "DIVERSO - Convocação Eleito ou Suplente"
+    },
+    {
+      "id": 74283,
+      "nome": "Vicentinho",
+      "siglaPartido": "PT",
+      "siglaUf": "SP",
+      "idLegislatura": 57,
+      "dataHora": "2023-02-03T10:52",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "Entrada - Posse de Suplente - Posse como Suplente"
+    },
+    {
+      "id": 74283,
+      "nome": "Vicentinho",
+      "siglaPartido": "PT",
+      "siglaUf": "SP",
+      "idLegislatura": 57,
+      "dataHora": "2025-01-31T11:31",
+      "situacao": "SUPLENCIA",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "Saída - Afastamento sem prazo determinado - Afastamento de Suplente (automático)"
+    },
+    {
+      "id": 74283,
+      "nome": "Vicentinho",
+      "siglaPartido": "PT",
+      "siglaUf": "SP",
+      "idLegislatura": 57,
+      "dataHora": "2025-02-03T15:59",
+      "situacao": "CONVOCADO",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "DIVERSO - Convocação Eleito ou Suplente - Aguardando Convocação de Suplente"
+    },
+    {
+      "id": 74283,
+      "nome": "Vicentinho",
+      "siglaPartido": "PT",
+      "siglaUf": "SP",
+      "idLegislatura": 57,
+      "dataHora": "2025-02-03T16:29",
+      "situacao": "CONVOCADO",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "DIVERSO - Convocação Eleito ou Suplente"
+    },
+    {
+      "id": 74283,
+      "nome": "Vicentinho",
+      "siglaPartido": "PT",
+      "siglaUf": "SP",
+      "idLegislatura": 57,
+      "dataHora": "2025-02-03T16:30",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "Entrada - Reassunção"
+    },
+    {
+      "id": 74283,
+      "nome": "Vicentinho",
+      "siglaPartido": "PT",
+      "siglaUf": "SP",
+      "idLegislatura": 57,
+      "dataHora": "2026-03-31T16:26",
+      "situacao": "SUPLENCIA",
+      "condicaoEleitoral": "Suplente",
+      "descricaoStatus": "Saída - Afastamento sem prazo determinado - Afastamento de Suplente (automático)"
+    }
+  ]
+}

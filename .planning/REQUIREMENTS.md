@@ -27,6 +27,7 @@ Status: ✅ feito · 🟡 parcial (issue no backlog) · ⬜ pendente
 - ✅ **PROF-05** Proposições: lista de projetos de autoria com situação.
 - ✅ **PROF-06** Gastos: total no ano, por categoria, por mês e principais fornecedores.
 - ✅ **PROF-07** Seletor de período (ano, legislatura) em todas as abas.
+- ✅ **PROF-09** Afastamentos: destaque quando o titular se afasta e o suplente assume (motivo, período, quem ocupa a vaga), no perfil, nos cartões, na busca e no resumo mensal; retornos curtos visíveis; perfil do suplente mostra de quem é a vaga.
 - ✅ **PROF-08** Comparação com a média da casa (ex.: presença do parlamentar vs. média da Câmara).
 
 ## Resumo mensal

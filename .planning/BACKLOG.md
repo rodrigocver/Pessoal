@@ -30,6 +30,7 @@ Depois de publicadas, o GitHub passa a ser a fonte da verdade: discussão e anda
 | 13 | ✅ [Imagem de compartilhamento (Open Graph) por parlamentar](issues/13-imagem-compartilhamento.md) | funcionalidade, interface |
 | 14 | ✅ [Página de cada votação: como cada partido e parlamentar votou](issues/14-pagina-votacao.md) | funcionalidade, interface |
 | 15 | ✅ [Comparar dois parlamentares lado a lado](issues/15-comparar-parlamentares.md) | funcionalidade, interface |
+| 19 | ✅ [Destacar quando o titular se afasta e o suplente assume](issues/19-afastamentos-suplentes.md) | funcionalidade, interface, ingestão |
 
 ## Boas primeiras issues
 

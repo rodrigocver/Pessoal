@@ -50,6 +50,8 @@ Verificado em 19/10/2026. Se algo mudou na fonte, atualize este arquivo no mesmo
 | A Câmara regenera os arquivos de madrugada (~01h–02h de Brasília); quem baixa nesse horário recebe JSON truncado | `baixarJson` espera e tenta de novo; o agendamento roda às 06h17 |
 | CSV de proposições da Câmara tem aspas malformadas | Usamos a versão JSON do mesmo arquivo |
 | `votacoesObjetos` (Câmara) lista pareceres e emendas, não a matéria principal | Usamos `votacoesProposicoes` e o prefixo do id da votação |
+| Câmara não informa qual suplente ocupou a vaga de qual titular | `casarSuplentesCamara()` casa pelas datas, estado e partido/federação; ambíguos aparecem como "possíveis" |
+| Coincidência de horários entre titular e suplente de estados diferentes (ministros voltam juntos para votar) | Exigir mesmo estado e partido/federação; nunca casar só pelo horário |
 | Voto vazio na Câmara | É votação secreta (escolha de autoridades): rótulo "Votou (secreto)" |
 | Senado devolve objeto quando há um item e lista quando há vários | `comoLista()` |
 | Nomes de bancada inconsistentes ("Republica", "Republican", "Progressistas" = PP) | `prioridadeOrientacao()` em `src/ingest/alinhamento.ts`, com testes |

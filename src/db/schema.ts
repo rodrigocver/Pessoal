@@ -54,6 +54,43 @@ export const exercicio = pgTable(
   (t) => [primaryKey({ columns: [t.parlamentarId, t.inicio] })],
 );
 
+/** Afastamentos do titular eleito (licença, cargo no Executivo, renúncia...). Fim nulo = ainda afastado. */
+export const afastamento = pgTable(
+  "afastamento",
+  {
+    parlamentarId: integer("parlamentar_id")
+      .notNull()
+      .references(() => parlamentar.id, { onDelete: "cascade" }),
+    inicio: timestamp("inicio", { withTimezone: true }).notNull(),
+    fim: timestamp("fim", { withTimezone: true }),
+    motivo: text("motivo").notNull(), // texto oficial da casa
+    definitivo: boolean("definitivo").notNull(), // renúncia, perda de mandato, falecimento
+    ...origem,
+  },
+  (t) => [primaryKey({ columns: [t.parlamentarId, t.inicio] })],
+);
+
+/**
+ * Quem ocupou a vaga durante um afastamento. certeza: "oficial" (a fonte liga titular e suplente),
+ * "datas" (identificado pelas datas, estado e partido) ou "possivel" (mais de um candidato).
+ */
+export const substituicao = pgTable(
+  "substituicao",
+  {
+    id: serial("id").primaryKey(),
+    titularId: integer("titular_id")
+      .notNull()
+      .references(() => parlamentar.id, { onDelete: "cascade" }),
+    afastamentoInicio: timestamp("afastamento_inicio", { withTimezone: true }).notNull(),
+    suplenteId: integer("suplente_id").references(() => parlamentar.id, { onDelete: "set null" }),
+    suplenteNome: text("suplente_nome").notNull(),
+    inicio: timestamp("inicio", { withTimezone: true }).notNull(),
+    fim: timestamp("fim", { withTimezone: true }),
+    certeza: text("certeza").notNull(),
+  },
+  (t) => [index("substituicao_titular").on(t.titularId), index("substituicao_suplente").on(t.suplenteId)],
+);
+
 export const sessao = pgTable(
   "sessao",
   {

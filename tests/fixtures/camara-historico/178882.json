@@ -1,0 +1,136 @@
+{
+  "dados": [
+    {
+      "id": 178882,
+      "nome": "André Fufuca",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2023-02-01T00:00",
+      "situacao": null,
+      "condicaoEleitoral": null,
+      "descricaoStatus": "Nome no início da legislatura / Partido no início da legislatura"
+    },
+    {
+      "id": 178882,
+      "nome": "André Fufuca",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2023-02-01T12:05",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Entrada - Posse de Eleito Titular - Posse na Sessão Preparatória"
+    },
+    {
+      "id": 178882,
+      "nome": "André Fufuca",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2023-09-13T14:53",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento sem prazo determinado - Ministro de Estado"
+    },
+    {
+      "id": 178882,
+      "nome": "André Fufuca",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2024-12-03T10:11",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Entrada - Reassunção"
+    },
+    {
+      "id": 178882,
+      "nome": "André Fufuca",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2024-12-06T17:00",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento sem prazo determinado - Ministro de Estado"
+    },
+    {
+      "id": 178882,
+      "nome": "André Fufuca",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-02-01T08:38",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Entrada - Reassunção"
+    },
+    {
+      "id": 178882,
+      "nome": "André Fufuca",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-02-03T11:24",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento sem prazo determinado - Ministro de Estado"
+    },
+    {
+      "id": 178882,
+      "nome": "André Fufuca",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-10-08T18:56",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Entrada - Reassunção"
+    },
+    {
+      "id": 178882,
+      "nome": "André Fufuca",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-10-09T11:03",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento sem prazo determinado - Ministro de Estado"
+    },
+    {
+      "id": 178882,
+      "nome": "André Fufuca",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-11-13T10:10",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Entrada - Reassunção"
+    },
+    {
+      "id": 178882,
+      "nome": "André Fufuca",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-11-15T13:00",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento sem prazo determinado - Ministro de Estado"
+    },
+    {
+      "id": 178882,
+      "nome": "André Fufuca",
+      "siglaPartido": "PP",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2026-03-31T15:28",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Entrada - Reassunção"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { auth } from "@/auth";
-import { buscarParlamentares, idsSeguidos, opcoesFiltro } from "@/lib/consultas";
+import { afastadosAgora, buscarParlamentares, idsSeguidos, opcoesFiltro } from "@/lib/consultas";
 import { CartaoParlamentar } from "@/components/CartaoParlamentar";
 
 export const metadata: Metadata = { title: "Buscar parlamentares" };
@@ -15,6 +15,7 @@ export default async function Buscar({ searchParams }: { searchParams: Promise<P
     opcoesFiltro(),
     idsSeguidos(sessao?.user?.id),
   ]);
+  const afastados = await afastadosAgora(resultados.map((p) => p.id));
   const campo = "rounded-xl border border-borda bg-superficie px-3 py-2 text-sm";
   return (
     <div className="flex flex-col gap-5">
@@ -40,7 +41,7 @@ export default async function Buscar({ searchParams }: { searchParams: Promise<P
         </select>
         <label className="col-span-2 flex items-center gap-2 text-sm text-suave sm:col-span-4">
           <input type="checkbox" name="todos" value="1" defaultChecked={f.todos === "1"} />
-          Incluir quem não está mais em exercício (suplentes, licenciados)
+          Incluir quem não está mais em exercício (suplentes que já saíram, mandatos encerrados)
         </label>
         <button className="rounded-xl bg-destaque px-4 py-2 text-sm font-medium text-fundo">Filtrar</button>
       </form>
@@ -49,7 +50,14 @@ export default async function Buscar({ searchParams }: { searchParams: Promise<P
       </p>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {resultados.map((p) => (
-          <CartaoParlamentar key={p.id} p={p} seguindo={seguidos.has(p.id)} logado={!!sessao?.user} caminho="/buscar" />
+          <CartaoParlamentar
+            key={p.id}
+            p={p}
+            seguindo={seguidos.has(p.id)}
+            logado={!!sessao?.user}
+            caminho="/buscar"
+            afastado={afastados.get(p.id)}
+          />
         ))}
       </div>
     </div>

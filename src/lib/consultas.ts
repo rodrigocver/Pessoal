@@ -29,7 +29,15 @@ export async function buscarParlamentares(f: {
   if (f.casa === "CD" || f.casa === "SF") filtros.push(eq(parlamentar.casa, f.casa));
   if (f.uf) filtros.push(eq(parlamentar.uf, f.uf.toUpperCase()));
   if (f.partido) filtros.push(eq(parlamentar.partido, f.partido.toUpperCase()));
-  if (!f.todos) filtros.push(eq(parlamentar.emExercicio, true));
+  // Por padrão: quem está em exercício e também os titulares afastados (o eleitor procura quem elegeu,
+  // mesmo que hoje um suplente ocupe a vaga).
+  if (!f.todos)
+    filtros.push(
+      or(
+        eq(parlamentar.emExercicio, true),
+        sql`exists (select 1 from afastamento a where a.parlamentar_id = ${parlamentar.id} and a.fim is null and not a.definitivo)`,
+      ),
+    );
   return db
     .select()
     .from(parlamentar)
@@ -397,4 +405,114 @@ export async function votosEmComum(a: Parlamentar, b: Parlamentar, periodo: Peri
       votoB: String(d.voto_b),
     })),
   };
+}
+
+// ---------- Afastamentos e suplentes ----------
+
+export interface SuplenteNaVaga {
+  nome: string;
+  inicio: Date;
+  fim: Date | null;
+  certeza: "oficial" | "datas" | "possivel";
+  parlamentar: { casa: Casa; idExterno: string; partido: string | null; uf: string | null } | null;
+}
+
+export interface AfastamentoDetalhado {
+  inicio: Date;
+  fim: Date | null;
+  motivo: string;
+  definitivo: boolean;
+  suplentes: SuplenteNaVaga[];
+}
+
+/** Afastamentos do titular, mais recentes primeiro, com quem ocupou a vaga. */
+export async function afastamentosDe(p: Parlamentar): Promise<AfastamentoDetalhado[]> {
+  const linhas = await db.execute(sql`
+    select a.inicio, a.fim, a.motivo, a.definitivo,
+      s.suplente_nome, s.inicio as s_inicio, s.fim as s_fim, s.certeza,
+      sp.casa as s_casa, sp.id_externo as s_id, sp.partido as s_partido, sp.uf as s_uf
+    from afastamento a
+    left join substituicao s on s.titular_id = a.parlamentar_id and s.afastamento_inicio = a.inicio
+    left join parlamentar sp on sp.id = s.suplente_id
+    where a.parlamentar_id = ${p.id}
+    order by a.inicio desc, s.inicio`);
+  const r: AfastamentoDetalhado[] = [];
+  for (const l of linhas) {
+    const inicio = new Date(String(l.inicio));
+    let a = r.at(-1);
+    if (!a || a.inicio.getTime() !== inicio.getTime()) {
+      a = {
+        inicio,
+        fim: l.fim ? new Date(String(l.fim)) : null,
+        motivo: String(l.motivo),
+        definitivo: Boolean(l.definitivo),
+        suplentes: [],
+      };
+      r.push(a);
+    }
+    if (l.suplente_nome)
+      a.suplentes.push({
+        nome: String(l.suplente_nome),
+        inicio: new Date(String(l.s_inicio)),
+        fim: l.s_fim ? new Date(String(l.s_fim)) : null,
+        certeza: l.certeza as SuplenteNaVaga["certeza"],
+        parlamentar: l.s_id
+          ? {
+              casa: l.s_casa as Casa,
+              idExterno: String(l.s_id),
+              partido: l.s_partido as string | null,
+              uf: l.s_uf as string | null,
+            }
+          : null,
+      });
+  }
+  return r;
+}
+
+export interface VagaOcupada {
+  inicio: Date;
+  fim: Date | null;
+  motivo: string;
+  certeza: "oficial" | "datas" | "possivel";
+  titular: { nome: string; casa: Casa; idExterno: string; partido: string | null; uf: string | null };
+}
+
+/** Períodos em que o parlamentar ocupou, como suplente, a vaga de um titular afastado. */
+export async function vagasOcupadas(p: Parlamentar): Promise<VagaOcupada[]> {
+  const linhas = await db.execute(sql`
+    select s.inicio, s.fim, s.certeza, a.motivo, t.nome, t.casa, t.id_externo, t.partido, t.uf
+    from substituicao s
+    join afastamento a on a.parlamentar_id = s.titular_id and a.inicio = s.afastamento_inicio
+    join parlamentar t on t.id = s.titular_id
+    where s.suplente_id = ${p.id} and s.certeza <> 'possivel'
+    order by s.inicio desc`);
+  return linhas.map((l) => ({
+    inicio: new Date(String(l.inicio)),
+    fim: l.fim ? new Date(String(l.fim)) : null,
+    motivo: String(l.motivo),
+    certeza: l.certeza as VagaOcupada["certeza"],
+    titular: {
+      nome: String(l.nome),
+      casa: l.casa as Casa,
+      idExterno: String(l.id_externo),
+      partido: l.partido as string | null,
+      uf: l.uf as string | null,
+    },
+  }));
+}
+
+/** Para listas e cartões: quem, entre os ids, está afastado agora (afastamento sem fim, não definitivo). */
+export async function afastadosAgora(
+  ids: number[],
+): Promise<Map<number, { desde: Date; motivo: string; definitivo: boolean }>> {
+  if (ids.length === 0) return new Map();
+  const linhas = await db.execute(sql`
+    select parlamentar_id, inicio, motivo, definitivo from afastamento
+    where fim is null and parlamentar_id in ${ids}`);
+  return new Map(
+    linhas.map((l) => [
+      num(l.parlamentar_id),
+      { desde: new Date(String(l.inicio)), motivo: String(l.motivo), definitivo: Boolean(l.definitivo) },
+    ]),
+  );
 }

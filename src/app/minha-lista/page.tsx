@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { listaDoUsuario, resumos } from "@/lib/consultas";
+import { afastadosAgora, listaDoUsuario, resumos } from "@/lib/consultas";
 import { resolverPeriodo } from "@/lib/periodo";
 import { CartaoParlamentar } from "@/components/CartaoParlamentar";
 
@@ -13,10 +13,13 @@ export default async function MinhaLista() {
   if (!sessao?.user?.id) redirect("/entrar");
   const periodo = resolverPeriodo(undefined); // ano corrente
   const lista = await listaDoUsuario(sessao.user.id);
-  const r = await resumos(
-    lista.map((p) => p.id),
-    periodo,
-  );
+  const [r, afastados] = await Promise.all([
+    resumos(
+      lista.map((p) => p.id),
+      periodo,
+    ),
+    afastadosAgora(lista.map((p) => p.id)),
+  ]);
   return (
     <div className="flex flex-col gap-5">
       <div>
@@ -36,7 +39,15 @@ export default async function MinhaLista() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {lista.map((p) => (
-            <CartaoParlamentar key={p.id} p={p} resumo={r.get(p.id)} seguindo logado caminho="/minha-lista" />
+            <CartaoParlamentar
+              key={p.id}
+              p={p}
+              resumo={r.get(p.id)}
+              seguindo
+              logado
+              caminho="/minha-lista"
+              afastado={afastados.get(p.id)}
+            />
           ))}
         </div>
       )}

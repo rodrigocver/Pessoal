@@ -1,0 +1,213 @@
+{
+  "dados": [
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2023-02-01T00:00",
+      "situacao": null,
+      "condicaoEleitoral": null,
+      "descricaoStatus": "Nome no início da legislatura / Partido no início da legislatura"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2023-02-01T12:05",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Entrada - Posse de Eleito Titular - Posse na Sessão Preparatória"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2024-05-06T15:05",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento com prazo determinado - Afastamento Conjunto Consecutivo"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2024-09-04T00:00",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Entrada - Reassunção"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-01-31T14:54",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento sem prazo determinado - Secretário de Estado"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-02-11T16:46",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Entrada - Reassunção"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-02-12T15:28",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento com prazo determinado - Afastamento Conjunto Consecutivo"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-06-13T00:00",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento com prazo determinado - Licença para Tratamento de Saúde"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-07-10T00:00",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento com prazo determinado - Licença para Tratamento de Saúde"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-08-06T00:00",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento com prazo determinado - Licença para Tratamento de Saúde"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-08-15T00:00",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento com prazo determinado - Licença para Tratamento de Saúde"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-09-13T00:00",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento com prazo determinado - Licença para Tratamento de Saúde"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-11-07T00:00",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento com prazo determinado - Licença para Tratamento de Saúde"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2025-12-04T00:00",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento com prazo determinado - Licença para Tratamento de Saúde"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2026-02-01T00:00",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento com prazo determinado - Licença para Tratamento de Saúde"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2026-03-29T00:00",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento com prazo determinado - Licença para Tratamento de Saúde"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2026-05-22T00:00",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento com prazo determinado - Licença para Tratamento de Saúde"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2026-07-19T00:00",
+      "situacao": "Exercício",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Entrada - Reassunção"
+    },
+    {
+      "id": 73806,
+      "nome": "Roseana Sarney",
+      "siglaPartido": "MDB",
+      "siglaUf": "MA",
+      "idLegislatura": 57,
+      "dataHora": "2026-08-31T17:55",
+      "situacao": "Licença",
+      "condicaoEleitoral": "Titular",
+      "descricaoStatus": "Saída - Afastamento com prazo determinado - Afastamento Conjunto Consecutivo"
+    }
+  ]
+}

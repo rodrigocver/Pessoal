@@ -9,7 +9,7 @@ const fonteUrl = "teste";
 export async function prepararBanco() {
   await migrate(db, { migrationsFolder: "drizzle" });
   await db.execute(sql`
-    truncate parlamentar, sessao, votacao, proposicao, despesa, estatistica, ingestao_log, tentativa_login, tema_proposicao, tema_consultado, "user" restart identity cascade`);
+    truncate parlamentar, sessao, votacao, proposicao, despesa, estatistica, ingestao_log, tentativa_login, tema_proposicao, tema_consultado, afastamento, substituicao, "user" restart identity cascade`);
 }
 
 /**
@@ -148,5 +148,28 @@ export async function criarCenario() {
     },
   ]);
 
-  return { ana, beto, carla };
+  // Davi: titular afastado (ministro) desde 01/06/2025; a vaga ficou com Beto.
+  const [davi] = await db
+    .insert(schema.parlamentar)
+    .values({ casa: "CD", idExterno: "4", nome: "Davi Rocha", partido: "PL", uf: "RJ", emExercicio: false, fonteUrl })
+    .returning();
+  await db.insert(schema.afastamento).values({
+    parlamentarId: davi.id,
+    inicio: t("2025-06-01T10:00:00"),
+    fim: null,
+    motivo: "Ministro de Estado",
+    definitivo: false,
+    fonteUrl,
+  });
+  await db.insert(schema.substituicao).values({
+    titularId: davi.id,
+    afastamentoInicio: t("2025-06-01T10:00:00"),
+    suplenteId: beto.id,
+    suplenteNome: "Beto Lima",
+    inicio: t("2025-06-02T10:00:00"),
+    fim: null,
+    certeza: "datas",
+  });
+
+  return { ana, beto, carla, davi };
 }

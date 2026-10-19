@@ -9,6 +9,10 @@ import {
   obterParlamentar,
   presenca,
   proposicoes,
+  afastamentosDe,
+  vagasOcupadas,
+  type AfastamentoDetalhado,
+  type VagaOcupada,
   temasDasVotacoes,
   votos,
   type Parlamentar,
@@ -22,6 +26,7 @@ import { BarrasHorizontais, BarrasMensais } from "@/components/Graficos";
 import { ComoCalculamos, Secao } from "@/components/ComoCalculamos";
 import { Comparacao, linhasComparacao } from "@/components/Comparacao";
 import { corVoto } from "@/lib/votos";
+import { AvisoMandato, HistoricoAfastamentos } from "@/components/Afastamentos";
 
 type Props = {
   params: Promise<{ casa: string; id: string }>;
@@ -60,7 +65,11 @@ export default async function Perfil({ params, searchParams }: Props) {
   const pagina = Math.max(1, Number(sp.pagina) || 1);
   const tema = aba === "votacoes" && sp.tema ? sp.tema : undefined;
   const sessao = await auth();
-  const seguidos = await idsSeguidos(sessao?.user?.id);
+  const [seguidos, afastamentos, vagas] = await Promise.all([
+    idsSeguidos(sessao?.user?.id),
+    afastamentosDe(p),
+    vagasOcupadas(p),
+  ]);
   const caminho = `/parlamentar/${slug}/${p.idExterno}`;
   const link = (mudancas: Record<string, string | undefined>) => {
     const params = Object.entries({ aba, periodo: periodo.valor, tema, ...mudancas }).filter(
@@ -86,6 +95,8 @@ export default async function Perfil({ params, searchParams }: Props) {
         </div>
       </div>
 
+      <AvisoMandato afastamentos={afastamentos} vagas={vagas} />
+
       <nav className="-mx-4 flex gap-1 overflow-x-auto px-4" aria-label="Seções">
         {(Object.keys(ABAS) as Aba[]).map((a) => (
           <Link
@@ -110,7 +121,7 @@ export default async function Perfil({ params, searchParams }: Props) {
         ))}
       </div>
 
-      {aba === "presenca" && <AbaPresenca p={p} periodo={periodo} />}
+      {aba === "presenca" && <AbaPresenca p={p} periodo={periodo} afastamentos={afastamentos} vagas={vagas} />}
       {aba === "votacoes" && <AbaVotacoes p={p} periodo={periodo} pagina={pagina} tema={tema} link={link} />}
       {aba === "proposicoes" && <AbaProposicoes p={p} periodo={periodo} />}
       {aba === "gastos" && <AbaGastos p={p} periodo={periodo} />}
@@ -129,10 +140,27 @@ function Destaque({ valor, legenda }: { valor: string; legenda: string }) {
   );
 }
 
-async function AbaPresenca({ p, periodo }: { p: Parlamentar; periodo: Periodo }) {
+async function AbaPresenca({
+  p,
+  periodo,
+  afastamentos,
+  vagas,
+}: {
+  p: Parlamentar;
+  periodo: Periodo;
+  afastamentos: AfastamentoDetalhado[];
+  vagas: VagaOcupada[];
+}) {
   const [d, comp] = await Promise.all([presenca(p, periodo), comparativo(p, periodo)]);
   return (
     <>
+      {d.total === 0 &&
+        afastamentos.some((a) => a.inicio < periodo.fim && (a.fim == null || a.fim > periodo.inicio)) && (
+          <p className="rounded-xl bg-alerta/10 px-4 py-3 text-sm">
+            Esteve afastado do mandato durante todo o período: não há sessões para calcular a presença. Veja abaixo quem
+            ocupou a vaga.
+          </p>
+        )}
       <Secao titulo="Presença em plenário">
         <Destaque
           valor={formatarPct(d.percentual)}
@@ -179,6 +207,7 @@ async function AbaPresenca({ p, periodo }: { p: Parlamentar; periodo: Periodo })
           )}
         </ComoCalculamos>
       </Secao>
+      <HistoricoAfastamentos afastamentos={afastamentos} vagas={vagas} />
       {d.ausencias.length > 0 && (
         <Secao titulo={`Ausências (${d.total - d.presentes})`}>
           <ul className="flex flex-col divide-y divide-borda text-sm">
