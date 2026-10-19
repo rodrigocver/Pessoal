@@ -36,7 +36,7 @@ Depois de publicadas, o GitHub passa a ser a fonte da verdade: discussão e anda
 | # | Tarefa | Rótulos |
 |---|---|---|
 | 08 | [Página pública de metodologia](issues/08-pagina-metodologia.md) | boa primeira issue, interface, docs |
-| 09 | [PWA completo: ícones PNG e funcionamento offline básico (UX-01)](issues/09-pwa-icones-offline.md) | boa primeira issue, interface |
+| 09 | ✅ [PWA completo: ícones PNG e funcionamento offline básico (UX-01)](issues/09-pwa-icones-offline.md) | boa primeira issue, interface |
 | 10 | [Acessibilidade: alternativa textual aos gráficos e auditoria](issues/10-acessibilidade-graficos.md) | boa primeira issue, interface |
 | 11 | [Página de status das atualizações de dados](issues/11-pagina-status-ingestao.md) | boa primeira issue, interface, ingestão |
 | 12 | [Busca: ignorar acentos no nome completo e ordenar por relevância](issues/12-busca-melhorada.md) | boa primeira issue, interface |

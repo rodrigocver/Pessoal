@@ -22,6 +22,7 @@
 | Tabela `estatistica` pré-calculada | Médias da casa e do partido sem varrer milhões de linhas por página |
 | Next.js App Router com Server Components | Páginas renderizadas no servidor, leves no celular, sem API intermediária |
 | Auth.js + Drizzle | Login sem depender de um provedor específico; roda com qualquer Postgres |
+| Service worker próprio (`public/sw.js`), sem biblioteca | Offline básico para perfis já vistos; nunca guarda páginas pessoais nem as de quem está logado |
 | Gráficos em CSS puro | Leve e legível no celular; sem dependência de biblioteca de gráficos |
 
 ## Pastas

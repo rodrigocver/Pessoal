@@ -3,12 +3,15 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { ultimaAtualizacao } from "@/lib/consultas";
 import { formatarDataHora } from "@/lib/formato";
+import { RegistrarServiceWorker } from "@/components/RegistrarServiceWorker";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: { default: "Fiscaliza — acompanhe seus parlamentares", template: "%s · Fiscaliza" },
   description: "Presença, votações, projetos e gastos de deputados federais e senadores, com dados públicos oficiais.",
   manifest: "/manifest.webmanifest",
+  icons: { icon: "/icon.svg", apple: "/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: "Fiscaliza", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {
@@ -23,6 +26,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="pt-BR">
       <body className="min-h-dvh antialiased">
+        <RegistrarServiceWorker />
         <header className="sticky top-0 z-10 border-b border-borda bg-fundo/90 backdrop-blur">
           <nav className="mx-auto flex max-w-5xl items-center gap-4 px-4 py-3 text-sm">
             <Link href="/" className="text-base font-semibold tracking-tight">

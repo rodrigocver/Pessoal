@@ -37,7 +37,7 @@ Status: ✅ feito · 🟡 parcial (issue no backlog) · ⬜ pendente
 - ⬜ **DEPLOY-01** Site publicado com banco, login, ingestão agendada e envio de e-mail em produção.
 
 ## Qualidade
-- 🟡 **UX-01** Funciona bem em telas de celular (≥ 360px) e é instalável como PWA. *Faltam ícones PNG e modo offline (backlog #09).*
+- ✅ **UX-01** Funciona bem em telas de celular (≥ 360px) e é instalável como PWA.
 - ✅ **UX-02** Páginas de perfil carregam em < 2s (dados vêm do banco próprio, nunca da API do governo em tempo real).
 - ✅ **UX-03** Explicação de cada métrica ("como calculamos") ao lado do número.
 
