@@ -185,18 +185,21 @@ export async function ingerirVotacoesSenado(ano: number): Promise<number> {
   });
 }
 
-export function normalizarOrientacao(v: string): string {
-  const s = v.trim().toUpperCase();
-  return s === "SIM"
-    ? "Sim"
-    : s === "NÃO" || s === "NAO"
-      ? "Não"
-      : s === "LIBERADO"
-        ? "Liberado"
-        : s === "OBSTRUÇÃO"
-          ? "Obstrução"
-          : v;
-}
+const ORIENTACOES: Record<string, string> = {
+  SIM: "Sim",
+  NÃO: "Não",
+  NAO: "Não",
+  ABSTENÇÃO: "Abstenção",
+  ABSTENCAO: "Abstenção",
+  OBSTRUÇÃO: "Obstrução",
+  OBSTRUCAO: "Obstrução",
+  // "Livre" no Senado = "Liberado" na Câmara: a bancada não orientou.
+  LIVRE: "Liberado",
+  LIBERADO: "Liberado",
+};
+
+/** Padroniza a orientação no vocabulário da Câmara (Sim, Não, Abstenção, Obstrução, Liberado). */
+export const normalizarOrientacao = (v: string) => ORIENTACOES[v.trim().toUpperCase()] ?? v.trim();
 
 // ---------- Proposições de autoria ----------
 

@@ -14,13 +14,14 @@ import {
   type Parlamentar,
 } from "@/lib/consultas";
 import { periodosDisponiveis, resolverPeriodo, type Periodo } from "@/lib/periodo";
-import { CASAS, formatarData, formatarPct, formatarReais, type SlugCasa } from "@/lib/formato";
+import { CASAS, formatarData, formatarPct, formatarReais, slugDaCasa, type SlugCasa } from "@/lib/formato";
 import { Foto } from "@/components/Foto";
 import { BotaoSeguir } from "@/components/BotaoSeguir";
 import { Identificacao } from "@/components/CartaoParlamentar";
 import { BarrasHorizontais, BarrasMensais } from "@/components/Graficos";
 import { ComoCalculamos, Secao } from "@/components/ComoCalculamos";
 import { Comparacao, linhasComparacao } from "@/components/Comparacao";
+import { corVoto } from "@/lib/votos";
 
 type Props = {
   params: Promise<{ casa: string; id: string }>;
@@ -190,15 +191,6 @@ async function AbaPresenca({ p, periodo }: { p: Parlamentar; periodo: Periodo })
   );
 }
 
-const COR_VOTO: Record<string, string> = {
-  Sim: "text-bom",
-  Não: "text-ruim",
-  Obstrução: "text-alerta",
-  Abstenção: "text-alerta",
-};
-const corVoto = (v: string) =>
-  COR_VOTO[v] ?? (v.startsWith("Ausente") || v === "Não compareceu" ? "text-suave line-through" : "text-suave");
-
 async function AbaVotacoes({
   p,
   periodo,
@@ -213,6 +205,7 @@ async function AbaVotacoes({
   link: (m: Record<string, string | undefined>) => string;
 }) {
   const POR_PAGINA = 30;
+  const slug = slugDaCasa(p.casa);
   const [d, comp, temas] = await Promise.all([
     votos(p, periodo, pagina, POR_PAGINA, tema),
     comparativo(p, periodo),
@@ -294,13 +287,12 @@ async function AbaVotacoes({
                   {v.aprovada != null && <> · {v.aprovada ? "aprovada" : "rejeitada"}</>}
                 </div>
                 {v.ementa && <p className="mt-1 line-clamp-2">{v.ementa}</p>}
-                <details className="mt-1 text-suave">
-                  <summary className="cursor-pointer text-xs">O que foi votado</summary>
-                  <p className="mt-1">{v.descricao}</p>
-                  <a href={v.fonteUrl} className="text-xs underline">
-                    Fonte oficial
-                  </a>
-                </details>
+                <Link
+                  href={`/votacao/${slug}/${encodeURIComponent(v.idExterno)}`}
+                  className="mt-1 inline-block text-xs text-destaque"
+                >
+                  Ver votação completa →
+                </Link>
               </div>
             </li>
           ))}

@@ -122,7 +122,7 @@ export async function votos(p: Parlamentar, periodo: Periodo, pagina = 1, porPag
   const filtro = sql`vo.parlamentar_id = ${p.id} and v.data >= ${periodo.inicio.toISOString()} and v.data < ${periodo.fim.toISOString()} ${comTema(tema)}`;
   const [lista, contagem] = await Promise.all([
     db.execute(sql`
-      select v.id, v.data, v.descricao, v.proposicao, v.ementa, v.aprovada, v.fonte_url, vo.voto
+      select v.id, v.id_externo, v.data, v.descricao, v.proposicao, v.ementa, v.aprovada, v.fonte_url, vo.voto
       from voto vo join votacao v on v.id = vo.votacao_id
       where ${filtro} order by v.data desc
       limit ${porPagina} offset ${(pagina - 1) * porPagina}`),
@@ -133,6 +133,7 @@ export async function votos(p: Parlamentar, periodo: Periodo, pagina = 1, porPag
   return {
     lista: lista.map((v) => ({
       id: num(v.id),
+      idExterno: String(v.id_externo),
       data: new Date(String(v.data)),
       descricao: v.descricao as string | null,
       proposicao: v.proposicao as string | null,
@@ -297,4 +298,62 @@ export async function listaDoUsuario(usuarioId: string) {
     .where(eq(schema.seguindo.usuarioId, usuarioId))
     .orderBy(asc(parlamentar.nome))
     .then((r) => r.map((x) => x.p));
+}
+
+// ---------- Página de uma votação ----------
+
+export async function obterVotacao(casa: Casa, idExterno: string) {
+  const [v] = await db
+    .select()
+    .from(schema.votacao)
+    .where(and(eq(schema.votacao.casa, casa), eq(schema.votacao.idExterno, idExterno)));
+  return v ?? null;
+}
+
+export async function detalhesVotacao(votacaoId: number) {
+  const [votos, orientacoes] = await Promise.all([
+    db.execute(sql`
+      select p.id, p.casa, p.id_externo, p.nome, p.uf, coalesce(vo.partido, p.partido) as partido, vo.voto
+      from voto vo join parlamentar p on p.id = vo.parlamentar_id
+      where vo.votacao_id = ${votacaoId}
+      order by p.nome`),
+    db.execute(sql`select bancada, orientacao from orientacao where votacao_id = ${votacaoId} order by bancada`),
+  ]);
+  const lista = votos.map((x) => ({
+    id: num(x.id),
+    casa: x.casa as Casa,
+    idExterno: String(x.id_externo),
+    nome: String(x.nome),
+    uf: x.uf as string | null,
+    partido: (x.partido as string | null) ?? "sem partido",
+    voto: String(x.voto),
+  }));
+
+  const placar = new Map<string, number>();
+  const porPartido = new Map<string, Map<string, number>>();
+  for (const v of lista) {
+    placar.set(v.voto, (placar.get(v.voto) ?? 0) + 1);
+    const doPartido = porPartido.get(v.partido) ?? new Map<string, number>();
+    doPartido.set(v.voto, (doPartido.get(v.voto) ?? 0) + 1);
+    porPartido.set(v.partido, doPartido);
+  }
+  // Mais votos primeiro; empate na ordem usual do placar (Sim, Não, Abstenção, Obstrução, demais).
+  const peso = (voto: string) => {
+    const i = ["Sim", "Não", "Abstenção", "Obstrução"].indexOf(voto);
+    return i < 0 ? 99 : i;
+  };
+  const ordenar = (m: Map<string, number>) =>
+    [...m.entries()].sort((a, b) => b[1] - a[1] || peso(a[0]) - peso(b[0]) || a[0].localeCompare(b[0]));
+  return {
+    lista,
+    placar: ordenar(placar).map(([voto, n]) => ({ voto, n })),
+    porPartido: [...porPartido.entries()]
+      .map(([partido, votos]) => ({
+        partido,
+        total: [...votos.values()].reduce((s, n) => s + n, 0),
+        votos: ordenar(votos).map(([voto, n]) => ({ voto, n })),
+      }))
+      .sort((a, b) => b.total - a.total || a.partido.localeCompare(b.partido)),
+    orientacoes: orientacoes.map((o) => ({ bancada: String(o.bancada), orientacao: String(o.orientacao) })),
+  };
 }

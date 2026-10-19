@@ -28,7 +28,7 @@ Depois de publicadas, o GitHub passa a ser a fonte da verdade: discussão e anda
 | 06 | ✅ [Testes de integração com Postgres no CI](issues/06-testes-integracao-postgres.md) | infra, ajuda bem-vinda |
 | 07 | ✅ [Limitar pedidos de link de login por e-mail](issues/07-limite-login-email.md) | segurança |
 | 13 | [Imagem de compartilhamento (Open Graph) por parlamentar](issues/13-imagem-compartilhamento.md) | funcionalidade, interface |
-| 14 | [Página de cada votação: como cada partido e parlamentar votou](issues/14-pagina-votacao.md) | funcionalidade, interface |
+| 14 | ✅ [Página de cada votação: como cada partido e parlamentar votou](issues/14-pagina-votacao.md) | funcionalidade, interface |
 | 15 | [Comparar dois parlamentares lado a lado](issues/15-comparar-parlamentares.md) | funcionalidade, interface |
 
 ## Boas primeiras issues

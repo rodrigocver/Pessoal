@@ -31,6 +31,8 @@ describe("normalizarOrientacao", () => {
   it("padroniza maiúsculas", () => {
     expect(normalizarOrientacao("SIM")).toBe("Sim");
     expect(normalizarOrientacao("NÃO")).toBe("Não");
+    expect(normalizarOrientacao("LIVRE")).toBe("Liberado");
+    expect(normalizarOrientacao("Obstrução")).toBe("Obstrução");
   });
 });
 

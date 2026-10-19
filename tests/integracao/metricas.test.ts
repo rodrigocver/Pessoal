@@ -1,7 +1,16 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { and, eq } from "drizzle-orm";
 import { db, schema, sql } from "@/db/client";
-import { buscarParlamentares, gastos, presenca, resumos, temasDasVotacoes, votos } from "@/lib/consultas";
+import {
+  buscarParlamentares,
+  detalhesVotacao,
+  gastos,
+  obterVotacao,
+  presenca,
+  resumos,
+  temasDasVotacoes,
+  votos,
+} from "@/lib/consultas";
 import { calcularEstatisticas } from "@/ingest/estatisticas";
 import { resolverPeriodo } from "@/lib/periodo";
 import { criarCenario, prepararBanco } from "./dados";
@@ -101,5 +110,22 @@ describe("temas", () => {
     expect(saude.lista.map((v) => v.proposicao)).toEqual(["PL 1/2025"]);
     expect(saude.total).toBe(1);
     expect((await votos(c.ana, ano2025)).total).toBe(2);
+  });
+});
+
+describe("página de votação", () => {
+  it("placar, votos por partido (na data do voto) e orientações", async () => {
+    const v = await obterVotacao("CD", "v1");
+    const d = await detalhesVotacao(v!.id);
+    expect(d.placar).toEqual([
+      { voto: "Sim", n: 1 },
+      { voto: "Não", n: 1 },
+    ]);
+    expect(d.porPartido.map((p) => [p.partido, p.total])).toEqual([
+      ["PL", 1],
+      ["PT", 1],
+    ]);
+    expect(d.orientacoes.find((o) => o.bancada === "Governo")?.orientacao).toBe("Sim");
+    expect(await obterVotacao("CD", "inexistente")).toBeNull();
   });
 });
