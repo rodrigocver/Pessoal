@@ -1,16 +1,35 @@
-// Uso: npm run ingest -- <tarefa...>   (sem argumentos roda todas)
+// Uso: npm run ingest -- [tarefa...] [--desde ANO]
+//   sem tarefas: roda todas; sem --desde: só o ano corrente (atualização diária).
+//   carga histórica: npm run ingest -- --desde 2023
 import "dotenv/config";
 import { sql } from "@/db/client";
 import { comLog } from "@/ingest/log";
 import { buscarDeputados, buscarSenadores, salvarParlamentares } from "@/ingest/parlamentares";
+import { ingerirDespesas, ingerirPresencas, ingerirProposicoes, ingerirVotacoes } from "@/ingest/camara";
+import { anosDesde } from "@/ingest/util";
 
+const args = process.argv.slice(2);
+const iDesde = args.indexOf("--desde");
+const anos = iDesde >= 0 ? anosDesde(Number(args[iDesde + 1])) : anosDesde(new Date().getFullYear());
+const pedidas = args.filter((a, i) => !a.startsWith("--") && i !== iDesde + 1);
+
+const porAno = (fn: (ano: number) => Promise<number>) => async () => {
+  let total = 0;
+  for (const ano of anos) total += await fn(ano);
+  return total;
+};
+
+// A ordem importa: parlamentares primeiro, pois as demais tarefas dependem deles.
 const tarefas: Record<string, () => Promise<number>> = {
   deputados: async () => salvarParlamentares(await buscarDeputados()),
   senadores: async () => salvarParlamentares(await buscarSenadores()),
+  "camara:presencas": porAno(ingerirPresencas),
+  "camara:votacoes": porAno(ingerirVotacoes),
+  "camara:proposicoes": porAno(ingerirProposicoes),
+  "camara:despesas": porAno(ingerirDespesas),
 };
 
 async function main() {
-  const pedidas = process.argv.slice(2);
   const nomes = pedidas.length ? pedidas : Object.keys(tarefas);
   const desconhecidas = nomes.filter((n) => !tarefas[n]);
   if (desconhecidas.length) {

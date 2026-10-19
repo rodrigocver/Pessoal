@@ -1,0 +1,10 @@
+{
+  "name": "Fiscaliza — acompanhe seus parlamentares",
+  "short_name": "Fiscaliza",
+  "start_url": "/minha-lista",
+  "display": "standalone",
+  "background_color": "#f7f7f5",
+  "theme_color": "#0f6e6a",
+  "lang": "pt-BR",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

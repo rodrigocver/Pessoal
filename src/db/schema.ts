@@ -75,6 +75,7 @@ export const votacao = pgTable(
     data: timestamp("data", { withTimezone: true }).notNull(),
     descricao: text("descricao"),
     proposicao: text("proposicao"), // rótulo legível, ex.: "PL 2552/2019"
+    ementa: text("ementa"), // ementa da matéria votada
     aprovada: boolean("aprovada"),
     ...origem,
   },
@@ -161,3 +162,62 @@ export const ingestaoLog = pgTable("ingestao_log", {
   registros: integer("registros"),
   erro: text("erro"),
 });
+
+// ---------- Usuários (tabelas no formato do Auth.js) ----------
+
+export const usuario = pgTable("user", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text("name"),
+  email: text("email").unique(),
+  emailVerified: timestamp("emailVerified", { mode: "date" }),
+  image: text("image"),
+  // Resumo mensal por e-mail (MAIL-02). O token permite descadastrar sem login.
+  resumoMensal: boolean("resumo_mensal").notNull().default(true),
+  tokenDescadastro: text("token_descadastro").notNull().$defaultFn(() => crypto.randomUUID()),
+  criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const conta = pgTable(
+  "account",
+  {
+    userId: text("userId").notNull().references(() => usuario.id, { onDelete: "cascade" }),
+    type: text("type").notNull(),
+    provider: text("provider").notNull(),
+    providerAccountId: text("providerAccountId").notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: text("token_type"),
+    scope: text("scope"),
+    id_token: text("id_token"),
+    session_state: text("session_state"),
+  },
+  (t) => [primaryKey({ columns: [t.provider, t.providerAccountId] })],
+);
+
+export const sessaoUsuario = pgTable("session", {
+  sessionToken: text("sessionToken").primaryKey(),
+  userId: text("userId").notNull().references(() => usuario.id, { onDelete: "cascade" }),
+  expires: timestamp("expires", { mode: "date" }).notNull(),
+});
+
+export const tokenVerificacao = pgTable(
+  "verificationToken",
+  {
+    identifier: text("identifier").notNull(),
+    token: text("token").notNull(),
+    expires: timestamp("expires", { mode: "date" }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.identifier, t.token] })],
+);
+
+/** Parlamentares que cada usuário acompanha (LIST-02). */
+export const seguindo = pgTable(
+  "seguindo",
+  {
+    usuarioId: text("usuario_id").notNull().references(() => usuario.id, { onDelete: "cascade" }),
+    parlamentarId: integer("parlamentar_id").notNull().references(() => parlamentar.id, { onDelete: "cascade" }),
+    desde: timestamp("desde", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.usuarioId, t.parlamentarId] })],
+);
