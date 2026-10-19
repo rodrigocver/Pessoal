@@ -205,6 +205,33 @@ export async function gastos(p: Parlamentar, periodo: Periodo) {
       select fornecedor, cnpj_cpf, sum(valor) as total, count(*) as n from despesa where ${filtro}
       group by 1, 2 order by 3 desc limit 10`),
   ]);
+  // Lançamentos dos principais fornecedores, com o link da nota quando a casa publica (só a Câmara).
+  const lancamentos = fornecedores.length
+    ? await db.execute(sql`
+        select fornecedor, cnpj_cpf, data, ano, mes, categoria, valor, documento_url from despesa
+        where ${filtro} and (fornecedor, coalesce(cnpj_cpf, '')) in (${sql.join(
+          fornecedores.map((f) => sql`(${f.fornecedor as string}, ${(f.cnpj_cpf as string | null) ?? ""})`),
+          sql`, `,
+        )})
+        order by data desc nulls last, valor desc`)
+    : [];
+  const chave = (fornecedor: unknown, cnpj: unknown) => `${fornecedor}|${cnpj ?? ""}`;
+  const porFornecedor = new Map<
+    string,
+    { data: string | null; mes: string; categoria: string; valor: number; documentoUrl: string | null }[]
+  >();
+  for (const l of lancamentos) {
+    const k = chave(l.fornecedor, l.cnpj_cpf);
+    const lista = porFornecedor.get(k) ?? [];
+    lista.push({
+      data: l.data ? String(l.data) : null,
+      mes: `${l.ano}-${String(l.mes).padStart(2, "0")}`,
+      categoria: String(l.categoria),
+      valor: num(l.valor),
+      documentoUrl: l.documento_url as string | null,
+    });
+    porFornecedor.set(k, lista);
+  }
   return {
     total: num(total[0]?.total),
     lancamentos: num(total[0]?.n),
@@ -215,6 +242,7 @@ export async function gastos(p: Parlamentar, periodo: Periodo) {
       cnpjCpf: f.cnpj_cpf as string | null,
       total: num(f.total),
       n: num(f.n),
+      lancamentos: porFornecedor.get(chave(f.fornecedor, f.cnpj_cpf)) ?? [],
     })),
   };
 }

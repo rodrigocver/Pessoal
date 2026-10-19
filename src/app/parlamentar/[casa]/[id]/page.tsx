@@ -18,7 +18,7 @@ import {
   type Parlamentar,
 } from "@/lib/consultas";
 import { periodosDisponiveis, resolverPeriodo, type Periodo } from "@/lib/periodo";
-import { CASAS, formatarData, formatarPct, formatarReais, slugDaCasa, type SlugCasa } from "@/lib/formato";
+import { CASAS, formatarData, formatarPct, formatarReais, rotuloMes, slugDaCasa, type SlugCasa } from "@/lib/formato";
 import { Foto } from "@/components/Foto";
 import { BotaoSeguir } from "@/components/BotaoSeguir";
 import { Identificacao } from "@/components/CartaoParlamentar";
@@ -447,13 +447,74 @@ async function AbaGastos({ p, periodo }: { p: Parlamentar; periodo: Periodo }) {
         />
       </Secao>
       <Secao titulo="Principais fornecedores">
-        <BarrasHorizontais
-          dados={d.fornecedores.map((f) => ({
-            rotulo: f.fornecedor,
-            valor: f.total,
-            texto: `${formatarReais(f.total)} · ${f.n}x`,
-          }))}
-        />
+        <ul className="flex flex-col gap-3">
+          {d.fornecedores.map((f) => (
+            <li key={`${f.fornecedor}|${f.cnpjCpf}`}>
+              <details className="group text-sm">
+                <summary className="cursor-pointer list-none">
+                  <div className="mb-1 flex justify-between gap-3">
+                    <span className="truncate">
+                      <span
+                        aria-hidden
+                        className="mr-1 inline-block text-suave transition-transform group-open:rotate-90"
+                      >
+                        ›
+                      </span>
+                      {f.fornecedor}
+                    </span>
+                    <span className="shrink-0 tabular-nums text-suave">
+                      {formatarReais(f.total)} · {f.n}x
+                    </span>
+                  </div>
+                  <div className="h-2 rounded-full bg-fundo">
+                    <div
+                      className="h-2 rounded-full bg-destaque"
+                      style={{ width: `${(f.total / Math.max(d.fornecedores[0]?.total ?? 1, 1)) * 100}%` }}
+                    />
+                  </div>
+                </summary>
+                {f.cnpjCpf && <p className="mt-2 text-xs text-suave">CNPJ/CPF {f.cnpjCpf}</p>}
+                <ul className="mt-2 flex flex-col divide-y divide-borda">
+                  {f.lancamentos.map((l, i) => (
+                    <li key={i} className="flex items-baseline justify-between gap-3 py-1.5">
+                      <span className="min-w-0">
+                        <span className="tabular-nums">{l.data ? formatarData(l.data) : rotuloMes(l.mes)}</span>
+                        {l.data && l.data.slice(0, 7) !== l.mes && (
+                          <span className="text-xs text-suave"> (lançado em {rotuloMes(l.mes)})</span>
+                        )}{" "}
+                        <span className="text-suave">{l.categoria.toLowerCase()}</span>
+                      </span>
+                      <span className="flex shrink-0 items-baseline gap-2 tabular-nums">
+                        {formatarReais(l.valor)}
+                        {l.documentoUrl ? (
+                          <a
+                            href={l.documentoUrl}
+                            className="text-xs text-destaque underline"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            nota
+                          </a>
+                        ) : (
+                          <span className="text-xs text-suave" title="A casa não publicou o documento">
+                            sem nota
+                          </span>
+                        )}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            </li>
+          ))}
+        </ul>
+        <ComoCalculamos>
+          <p>
+            Toque num fornecedor para ver cada lançamento. A Câmara publica o documento fiscal da maior parte das
+            despesas; o Senado não publica o link do documento nos dados abertos. Os gastos entram no mês de competência
+            informado pela casa, que às vezes difere da data da nota.
+          </p>
+        </ComoCalculamos>
       </Secao>
     </>
   );

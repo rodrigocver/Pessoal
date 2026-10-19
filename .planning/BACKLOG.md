@@ -41,7 +41,7 @@ Depois de publicadas, o GitHub passa a ser a fonte da verdade: discussão e anda
 | 10 | [Acessibilidade: alternativa textual aos gráficos e auditoria](issues/10-acessibilidade-graficos.md) | boa primeira issue, interface |
 | 11 | [Página de status das atualizações de dados](issues/11-pagina-status-ingestao.md) | boa primeira issue, interface, ingestão |
 | 12 | [Busca: ignorar acentos no nome completo e ordenar por relevância](issues/12-busca-melhorada.md) | boa primeira issue, interface |
-| 16 | [Mostrar a nota fiscal de cada despesa](issues/16-link-documento-despesa.md) | boa primeira issue, interface |
+| 16 | ✅ [Mostrar a nota fiscal de cada despesa](issues/16-link-documento-despesa.md) | boa primeira issue, interface |
 
 ## v2 (discutir antes)
 
