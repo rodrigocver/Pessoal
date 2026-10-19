@@ -1,0 +1,10 @@
+{
+  "mode": "interactive",
+  "depth": "standard",
+  "language": "pt-BR",
+  "workflow": {
+    "research": true,
+    "plan_check": true,
+    "verifier": true
+  }
+}
