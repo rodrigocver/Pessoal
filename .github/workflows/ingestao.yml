@@ -1,0 +1,39 @@
+name: Ingestão de dados
+
+on:
+  schedule:
+    # Diária às 06:17 de Brasília — depois que a Câmara regenera os arquivos (madrugada).
+    - cron: "17 9 * * *"
+    # Domingo: recarrega a legislatura inteira (situação de projetos antigos muda).
+    - cron: "47 10 * * 0"
+  workflow_dispatch:
+    inputs:
+      desde:
+        description: "Ano inicial (vazio = só o ano corrente)"
+        required: false
+
+concurrency: ingestao
+
+jobs:
+  ingerir:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run db:migrate
+      - name: Ingerir
+        run: |
+          if [ -n "${{ inputs.desde }}" ]; then
+            npm run ingest -- --desde "${{ inputs.desde }}"
+          elif [ "${{ github.event.schedule }}" = "47 10 * * 0" ]; then
+            npm run ingest -- --desde 2023
+          else
+            npm run ingest
+          fi

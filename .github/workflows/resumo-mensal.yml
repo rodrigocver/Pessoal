@@ -1,0 +1,33 @@
+name: Resumo mensal
+
+on:
+  schedule:
+    # Dia 1º às 10:07 de Brasília, depois da ingestão diária.
+    - cron: "7 13 1 * *"
+  workflow_dispatch:
+    inputs:
+      mes:
+        description: "Mês no formato AAAA-MM (vazio = mês anterior)"
+        required: false
+
+concurrency: resumo-mensal
+
+jobs:
+  enviar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      AUTH_RESEND_KEY: ${{ secrets.AUTH_RESEND_KEY }}
+      EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+      APP_URL: ${{ vars.APP_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Enviar
+        run: |
+          if [ -n "${{ inputs.mes }}" ]; then npm run resumo-mensal -- --mes "${{ inputs.mes }}"; else npm run resumo-mensal; fi
