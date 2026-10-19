@@ -20,3 +20,8 @@ lista as licenças com datas, e `/senador/{codigo}/mandatos.json` traz os exerc�
   lugar ficam fora do cálculo.
 - **Decisão:** licenças curtas sem suplente continuam contando como ausência (com o motivo exibido),
   igual à Câmara. Mudar isso exige discussão em issue nova.
+
+## Correção (documentação)
+- O texto anterior dizia que licenças curtas sem suplente contavam como ausência "igual à Câmara". Na Câmara
+  isso não acontece: toda licença registrada no histórico tira o deputado do exercício. O comportamento segue o
+  status oficial de cada casa e está descrito em `docs/METRICAS.md`.

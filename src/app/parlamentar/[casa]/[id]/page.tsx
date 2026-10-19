@@ -196,8 +196,11 @@ async function AbaPresenca({
           )}
           <p>
             Só contam as sessões em que o parlamentar estava em exercício, segundo o histórico oficial da casa: períodos
-            em que um suplente ocupava a vaga ficam de fora. Licenças curtas, sem suplente, e faltas justificadas contam
-            como ausência.
+            de afastamento ficam de fora.{" "}
+            {p.casa === "CD"
+              ? "Na Câmara, toda licença registrada (saúde, interesse particular, cargo no Executivo) é afastamento, com ou sem suplente."
+              : "No Senado, licenças em que o senador continua em exercício contam como ausência, com o motivo na lista abaixo."}{" "}
+            Faltas sem licença contam como ausência, mesmo justificadas.
           </p>
           {p.casa === "CD" && (
             <p>

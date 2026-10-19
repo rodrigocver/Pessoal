@@ -6,7 +6,7 @@
 const VERSAO = "v5";
 const CACHE = `fiscaliza-${VERSAO}`;
 const OFFLINE = "/offline";
-const PUBLICAS = [/^\/$/, /^\/buscar/, /^\/parlamentar\//, /^\/votacao\//, /^\/comparar/, /^\/status$/, /^\/offline$/];
+const PUBLICAS = [/^\/$/, /^\/buscar/, /^\/parlamentar\//, /^\/votacao\//, /^\/comparar/, /^\/status$/, /^\/metodologia$/, /^\/offline$/];
 
 // Salva a página offline e os scripts/estilos que ela usa: sem eles, ela quebra quando não há rede.
 async function precarregar() {

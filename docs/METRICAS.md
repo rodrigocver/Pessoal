@@ -1,10 +1,7 @@
 # Métricas
 
-Definições oficiais de cada número exibido. O texto "Como calculamos" no site deve dizer o mesmo
-que este arquivo. Mudou a definição? Atualize os dois no mesmo pull request.
-
-Implementação: `src/lib/consultas.ts` (páginas) e `src/ingest/estatisticas.ts` (médias). As duas
-precisam seguir a mesma definição.
+Como cada número do Fiscaliza é calculado. Todos os dados vêm das fontes oficiais da Câmara dos
+Deputados e do Senado Federal, e o mesmo cálculo vale para todos os parlamentares, de qualquer partido.
 
 ## Janela de exercício
 
@@ -19,8 +16,13 @@ Implementação: tabela `exercicio` (tarefas `camara:exercicio` e `senado:exerci
 usa a aproximação antiga: da primeira à última atividade registrada (presença ou voto), ou até hoje se em
 exercício. A expressão SQL única fica em `src/lib/exercicio.ts` (`sessaoConta`).
 
-Licenças curtas, em que o titular não é substituído, **continuam contando como ausência** (no Senado, o
-motivo aparece na lista de ausências).
+Licenças seguem o **status oficial de cada casa**:
+- **Câmara:** toda licença registrada no histórico (saúde, interesse particular, cargo no Executivo) tira o
+  deputado do exercício, com ou sem suplente. Esses períodos não contam na presença, nem como falta.
+- **Senado:** licenças em que o senador continua em exercício (por exemplo, até 120 dias sem convocação de
+  suplente) **contam como ausência**, com o motivo exibido na lista de ausências.
+
+Faltas sem licença contam como ausência nas duas casas, mesmo justificadas.
 
 ## Afastamentos e suplentes
 
@@ -104,3 +106,11 @@ de competência. Não inclui salário, verba de gabinete nem auxílio-moradia pa
 
 Média simples entre os parlamentares **em exercício hoje** da mesma casa (e do mesmo partido atual),
 com cada parlamentar pesando igual. Calculadas pela tarefa `estatisticas`.
+
+## Para quem contribui
+
+Este arquivo é a definição oficial e é publicado no site em `/metodologia`. O texto "Como calculamos" de
+cada tela deve dizer o mesmo; mudou a definição, atualize os dois no mesmo pull request.
+
+Implementação: `src/lib/consultas.ts` (páginas) e `src/ingest/estatisticas.ts` (médias). As duas precisam
+seguir a mesma definição; `tests/integracao/` confere que batem.

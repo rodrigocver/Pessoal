@@ -63,6 +63,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             Senado Federal
           </a>
           .{atualizado && <> Atualizado em {formatarDataHora(atualizado)}.</>}{" "}
+          <Link href="/metodologia" className="underline">
+            Metodologia
+          </Link>{" "}
+          ·{" "}
           <Link href="/status" className="underline">
             Status
           </Link>
