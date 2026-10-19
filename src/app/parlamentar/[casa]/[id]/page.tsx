@@ -167,6 +167,7 @@ async function AbaPresenca({
           legenda={`${d.presentes} de ${d.total} sessões ${p.casa === "SF" ? "com votação nominal" : "deliberativas"} em ${periodo.rotulo.toLowerCase()}`}
         />
         <BarrasMensais
+          titulo="Presença por mês"
           maximo={1}
           formatar={(v) => `${Math.round(v * 100)}`}
           dados={d.mensal.map((m) => ({
@@ -421,6 +422,7 @@ async function AbaGastos({ p, periodo }: { p: Parlamentar; periodo: Periodo }) {
           legenda={`${d.lancamentos} lançamentos em ${periodo.rotulo.toLowerCase()}`}
         />
         <BarrasMensais
+          titulo="Gastos da cota por mês"
           formatar={(v) => formatarReais(v, true).replace("R$", "").trim()}
           dados={d.mensal.map((m) => ({
             mes: m.mes,
@@ -469,7 +471,7 @@ async function AbaGastos({ p, periodo }: { p: Parlamentar; periodo: Periodo }) {
                       {formatarReais(f.total)} · {f.n}x
                     </span>
                   </div>
-                  <div className="h-2 rounded-full bg-fundo">
+                  <div aria-hidden className="h-2 rounded-full bg-fundo">
                     <div
                       className="h-2 rounded-full bg-destaque"
                       style={{ width: `${(f.total / Math.max(d.fornecedores[0]?.total ?? 1, 1)) * 100}%` }}

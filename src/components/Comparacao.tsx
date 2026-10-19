@@ -18,7 +18,7 @@ export function Comparacao({
       {linhas.map((l) => (
         <li key={l.rotulo} className="grid grid-cols-[7.5rem_1fr_auto] items-center gap-3">
           <span className={`truncate ${l.destaque ? "font-medium" : "text-suave"}`}>{l.rotulo}</span>
-          <div className="h-2 rounded-full bg-fundo">
+          <div aria-hidden className="h-2 rounded-full bg-fundo">
             {l.valor != null && (
               <div
                 className={`h-2 rounded-full ${l.destaque ? "bg-destaque" : "bg-suave/50"}`}

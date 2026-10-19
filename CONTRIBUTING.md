@@ -89,6 +89,10 @@ Tipos usados: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `perf`.
   atualize `src/ingest/estatisticas.ts` com a mesma definição.
 - **Interface:** mobile first, cores pelos tokens de `globals.css` (funciona no tema escuro),
   sem bibliotecas de gráficos pesadas.
+- **Acessibilidade:** gráficos têm alternativa em texto (`BarrasMensais` recebe `titulo` e gera tabela para
+  leitores de tela; barras decorativas levam `aria-hidden`). Áreas com rolagem horizontal precisam ser focáveis.
+  Antes do PR, rode o Lighthouse (Acessibilidade) ou a extensão axe DevTools nas páginas que mudou: hoje o
+  site tem nota 100 e nenhum problema no axe, nos temas claro e escuro.
 
 ## Testes
 
