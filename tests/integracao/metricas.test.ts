@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { and, eq } from "drizzle-orm";
 import { db, schema, sql } from "@/db/client";
 import {
+  candidaturasDe,
   comissoesDe,
   statusIngestao,
   afastadosAgora,
@@ -244,5 +245,61 @@ describe("comissões", () => {
     // Beto é suplente na comissão: aparece como membro, mas as reuniões não contam para ele.
     const [doBeto] = await comissoesDe(c.beto, ano2025);
     expect(doBeto).toMatchObject({ sigla: "CE", reunioes: 0, presencas: 0 });
+  });
+});
+
+describe("eleições", () => {
+  it("bens por tipo, receitas por origem e só doadores institucionais pelo nome", async () => {
+    const [cand] = await db
+      .insert(schema.candidatura)
+      .values({
+        parlamentarId: c.ana.id,
+        ano: 2022,
+        eleicao: "Eleições Gerais Estaduais 2022",
+        dataEleicao: "2022-10-02",
+        cargo: "DEPUTADO FEDERAL",
+        uf: "SP",
+        partido: "PT",
+        sqCandidato: "1",
+        patrimonio: "270.00",
+        receitaTotal: "1150.00",
+        fonteUrl: "teste",
+      })
+      .returning();
+    await db.insert(schema.candidaturaBem).values([
+      { candidaturaId: cand.id, ordem: 1, tipo: "Terreno", valor: "100.00" },
+      { candidaturaId: cand.id, ordem: 2, tipo: "Terreno", valor: "50.00" },
+      { candidaturaId: cand.id, ordem: 3, tipo: "Veículo", valor: "120.00" },
+    ]);
+    await db.insert(schema.candidaturaReceita).values([
+      {
+        candidaturaId: cand.id,
+        origem: "Recursos de pessoas físicas",
+        doador: "",
+        total: "150.00",
+        doacoes: 3,
+        doadores: 2,
+      },
+      {
+        candidaturaId: cand.id,
+        origem: "Recursos de partido político",
+        doador: "DIREÇÃO NACIONAL",
+        total: "1000.00",
+        doacoes: 1,
+        doadores: 1,
+      },
+    ]);
+    const [r] = await candidaturasDe(c.ana);
+    expect(r).toMatchObject({ ano: 2022, cargo: "DEPUTADO FEDERAL", patrimonio: 270, receitaTotal: 1150 });
+    expect(r.bensPorTipo).toEqual([
+      { tipo: "Terreno", total: 150, n: 2 },
+      { tipo: "Veículo", total: 120, n: 1 },
+    ]);
+    expect(r.receitasPorOrigem.map((x) => [x.origem, x.total, x.doadores])).toEqual([
+      ["Recursos de partido político", 1000, 1],
+      ["Recursos de pessoas físicas", 150, 2],
+    ]);
+    expect(r.doadoresInstitucionais.map((d) => d.doador)).toEqual(["DIREÇÃO NACIONAL"]);
+    expect(await candidaturasDe(c.beto)).toEqual([]);
   });
 });

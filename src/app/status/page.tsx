@@ -18,7 +18,12 @@ const DESCRICOES: Record<string, string> = {
   "senado:votacoes": "Senado: votações e comparecimento",
   "senado:proposicoes": "Senado: projetos apresentados",
   "senado:despesas": "Senado: cota parlamentar",
+  "camara:comissoes": "Câmara: membros de comissões",
+  "camara:reunioes": "Câmara: reuniões e presença em comissões",
+  "senado:comissoes": "Senado: membros de comissões",
+  "senado:relatorias": "Senado: relatorias",
   temas: "Temas das matérias votadas",
+  tse: "Eleições (TSE): candidaturas, bens e doações",
   estatisticas: "Médias e comparações",
 };
 

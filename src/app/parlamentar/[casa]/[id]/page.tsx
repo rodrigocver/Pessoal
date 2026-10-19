@@ -9,6 +9,7 @@ import {
   obterParlamentar,
   presenca,
   proposicoes,
+  candidaturasDe,
   comissoesDe,
   relatoriasDe,
   type ComissaoDoParlamentar,
@@ -42,6 +43,7 @@ const ABAS = {
   proposicoes: "Projetos",
   comissoes: "Comissões",
   gastos: "Gastos",
+  eleicoes: "Eleições",
 } as const;
 type Aba = keyof typeof ABAS;
 
@@ -113,23 +115,26 @@ export default async function Perfil({ params, searchParams }: Props) {
         ))}
       </nav>
 
-      <div className="-mx-4 flex gap-1 overflow-x-auto px-4 text-sm" aria-label="Período">
-        {periodosDisponiveis().map((per) => (
-          <Link
-            key={per.valor}
-            href={link({ periodo: per.valor })}
-            className={`shrink-0 rounded-lg border px-3 py-1 ${per.valor === periodo.valor ? "border-destaque text-destaque" : "border-borda text-suave"}`}
-          >
-            {per.rotulo}
-          </Link>
-        ))}
-      </div>
+      {aba !== "eleicoes" && (
+        <div className="-mx-4 flex gap-1 overflow-x-auto px-4 text-sm" aria-label="Período">
+          {periodosDisponiveis().map((per) => (
+            <Link
+              key={per.valor}
+              href={link({ periodo: per.valor })}
+              className={`shrink-0 rounded-lg border px-3 py-1 ${per.valor === periodo.valor ? "border-destaque text-destaque" : "border-borda text-suave"}`}
+            >
+              {per.rotulo}
+            </Link>
+          ))}
+        </div>
+      )}
 
       {aba === "presenca" && <AbaPresenca p={p} periodo={periodo} afastamentos={afastamentos} vagas={vagas} />}
       {aba === "votacoes" && <AbaVotacoes p={p} periodo={periodo} pagina={pagina} tema={tema} link={link} />}
       {aba === "proposicoes" && <AbaProposicoes p={p} periodo={periodo} />}
       {aba === "comissoes" && <AbaComissoes p={p} periodo={periodo} />}
       {aba === "gastos" && <AbaGastos p={p} periodo={periodo} />}
+      {aba === "eleicoes" && <AbaEleicoes p={p} />}
     </div>
   );
 }
@@ -524,6 +529,119 @@ async function AbaComissoes({ p, periodo }: { p: Parlamentar; periodo: Periodo }
           </ComoCalculamos>
         </Secao>
       )}
+    </>
+  );
+}
+
+const tituloCase = (s: string) => (s.charAt(0) + s.slice(1).toLowerCase()).replace(/\bqp\b/, "QP");
+// O TSE grava alguns tipos de bem em maiúsculas ("OUTROS BENS E DIREITOS") e outros não.
+const tipoBem = (s: string) => (s === s.toUpperCase() ? tituloCase(s) : s);
+
+async function AbaEleicoes({ p }: { p: Parlamentar }) {
+  const candidaturas = await candidaturasDe(p);
+  if (candidaturas.length === 0)
+    return (
+      <Secao titulo="Eleições">
+        <p className="text-sm text-suave">Nenhuma candidatura encontrada nos dados do TSE desde 2018.</p>
+      </Secao>
+    );
+  const comPatrimonio = [...candidaturas].reverse().filter((c) => c.patrimonio > 0);
+  return (
+    <>
+      {comPatrimonio.length > 1 && (
+        <Secao titulo="Patrimônio declarado ao TSE">
+          <BarrasHorizontais
+            dados={comPatrimonio.map((c) => ({
+              rotulo: `${c.dataEleicao ? c.dataEleicao.slice(0, 4) : c.ano} · ${tituloCase(c.cargo)}`,
+              valor: c.patrimonio,
+              texto: formatarReais(c.patrimonio),
+            }))}
+          />
+          <p className="text-xs text-suave">Valores declarados pelo próprio candidato, sem correção pela inflação.</p>
+        </Secao>
+      )}
+      {candidaturas.map((c) => {
+        const suplementar = c.eleicao && !/Eleições Gerais/i.test(c.eleicao);
+        return (
+          <Secao
+            key={`${c.ano}-${c.cargo}`}
+            titulo={`${c.dataEleicao ? c.dataEleicao.slice(0, 4) : c.ano} · ${tituloCase(c.cargo)} (${c.uf})`}
+          >
+            <p className="text-sm">
+              {[c.partido, c.numero && `número ${c.numero}`, c.nomeUrna && `nome na urna: ${c.nomeUrna}`]
+                .filter(Boolean)
+                .join(" · ")}
+              {c.situacao && (
+                <>
+                  {" "}
+                  · <span className="font-medium">{tituloCase(c.situacao.replace(/#/g, ""))}</span>
+                </>
+              )}
+            </p>
+            {suplementar && (
+              <p className="text-xs text-suave">
+                {c.eleicao}
+                {c.dataEleicao && ` (${formatarData(c.dataEleicao)})`}
+              </p>
+            )}
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div className="flex min-w-0 flex-col gap-2">
+                <h3 className="text-sm font-medium">Patrimônio declarado: {formatarReais(c.patrimonio)}</h3>
+                {c.bensPorTipo.length > 0 ? (
+                  <BarrasHorizontais
+                    dados={c.bensPorTipo.slice(0, 6).map((b) => ({
+                      rotulo: tipoBem(b.tipo),
+                      valor: b.total,
+                      texto: `${formatarReais(b.total, true)}${b.n > 1 ? ` · ${b.n}` : ""}`,
+                    }))}
+                  />
+                ) : (
+                  <p className="text-sm text-suave">Nenhum bem declarado.</p>
+                )}
+              </div>
+              <div className="flex min-w-0 flex-col gap-2">
+                <h3 className="text-sm font-medium">Receitas de campanha: {formatarReais(c.receitaTotal)}</h3>
+                {c.receitasPorOrigem.length > 0 ? (
+                  <BarrasHorizontais
+                    dados={c.receitasPorOrigem.map((r) => ({
+                      rotulo: r.origem.replace(/^Recursos (de )?/, "").replace(/^./, (x) => x.toUpperCase()),
+                      valor: r.total,
+                      texto: `${formatarReais(r.total, true)}${r.origem === "Recursos de pessoas físicas" ? ` · ${r.doadores} doadores` : ""}`,
+                    }))}
+                  />
+                ) : (
+                  <p className="text-sm text-suave">Sem receitas na prestação de contas.</p>
+                )}
+              </div>
+            </div>
+            {c.doadoresInstitucionais.length > 0 && (
+              <details className="text-sm">
+                <summary className="cursor-pointer text-suave">Partidos e candidatos que doaram</summary>
+                <ul className="mt-2 flex flex-col gap-1">
+                  {c.doadoresInstitucionais.map((d) => (
+                    <li key={`${d.doador}-${d.origem}`} className="flex justify-between gap-3">
+                      <span className="min-w-0 truncate">{tituloCase(d.doador)}</span>
+                      <span className="shrink-0 tabular-nums text-suave">{formatarReais(d.total)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
+          </Secao>
+        );
+      })}
+      <ComoCalculamos>
+        <p>
+          Dados abertos do Tribunal Superior Eleitoral (TSE): candidaturas, bens declarados e prestação de contas, das
+          eleições de 2018 em diante. Deputados são identificados pelo CPF publicado pela Câmara; senadores, pelo nome
+          completo e estado. O CPF serve só para essa ligação e não é guardado.
+        </p>
+        <p>
+          Por privacidade, mostramos o tipo e o valor dos bens, sem a descrição (que pode trazer endereços), e o total
+          das doações de pessoas físicas com o número de doadores, sem os nomes. Os detalhes completos estão nos dados
+          do TSE. Valores sem correção pela inflação.
+        </p>
+      </ComoCalculamos>
     </>
   );
 }

@@ -473,3 +473,66 @@ export const relatoria = pgTable(
     index("relatoria_parlamentar").on(t.parlamentarId),
   ],
 );
+
+// ---------- Eleições (TSE) ----------
+
+/** Candidaturas do parlamentar (TSE). O CPF serve só para ligar ao parlamentar e não é gravado. */
+export const candidatura = pgTable(
+  "candidatura",
+  {
+    id: serial("id").primaryKey(),
+    parlamentarId: integer("parlamentar_id")
+      .notNull()
+      .references(() => parlamentar.id, { onDelete: "cascade" }),
+    ano: integer("ano").notNull(), // ano do arquivo do TSE (eleições gerais)
+    eleicao: text("eleicao"), // ex.: "Eleição Suplementar Senador - MT" (o arquivo de 2018 traz a suplementar de 2020)
+    dataEleicao: date("data_eleicao"),
+    cargo: text("cargo").notNull(), // "DEPUTADO FEDERAL", "SENADOR", "1º SUPLENTE"...
+    uf: text("uf").notNull(),
+    partido: text("partido"),
+    numero: text("numero"),
+    nomeUrna: text("nome_urna"),
+    situacao: text("situacao"), // "ELEITO POR QP", "SUPLENTE", "NÃO ELEITO"...
+    sqCandidato: text("sq_candidato").notNull(), // id do candidato no TSE
+    patrimonio: numeric("patrimonio", { precision: 16, scale: 2 }).notNull().default("0"),
+    receitaTotal: numeric("receita_total", { precision: 16, scale: 2 }).notNull().default("0"),
+    ...origem,
+  },
+  (t) => [
+    uniqueIndex("candidatura_unica").on(t.parlamentarId, t.ano, t.cargo),
+    index("candidatura_sq").on(t.sqCandidato),
+  ],
+);
+
+/** Bens declarados: só tipo e valor (a descrição do TSE traz endereços e não é publicada aqui). */
+export const candidaturaBem = pgTable(
+  "candidatura_bem",
+  {
+    candidaturaId: integer("candidatura_id")
+      .notNull()
+      .references(() => candidatura.id, { onDelete: "cascade" }),
+    ordem: integer("ordem").notNull(),
+    tipo: text("tipo").notNull(),
+    valor: numeric("valor", { precision: 16, scale: 2 }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.candidaturaId, t.ordem] })],
+);
+
+/**
+ * Receitas de campanha agregadas por origem. Doadores institucionais (partidos, outros candidatos) têm
+ * nome; pessoas físicas ficam agregadas (doador = "") com o número de doadores distintos.
+ */
+export const candidaturaReceita = pgTable(
+  "candidatura_receita",
+  {
+    candidaturaId: integer("candidatura_id")
+      .notNull()
+      .references(() => candidatura.id, { onDelete: "cascade" }),
+    origem: text("origem").notNull(),
+    doador: text("doador").notNull().default(""),
+    total: numeric("total", { precision: 16, scale: 2 }).notNull(),
+    doacoes: integer("doacoes").notNull(),
+    doadores: integer("doadores").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.candidaturaId, t.origem, t.doador] })],
+);

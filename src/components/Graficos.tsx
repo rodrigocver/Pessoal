@@ -88,7 +88,9 @@ export function BarrasHorizontais({ dados }: { dados: { rotulo: string; valor: n
       {dados.map((d) => (
         <li key={d.rotulo} className="text-sm">
           <div className="mb-1 flex justify-between gap-3">
-            <span className="truncate">{d.rotulo}</span>
+            <span className="min-w-0 truncate" title={d.rotulo}>
+              {d.rotulo}
+            </span>
             <span className="shrink-0 tabular-nums text-suave">{d.texto}</span>
           </div>
           <div aria-hidden className="h-2 rounded-full bg-fundo">

@@ -10,6 +10,7 @@ import { ingerirDespesasSenado, ingerirProposicoesSenado, ingerirVotacoesSenado 
 import { calcularEstatisticas } from "@/ingest/estatisticas";
 import { ingerirExercicioCamara, ingerirExercicioSenado } from "@/ingest/exercicio";
 import { ingerirTemas } from "@/ingest/temas";
+import { ingerirTse } from "@/ingest/tse";
 import {
   ingerirComissoesCamara,
   ingerirComissoesSenado,
@@ -44,11 +45,18 @@ const tarefas: Record<string, () => Promise<number>> = {
   "senado:comissoes": ingerirComissoesSenado,
   "senado:relatorias": porAno(ingerirRelatoriasSenado),
   temas: ingerirTemas, // temas das matérias votadas (incremental)
+  tse: ingerirTse, // candidaturas, bens declarados e receitas de campanha (eleições de 2018 em diante)
   estatisticas: calcularEstatisticas, // por último: depende de todo o resto
 };
 
+// Arquivos grandes que mudam pouco (o TSE só atualiza em ano de eleição): na ingestão diária ficam de fora;
+// rodam na carga completa semanal (--desde) ou quando pedidas pelo nome.
+const SO_CARGA_COMPLETA = new Set(["tse"]);
+
 async function main() {
-  const nomes = pedidas.length ? pedidas : Object.keys(tarefas);
+  const nomes = pedidas.length
+    ? pedidas
+    : Object.keys(tarefas).filter((n) => anos.length > 1 || !SO_CARGA_COMPLETA.has(n));
   const desconhecidas = nomes.filter((n) => !tarefas[n]);
   if (desconhecidas.length) {
     console.error(

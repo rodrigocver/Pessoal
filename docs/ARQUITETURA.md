@@ -60,6 +60,7 @@
 | `camara:reunioes` | Reuniões deliberativas de comissão e presença (por ano) |
 | `senado:relatorias` | Relatorias de projetos (por ano) |
 | `temas` | Temas oficiais das matérias votadas (incremental) |
+| `tse` | Candidaturas, bens declarados e receitas de campanha (eleições de 2018 em diante). Só na carga completa (`--desde`) ou pedida pelo nome |
 | `estatisticas` | Recalcula a visão `janela_exercicio` e a tabela `estatistica` (sempre por último) |
 
 Cada execução é registrada em `ingestao_log`; o rodapé do site mostra a última atualização bem-sucedida.

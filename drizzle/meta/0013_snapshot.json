@@ -1,0 +1,2730 @@
+{
+  "id": "b7cb8348-fd6a-4e07-a1cb-e09ab1def38e",
+  "prevId": "d85ae982-0d23-4b9b-b859-83004f4f562f",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.afastamento": {
+      "name": "afastamento",
+      "schema": "",
+      "columns": {
+        "parlamentar_id": {
+          "name": "parlamentar_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inicio": {
+          "name": "inicio",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fim": {
+          "name": "fim",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "motivo": {
+          "name": "motivo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "definitivo": {
+          "name": "definitivo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fonte_url": {
+          "name": "fonte_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "atualizado_em": {
+          "name": "atualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "afastamento_parlamentar_id_parlamentar_id_fk": {
+          "name": "afastamento_parlamentar_id_parlamentar_id_fk",
+          "tableFrom": "afastamento",
+          "tableTo": "parlamentar",
+          "columnsFrom": [
+            "parlamentar_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "afastamento_parlamentar_id_inicio_pk": {
+          "name": "afastamento_parlamentar_id_inicio_pk",
+          "columns": [
+            "parlamentar_id",
+            "inicio"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.autoria": {
+      "name": "autoria",
+      "schema": "",
+      "columns": {
+        "proposicao_id": {
+          "name": "proposicao_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parlamentar_id": {
+          "name": "parlamentar_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "autoria_parlamentar": {
+          "name": "autoria_parlamentar",
+          "columns": [
+            {
+              "expression": "parlamentar_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "autoria_proposicao_id_proposicao_id_fk": {
+          "name": "autoria_proposicao_id_proposicao_id_fk",
+          "tableFrom": "autoria",
+          "tableTo": "proposicao",
+          "columnsFrom": [
+            "proposicao_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "autoria_parlamentar_id_parlamentar_id_fk": {
+          "name": "autoria_parlamentar_id_parlamentar_id_fk",
+          "tableFrom": "autoria",
+          "tableTo": "parlamentar",
+          "columnsFrom": [
+            "parlamentar_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "autoria_proposicao_id_parlamentar_id_pk": {
+          "name": "autoria_proposicao_id_parlamentar_id_pk",
+          "columns": [
+            "proposicao_id",
+            "parlamentar_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.candidatura": {
+      "name": "candidatura",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "parlamentar_id": {
+          "name": "parlamentar_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ano": {
+          "name": "ano",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cargo": {
+          "name": "cargo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "uf": {
+          "name": "uf",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "partido": {
+          "name": "partido",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "numero": {
+          "name": "numero",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nome_urna": {
+          "name": "nome_urna",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "situacao": {
+          "name": "situacao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sq_candidato": {
+          "name": "sq_candidato",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "patrimonio": {
+          "name": "patrimonio",
+          "type": "numeric(16, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "receita_total": {
+          "name": "receita_total",
+          "type": "numeric(16, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "fonte_url": {
+          "name": "fonte_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "atualizado_em": {
+          "name": "atualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "candidatura_unica": {
+          "name": "candidatura_unica",
+          "columns": [
+            {
+              "expression": "parlamentar_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "ano",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "cargo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "candidatura_sq": {
+          "name": "candidatura_sq",
+          "columns": [
+            {
+              "expression": "sq_candidato",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "candidatura_parlamentar_id_parlamentar_id_fk": {
+          "name": "candidatura_parlamentar_id_parlamentar_id_fk",
+          "tableFrom": "candidatura",
+          "tableTo": "parlamentar",
+          "columnsFrom": [
+            "parlamentar_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.candidatura_bem": {
+      "name": "candidatura_bem",
+      "schema": "",
+      "columns": {
+        "candidatura_id": {
+          "name": "candidatura_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ordem": {
+          "name": "ordem",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor": {
+          "name": "valor",
+          "type": "numeric(16, 2)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "candidatura_bem_candidatura_id_candidatura_id_fk": {
+          "name": "candidatura_bem_candidatura_id_candidatura_id_fk",
+          "tableFrom": "candidatura_bem",
+          "tableTo": "candidatura",
+          "columnsFrom": [
+            "candidatura_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "candidatura_bem_candidatura_id_ordem_pk": {
+          "name": "candidatura_bem_candidatura_id_ordem_pk",
+          "columns": [
+            "candidatura_id",
+            "ordem"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.candidatura_receita": {
+      "name": "candidatura_receita",
+      "schema": "",
+      "columns": {
+        "candidatura_id": {
+          "name": "candidatura_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "origem": {
+          "name": "origem",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "doador": {
+          "name": "doador",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "total": {
+          "name": "total",
+          "type": "numeric(16, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "doacoes": {
+          "name": "doacoes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "doadores": {
+          "name": "doadores",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "candidatura_receita_candidatura_id_candidatura_id_fk": {
+          "name": "candidatura_receita_candidatura_id_candidatura_id_fk",
+          "tableFrom": "candidatura_receita",
+          "tableTo": "candidatura",
+          "columnsFrom": [
+            "candidatura_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "candidatura_receita_candidatura_id_origem_doador_pk": {
+          "name": "candidatura_receita_candidatura_id_origem_doador_pk",
+          "columns": [
+            "candidatura_id",
+            "origem",
+            "doador"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.account": {
+      "name": "account",
+      "schema": "",
+      "columns": {
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider": {
+          "name": "provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "providerAccountId": {
+          "name": "providerAccountId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "refresh_token": {
+          "name": "refresh_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "access_token": {
+          "name": "access_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "token_type": {
+          "name": "token_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "scope": {
+          "name": "scope",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_token": {
+          "name": "id_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "session_state": {
+          "name": "session_state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "account_userId_user_id_fk": {
+          "name": "account_userId_user_id_fk",
+          "tableFrom": "account",
+          "tableTo": "user",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "account_provider_providerAccountId_pk": {
+          "name": "account_provider_providerAccountId_pk",
+          "columns": [
+            "provider",
+            "providerAccountId"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.despesa": {
+      "name": "despesa",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "casa": {
+          "name": "casa",
+          "type": "casa",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "chave": {
+          "name": "chave",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parlamentar_id": {
+          "name": "parlamentar_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ano": {
+          "name": "ano",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mes": {
+          "name": "mes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "categoria": {
+          "name": "categoria",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fornecedor": {
+          "name": "fornecedor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cnpj_cpf": {
+          "name": "cnpj_cpf",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor": {
+          "name": "valor",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "documento_url": {
+          "name": "documento_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fonte_url": {
+          "name": "fonte_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "atualizado_em": {
+          "name": "atualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "despesa_casa_chave": {
+          "name": "despesa_casa_chave",
+          "columns": [
+            {
+              "expression": "casa",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "chave",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "despesa_parlamentar_ano_mes": {
+          "name": "despesa_parlamentar_ano_mes",
+          "columns": [
+            {
+              "expression": "parlamentar_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "ano",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "mes",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "despesa_parlamentar_id_parlamentar_id_fk": {
+          "name": "despesa_parlamentar_id_parlamentar_id_fk",
+          "tableFrom": "despesa",
+          "tableTo": "parlamentar",
+          "columnsFrom": [
+            "parlamentar_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.envio_resumo": {
+      "name": "envio_resumo",
+      "schema": "",
+      "columns": {
+        "usuario_id": {
+          "name": "usuario_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mes": {
+          "name": "mes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "enviado_em": {
+          "name": "enviado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "envio_resumo_usuario_id_user_id_fk": {
+          "name": "envio_resumo_usuario_id_user_id_fk",
+          "tableFrom": "envio_resumo",
+          "tableTo": "user",
+          "columnsFrom": [
+            "usuario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "envio_resumo_usuario_id_mes_pk": {
+          "name": "envio_resumo_usuario_id_mes_pk",
+          "columns": [
+            "usuario_id",
+            "mes"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.estatistica": {
+      "name": "estatistica",
+      "schema": "",
+      "columns": {
+        "parlamentar_id": {
+          "name": "parlamentar_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "periodo": {
+          "name": "periodo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sessoes": {
+          "name": "sessoes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "presencas": {
+          "name": "presencas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "votos": {
+          "name": "votos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gastos": {
+          "name": "gastos",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proposicoes": {
+          "name": "proposicoes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "alinh_partido_iguais": {
+          "name": "alinh_partido_iguais",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "alinh_partido_total": {
+          "name": "alinh_partido_total",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "alinh_governo_iguais": {
+          "name": "alinh_governo_iguais",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "alinh_governo_total": {
+          "name": "alinh_governo_total",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "comissao_reunioes": {
+          "name": "comissao_reunioes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "comissao_presencas": {
+          "name": "comissao_presencas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "calculado_em": {
+          "name": "calculado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "estatistica_parlamentar_id_parlamentar_id_fk": {
+          "name": "estatistica_parlamentar_id_parlamentar_id_fk",
+          "tableFrom": "estatistica",
+          "tableTo": "parlamentar",
+          "columnsFrom": [
+            "parlamentar_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "estatistica_parlamentar_id_periodo_pk": {
+          "name": "estatistica_parlamentar_id_periodo_pk",
+          "columns": [
+            "parlamentar_id",
+            "periodo"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.exercicio": {
+      "name": "exercicio",
+      "schema": "",
+      "columns": {
+        "parlamentar_id": {
+          "name": "parlamentar_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inicio": {
+          "name": "inicio",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fim": {
+          "name": "fim",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "como_suplente": {
+          "name": "como_suplente",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "fonte_url": {
+          "name": "fonte_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "atualizado_em": {
+          "name": "atualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "exercicio_parlamentar_id_parlamentar_id_fk": {
+          "name": "exercicio_parlamentar_id_parlamentar_id_fk",
+          "tableFrom": "exercicio",
+          "tableTo": "parlamentar",
+          "columnsFrom": [
+            "parlamentar_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "exercicio_parlamentar_id_inicio_pk": {
+          "name": "exercicio_parlamentar_id_inicio_pk",
+          "columns": [
+            "parlamentar_id",
+            "inicio"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ingestao_log": {
+      "name": "ingestao_log",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tarefa": {
+          "name": "tarefa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciado_em": {
+          "name": "iniciado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "finalizado_em": {
+          "name": "finalizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "registros": {
+          "name": "registros",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "erro": {
+          "name": "erro",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.membro_orgao": {
+      "name": "membro_orgao",
+      "schema": "",
+      "columns": {
+        "parlamentar_id": {
+          "name": "parlamentar_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "orgao_id": {
+          "name": "orgao_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cargo": {
+          "name": "cargo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inicio": {
+          "name": "inicio",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fim": {
+          "name": "fim",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "membro_orgao_orgao": {
+          "name": "membro_orgao_orgao",
+          "columns": [
+            {
+              "expression": "orgao_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "membro_orgao_parlamentar_id_parlamentar_id_fk": {
+          "name": "membro_orgao_parlamentar_id_parlamentar_id_fk",
+          "tableFrom": "membro_orgao",
+          "tableTo": "parlamentar",
+          "columnsFrom": [
+            "parlamentar_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "membro_orgao_orgao_id_orgao_id_fk": {
+          "name": "membro_orgao_orgao_id_orgao_id_fk",
+          "tableFrom": "membro_orgao",
+          "tableTo": "orgao",
+          "columnsFrom": [
+            "orgao_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "membro_orgao_parlamentar_id_orgao_id_cargo_inicio_pk": {
+          "name": "membro_orgao_parlamentar_id_orgao_id_cargo_inicio_pk",
+          "columns": [
+            "parlamentar_id",
+            "orgao_id",
+            "cargo",
+            "inicio"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.orgao": {
+      "name": "orgao",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "casa": {
+          "name": "casa",
+          "type": "casa",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_externo": {
+          "name": "id_externo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sigla": {
+          "name": "sigla",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fonte_url": {
+          "name": "fonte_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "atualizado_em": {
+          "name": "atualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "orgao_casa_id_externo": {
+          "name": "orgao_casa_id_externo",
+          "columns": [
+            {
+              "expression": "casa",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id_externo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.orientacao": {
+      "name": "orientacao",
+      "schema": "",
+      "columns": {
+        "votacao_id": {
+          "name": "votacao_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bancada": {
+          "name": "bancada",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "orientacao": {
+          "name": "orientacao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "orientacao_votacao_id_votacao_id_fk": {
+          "name": "orientacao_votacao_id_votacao_id_fk",
+          "tableFrom": "orientacao",
+          "tableTo": "votacao",
+          "columnsFrom": [
+            "votacao_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "orientacao_votacao_id_bancada_pk": {
+          "name": "orientacao_votacao_id_bancada_pk",
+          "columns": [
+            "votacao_id",
+            "bancada"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.parlamentar": {
+      "name": "parlamentar",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "casa": {
+          "name": "casa",
+          "type": "casa",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_externo": {
+          "name": "id_externo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome_completo": {
+          "name": "nome_completo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "partido": {
+          "name": "partido",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "uf": {
+          "name": "uf",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "foto_url": {
+          "name": "foto_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "em_exercicio": {
+          "name": "em_exercicio",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "fonte_url": {
+          "name": "fonte_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "atualizado_em": {
+          "name": "atualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "parlamentar_casa_id_externo": {
+          "name": "parlamentar_casa_id_externo",
+          "columns": [
+            {
+              "expression": "casa",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id_externo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "parlamentar_nome": {
+          "name": "parlamentar_nome",
+          "columns": [
+            {
+              "expression": "nome",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.presenca": {
+      "name": "presenca",
+      "schema": "",
+      "columns": {
+        "sessao_id": {
+          "name": "sessao_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parlamentar_id": {
+          "name": "parlamentar_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "presenca_parlamentar": {
+          "name": "presenca_parlamentar",
+          "columns": [
+            {
+              "expression": "parlamentar_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "presenca_sessao_id_sessao_id_fk": {
+          "name": "presenca_sessao_id_sessao_id_fk",
+          "tableFrom": "presenca",
+          "tableTo": "sessao",
+          "columnsFrom": [
+            "sessao_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "presenca_parlamentar_id_parlamentar_id_fk": {
+          "name": "presenca_parlamentar_id_parlamentar_id_fk",
+          "tableFrom": "presenca",
+          "tableTo": "parlamentar",
+          "columnsFrom": [
+            "parlamentar_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "presenca_sessao_id_parlamentar_id_pk": {
+          "name": "presenca_sessao_id_parlamentar_id_pk",
+          "columns": [
+            "sessao_id",
+            "parlamentar_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.presenca_reuniao": {
+      "name": "presenca_reuniao",
+      "schema": "",
+      "columns": {
+        "reuniao_id": {
+          "name": "reuniao_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parlamentar_id": {
+          "name": "parlamentar_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "presenca_reuniao_parlamentar": {
+          "name": "presenca_reuniao_parlamentar",
+          "columns": [
+            {
+              "expression": "parlamentar_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "presenca_reuniao_reuniao_id_reuniao_id_fk": {
+          "name": "presenca_reuniao_reuniao_id_reuniao_id_fk",
+          "tableFrom": "presenca_reuniao",
+          "tableTo": "reuniao",
+          "columnsFrom": [
+            "reuniao_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "presenca_reuniao_parlamentar_id_parlamentar_id_fk": {
+          "name": "presenca_reuniao_parlamentar_id_parlamentar_id_fk",
+          "tableFrom": "presenca_reuniao",
+          "tableTo": "parlamentar",
+          "columnsFrom": [
+            "parlamentar_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "presenca_reuniao_reuniao_id_parlamentar_id_pk": {
+          "name": "presenca_reuniao_reuniao_id_parlamentar_id_pk",
+          "columns": [
+            "reuniao_id",
+            "parlamentar_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.proposicao": {
+      "name": "proposicao",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "casa": {
+          "name": "casa",
+          "type": "casa",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_externo": {
+          "name": "id_externo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sigla_tipo": {
+          "name": "sigla_tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "numero": {
+          "name": "numero",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ano": {
+          "name": "ano",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ementa": {
+          "name": "ementa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "apresentada_em": {
+          "name": "apresentada_em",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "situacao": {
+          "name": "situacao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fonte_url": {
+          "name": "fonte_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "atualizado_em": {
+          "name": "atualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "proposicao_casa_id_externo": {
+          "name": "proposicao_casa_id_externo",
+          "columns": [
+            {
+              "expression": "casa",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id_externo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.relatoria": {
+      "name": "relatoria",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "casa": {
+          "name": "casa",
+          "type": "casa",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parlamentar_id": {
+          "name": "parlamentar_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proposicao": {
+          "name": "proposicao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proposicao_ref": {
+          "name": "proposicao_ref",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ementa": {
+          "name": "ementa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "colegiado": {
+          "name": "colegiado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo_relator": {
+          "name": "tipo_relator",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "designacao": {
+          "name": "designacao",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "destituicao": {
+          "name": "destituicao",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "motivo_fim": {
+          "name": "motivo_fim",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fonte_url": {
+          "name": "fonte_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "atualizado_em": {
+          "name": "atualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "relatoria_unica": {
+          "name": "relatoria_unica",
+          "columns": [
+            {
+              "expression": "casa",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "parlamentar_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "proposicao_ref",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "colegiado",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "designacao",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "relatoria_parlamentar": {
+          "name": "relatoria_parlamentar",
+          "columns": [
+            {
+              "expression": "parlamentar_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "relatoria_parlamentar_id_parlamentar_id_fk": {
+          "name": "relatoria_parlamentar_id_parlamentar_id_fk",
+          "tableFrom": "relatoria",
+          "tableTo": "parlamentar",
+          "columnsFrom": [
+            "parlamentar_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.reuniao": {
+      "name": "reuniao",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "casa": {
+          "name": "casa",
+          "type": "casa",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_externo": {
+          "name": "id_externo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "orgao_id": {
+          "name": "orgao_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inicio": {
+          "name": "inicio",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fonte_url": {
+          "name": "fonte_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "atualizado_em": {
+          "name": "atualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "reuniao_casa_id_externo_orgao": {
+          "name": "reuniao_casa_id_externo_orgao",
+          "columns": [
+            {
+              "expression": "casa",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id_externo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "orgao_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "reuniao_orgao_inicio": {
+          "name": "reuniao_orgao_inicio",
+          "columns": [
+            {
+              "expression": "orgao_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "inicio",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "reuniao_orgao_id_orgao_id_fk": {
+          "name": "reuniao_orgao_id_orgao_id_fk",
+          "tableFrom": "reuniao",
+          "tableTo": "orgao",
+          "columnsFrom": [
+            "orgao_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.seguindo": {
+      "name": "seguindo",
+      "schema": "",
+      "columns": {
+        "usuario_id": {
+          "name": "usuario_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parlamentar_id": {
+          "name": "parlamentar_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "desde": {
+          "name": "desde",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "seguindo_usuario_id_user_id_fk": {
+          "name": "seguindo_usuario_id_user_id_fk",
+          "tableFrom": "seguindo",
+          "tableTo": "user",
+          "columnsFrom": [
+            "usuario_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "seguindo_parlamentar_id_parlamentar_id_fk": {
+          "name": "seguindo_parlamentar_id_parlamentar_id_fk",
+          "tableFrom": "seguindo",
+          "tableTo": "parlamentar",
+          "columnsFrom": [
+            "parlamentar_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "seguindo_usuario_id_parlamentar_id_pk": {
+          "name": "seguindo_usuario_id_parlamentar_id_pk",
+          "columns": [
+            "usuario_id",
+            "parlamentar_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.sessao": {
+      "name": "sessao",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "casa": {
+          "name": "casa",
+          "type": "casa",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_externo": {
+          "name": "id_externo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inicio": {
+          "name": "inicio",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fonte_url": {
+          "name": "fonte_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "atualizado_em": {
+          "name": "atualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "sessao_casa_id_externo": {
+          "name": "sessao_casa_id_externo",
+          "columns": [
+            {
+              "expression": "casa",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id_externo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "sessao_inicio": {
+          "name": "sessao_inicio",
+          "columns": [
+            {
+              "expression": "inicio",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.session": {
+      "name": "session",
+      "schema": "",
+      "columns": {
+        "sessionToken": {
+          "name": "sessionToken",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires": {
+          "name": "expires",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "session_userId_user_id_fk": {
+          "name": "session_userId_user_id_fk",
+          "tableFrom": "session",
+          "tableTo": "user",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.substituicao": {
+      "name": "substituicao",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "titular_id": {
+          "name": "titular_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "afastamento_inicio": {
+          "name": "afastamento_inicio",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "suplente_id": {
+          "name": "suplente_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "suplente_nome": {
+          "name": "suplente_nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inicio": {
+          "name": "inicio",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fim": {
+          "name": "fim",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "certeza": {
+          "name": "certeza",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "substituicao_titular": {
+          "name": "substituicao_titular",
+          "columns": [
+            {
+              "expression": "titular_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "substituicao_suplente": {
+          "name": "substituicao_suplente",
+          "columns": [
+            {
+              "expression": "suplente_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "substituicao_titular_id_parlamentar_id_fk": {
+          "name": "substituicao_titular_id_parlamentar_id_fk",
+          "tableFrom": "substituicao",
+          "tableTo": "parlamentar",
+          "columnsFrom": [
+            "titular_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "substituicao_suplente_id_parlamentar_id_fk": {
+          "name": "substituicao_suplente_id_parlamentar_id_fk",
+          "tableFrom": "substituicao",
+          "tableTo": "parlamentar",
+          "columnsFrom": [
+            "suplente_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tema_consultado": {
+      "name": "tema_consultado",
+      "schema": "",
+      "columns": {
+        "casa": {
+          "name": "casa",
+          "type": "casa",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proposicao_ref": {
+          "name": "proposicao_ref",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "consultado_em": {
+          "name": "consultado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "tema_consultado_casa_proposicao_ref_pk": {
+          "name": "tema_consultado_casa_proposicao_ref_pk",
+          "columns": [
+            "casa",
+            "proposicao_ref"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tema_proposicao": {
+      "name": "tema_proposicao",
+      "schema": "",
+      "columns": {
+        "casa": {
+          "name": "casa",
+          "type": "casa",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proposicao_ref": {
+          "name": "proposicao_ref",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tema": {
+          "name": "tema",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "tema_proposicao_casa_proposicao_ref_tema_pk": {
+          "name": "tema_proposicao_casa_proposicao_ref_tema_pk",
+          "columns": [
+            "casa",
+            "proposicao_ref",
+            "tema"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tentativa_login": {
+      "name": "tentativa_login",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "chave": {
+          "name": "chave",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "tentativa_login_chave_criado": {
+          "name": "tentativa_login_chave_criado",
+          "columns": [
+            {
+              "expression": "chave",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "criado_em",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.verificationToken": {
+      "name": "verificationToken",
+      "schema": "",
+      "columns": {
+        "identifier": {
+          "name": "identifier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires": {
+          "name": "expires",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "verificationToken_identifier_token_pk": {
+          "name": "verificationToken_identifier_token_pk",
+          "columns": [
+            "identifier",
+            "token"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.user": {
+      "name": "user",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "emailVerified": {
+          "name": "emailVerified",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "resumo_mensal": {
+          "name": "resumo_mensal",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "token_descadastro": {
+          "name": "token_descadastro",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "user_email_unique": {
+          "name": "user_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.votacao": {
+      "name": "votacao",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "casa": {
+          "name": "casa",
+          "type": "casa",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_externo": {
+          "name": "id_externo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "proposicao": {
+          "name": "proposicao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "proposicao_ref": {
+          "name": "proposicao_ref",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ementa": {
+          "name": "ementa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aprovada": {
+          "name": "aprovada",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fonte_url": {
+          "name": "fonte_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "atualizado_em": {
+          "name": "atualizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "votacao_casa_id_externo": {
+          "name": "votacao_casa_id_externo",
+          "columns": [
+            {
+              "expression": "casa",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id_externo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "votacao_data": {
+          "name": "votacao_data",
+          "columns": [
+            {
+              "expression": "data",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.voto": {
+      "name": "voto",
+      "schema": "",
+      "columns": {
+        "votacao_id": {
+          "name": "votacao_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parlamentar_id": {
+          "name": "parlamentar_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "voto": {
+          "name": "voto",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "partido": {
+          "name": "partido",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "voto_parlamentar": {
+          "name": "voto_parlamentar",
+          "columns": [
+            {
+              "expression": "parlamentar_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "voto_votacao_id_votacao_id_fk": {
+          "name": "voto_votacao_id_votacao_id_fk",
+          "tableFrom": "voto",
+          "tableTo": "votacao",
+          "columnsFrom": [
+            "votacao_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "voto_parlamentar_id_parlamentar_id_fk": {
+          "name": "voto_parlamentar_id_parlamentar_id_fk",
+          "tableFrom": "voto",
+          "tableTo": "parlamentar",
+          "columnsFrom": [
+            "parlamentar_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "voto_votacao_id_parlamentar_id_pk": {
+          "name": "voto_votacao_id_parlamentar_id_pk",
+          "columns": [
+            "votacao_id",
+            "parlamentar_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.casa": {
+      "name": "casa",
+      "schema": "public",
+      "values": [
+        "CD",
+        "SF"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

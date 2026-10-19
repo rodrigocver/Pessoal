@@ -1,7 +1,11 @@
 const TZ = "America/Sao_Paulo";
 
-export const formatarData = (d: Date | string) =>
-  new Date(d).toLocaleDateString("pt-BR", { timeZone: TZ, day: "2-digit", month: "2-digit", year: "numeric" });
+export const formatarData = (d: Date | string) => {
+  // Data pura ("2020-11-15") não tem fuso: lida como UTC, viraria o dia anterior em Brasília.
+  const pura = typeof d === "string" && /^(\d{4})-(\d{2})-(\d{2})$/.exec(d);
+  if (pura) return `${pura[3]}/${pura[2]}/${pura[1]}`;
+  return new Date(d).toLocaleDateString("pt-BR", { timeZone: TZ, day: "2-digit", month: "2-digit", year: "numeric" });
+};
 
 export const formatarDataHora = (d: Date) =>
   d.toLocaleString("pt-BR", {
@@ -13,11 +17,14 @@ export const formatarDataHora = (d: Date) =>
     minute: "2-digit",
   });
 
+// Compacto ("R$ 1,2 mil") só a partir de mil; abaixo disso "R$ 7,7" pareceria abreviado.
 export const formatarReais = (v: number, compacto = false) =>
   v.toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
-    ...(compacto ? { notation: "compact", maximumFractionDigits: 1 } : { maximumFractionDigits: 0 }),
+    ...(compacto && Math.abs(v) >= 1000
+      ? { notation: "compact", maximumFractionDigits: 1 }
+      : { maximumFractionDigits: compacto ? 2 : 0 }),
   });
 
 export const formatarPct = (v: number | null) => (v == null ? "—" : `${Math.round(v * 100)}%`);

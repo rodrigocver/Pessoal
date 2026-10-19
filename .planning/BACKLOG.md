@@ -49,4 +49,4 @@ Depois de publicadas, o GitHub passa a ser a fonte da verdade: discussão e anda
 | # | Tarefa | Rótulos |
 |---|---|---|
 | 17 | ✅ [Comissões: participação e relatorias (v2)](issues/17-comissoes.md) | v2, funcionalidade, ingestão, discussão |
-| 18 | [Dados do TSE: patrimônio declarado e doações de campanha (v2)](issues/18-dados-tse.md) | v2, funcionalidade, ingestão, discussão |
+| 18 | ✅ [Dados do TSE: patrimônio declarado e doações de campanha (v2)](issues/18-dados-tse.md) | v2, funcionalidade, ingestão, discussão |

@@ -44,7 +44,7 @@ Status: ✅ feito · 🟡 parcial (issue no backlog) · ⬜ pendente
 
 ## v2
 - ✅ **COM-01** Comissões: membros e cargos; presença em reuniões deliberativas (Câmara); relatorias (Senado) — backlog #17.
-- ⬜ Dados do TSE (patrimônio declarado, doações de campanha) — backlog #18.
+- ✅ Dados do TSE (patrimônio declarado, doações de campanha) — backlog #18.
 - App nativo; notificações push.
 - Deputados estaduais/vereadores onde houver dados abertos.
 

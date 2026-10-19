@@ -66,7 +66,6 @@ Verificado em 19/10/2026. Se algo mudou na fonte, atualize este arquivo no mesmo
 | Câmara `GET /deputados/{id}/historico` | Entradas e saídas de exercício (suplentes, licenças) |
 | Câmara `arquivos/proposicoesTemas/json/proposicoesTemas-{ano}.json` | Temas das proposições — filtro por tema |
 | Senado `GET /senador/{codigo}/licencas.json` | Licenças — janela de exercício |
-| TSE — dados abertos de candidaturas, bens e prestação de contas | Patrimônio e doações (v2) |
 
 ## Comissões (v2)
 | Dado | Fonte | Observação |
@@ -78,3 +77,19 @@ Verificado em 19/10/2026. Se algo mudou na fonte, atualize este arquivo no mesmo
 | Membros (Senado) | `/senador/{codigo}/comissoes.json` | Sem tipo de colegiado; grupos parlamentares identificados pelo nome |
 | Relatorias (Senado) | `/processo/relatoria?codigoParlamentar&dataInicio&dataFim` | Máximo 1 ano por consulta; consulta sem parlamentar dá 503; a resposta pode repetir itens |
 | Presença em comissões (Senado) | — | `/comissao/reuniao/{codigo}` não traz lista de presença |
+
+## TSE (v2)
+Base: `https://cdn.tse.jus.br/estatistica/sead/odsele`. Arquivos zip com CSV em latin1, separador `;`.
+
+| Dado | Arquivo | Observação |
+|---|---|---|
+| Candidaturas | `consulta_cand/consulta_cand_{ano}.zip` | Um registro por candidatura; pode haver registro anulado (`#NULO#`) e refeito da mesma pessoa |
+| Bens declarados | `bem_candidato/bem_candidato_{ano}.zip` | `DS_BEM_CANDIDATO` pode trazer endereço; não é guardado |
+| Receitas | `prestacao_contas/prestacao_de_contas_eleitorais_candidatos_{ano}.zip` | ~1 GB; lemos só `receitas_candidatos_{ano}_{UF}.csv` por requisições de intervalo (`src/ingest/zipRemoto.ts`) |
+
+Armadilhas:
+- O CPF aparece mascarado ("-4") em registros anulados; ignorado na verificação de homônimos.
+- O arquivo de 2018 traz a **eleição suplementar de senador de MT em 2020** (`DS_ELEICAO`, `DT_ELEICAO`).
+- O mesmo político pode ter registro anulado como 1º suplente e válido como senador no mesmo ano.
+- Tipos de bem às vezes em maiúsculas ("OUTROS BENS E DIREITOS"), às vezes não.
+- Cobertura em 19/10/2026: 513 de 513 deputados e 81 de 81 senadores com ao menos uma candidatura.

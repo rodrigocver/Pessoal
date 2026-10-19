@@ -692,3 +692,71 @@ export async function relatoriasDe(p: Parlamentar, periodo: Periodo): Promise<Re
     motivoFim: l.motivo_fim as string | null,
   }));
 }
+
+// ---------- Eleições (TSE) ----------
+
+export interface CandidaturaDetalhada {
+  ano: number;
+  eleicao: string | null;
+  dataEleicao: string | null;
+  cargo: string;
+  uf: string;
+  partido: string | null;
+  numero: string | null;
+  nomeUrna: string | null;
+  situacao: string | null;
+  patrimonio: number;
+  receitaTotal: number;
+  bensPorTipo: { tipo: string; total: number; n: number }[];
+  receitasPorOrigem: { origem: string; total: number; doadores: number }[];
+  doadoresInstitucionais: { doador: string; origem: string; total: number }[];
+  fonteUrl: string;
+}
+
+/** Candidaturas do parlamentar (mais recentes primeiro), com bens por tipo e receitas por origem. */
+export async function candidaturasDe(p: Parlamentar): Promise<CandidaturaDetalhada[]> {
+  const linhas = await db.execute(sql`
+    select c.*,
+      (select json_agg(json_build_object('tipo', tipo, 'total', total, 'n', n) order by total desc)
+        from (select tipo, sum(valor) total, count(*) n from candidatura_bem where candidatura_id = c.id group by tipo) b) as bens,
+      (select json_agg(json_build_object('origem', origem, 'total', total, 'doadores', doadores) order by total desc)
+        from (select origem, sum(total) total, sum(doadores) doadores from candidatura_receita where candidatura_id = c.id group by origem) r) as receitas,
+      (select json_agg(json_build_object('doador', doador, 'origem', origem, 'total', total) order by total desc)
+        from (select doador, origem, total from candidatura_receita where candidatura_id = c.id and doador <> '' order by total desc limit 8) d) as institucionais
+    from candidatura c
+    where c.parlamentar_id = ${p.id}
+    order by c.ano desc, c.data_eleicao desc nulls last`);
+  return linhas.map((l) => ({
+    ano: num(l.ano),
+    eleicao: l.eleicao as string | null,
+    dataEleicao: l.data_eleicao ? String(l.data_eleicao) : null,
+    cargo: String(l.cargo),
+    uf: String(l.uf),
+    partido: l.partido as string | null,
+    numero: l.numero as string | null,
+    nomeUrna: l.nome_urna as string | null,
+    situacao: l.situacao as string | null,
+    patrimonio: num(l.patrimonio),
+    receitaTotal: num(l.receita_total),
+    bensPorTipo: ((l.bens as { tipo: string; total: string; n: number }[] | null) ?? []).map((b) => ({
+      tipo: b.tipo,
+      total: num(b.total),
+      n: num(b.n),
+    })),
+    receitasPorOrigem: ((l.receitas as { origem: string; total: string; doadores: string }[] | null) ?? []).map(
+      (r) => ({
+        origem: r.origem,
+        total: num(r.total),
+        doadores: num(r.doadores),
+      }),
+    ),
+    doadoresInstitucionais: (
+      (l.institucionais as { doador: string; origem: string; total: string }[] | null) ?? []
+    ).map((d) => ({
+      doador: d.doador,
+      origem: d.origem,
+      total: num(d.total),
+    })),
+    fonteUrl: String(l.fonte_url),
+  }));
+}

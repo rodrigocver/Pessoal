@@ -123,6 +123,23 @@ Proposições em que o parlamentar é autor ou coautor (proponente), pela data d
 Soma do valor **líquido reembolsado** da cota parlamentar (CEAP na Câmara, CEAPS no Senado) por mês
 de competência. Não inclui salário, verba de gabinete nem auxílio-moradia pago em dinheiro.
 
+## Eleições (TSE)
+
+Candidaturas a deputado federal, senador e suplente de senador nas eleições gerais de 2018 em diante (inclusive
+eleições suplementares que constam no arquivo do ano), com dados abertos do Tribunal Superior Eleitoral.
+
+- **Quem é quem:** deputados pelo CPF publicado pela Câmara (`GET /deputados/{id}`); senadores pelo nome completo e
+  estado, sem acentos, e só quando o grupo de registros com esse nome não traz dois CPFs diferentes (homônimos não
+  ligam). O CPF é usado apenas na memória durante a ingestão e não é gravado.
+- **Registro repetido:** o TSE pode ter mais de um registro da mesma pessoa no ano (candidatura anulada e refeita,
+  eleição suplementar). Fica um por cargo, preferindo o eleito, depois o válido; registros anulados somem quando há
+  candidatura válida no ano.
+- **Patrimônio declarado:** soma dos bens declarados pelo candidato no registro da candidatura. Mostramos tipo e
+  valor; a descrição não aparece, porque pode trazer endereços. Valores nominais, sem correção pela inflação.
+- **Receitas de campanha:** soma das receitas da prestação de contas do candidato, por origem. Doações de pessoas
+  físicas aparecem só como total e número de doadores distintos, sem nomes; partidos e outros candidatos aparecem
+  pelo nome.
+
 ## Médias da casa e do partido
 
 Média simples entre os parlamentares **em exercício hoje** da mesma casa (e do mesmo partido atual),
