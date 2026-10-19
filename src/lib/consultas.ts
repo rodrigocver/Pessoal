@@ -593,3 +593,29 @@ export async function afastadosAgora(
     ]),
   );
 }
+
+// ---------- Status das atualizações ----------
+
+/** Última execução de cada tarefa de ingestão e a última bem-sucedida, para a página /status. */
+export async function statusIngestao() {
+  const linhas = await db.execute(sql`
+    select distinct on (tarefa) tarefa, status, iniciado_em, finalizado_em, registros, erro,
+      (select max(finalizado_em) from ingestao_log x where x.tarefa = l.tarefa and x.status = 'ok') as ultimo_ok
+    from ingestao_log l
+    order by tarefa, iniciado_em desc`);
+  const TRES_HORAS = 3 * 3_600_000;
+  return linhas.map((l) => ({
+    tarefa: String(l.tarefa),
+    // "rodando" há mais de 3 horas é uma execução que morreu no meio (processo interrompido).
+    status:
+      l.status === "rodando" && Date.now() - new Date(String(l.iniciado_em)).getTime() > TRES_HORAS
+        ? ("interrompida" as const)
+        : (String(l.status) as "ok" | "erro" | "rodando"),
+    iniciadoEm: new Date(String(l.iniciado_em)),
+    finalizadoEm: l.finalizado_em ? new Date(String(l.finalizado_em)) : null,
+    registros: l.registros == null ? null : num(l.registros),
+    // Página pública: só a primeira linha do erro, curta.
+    erro: l.erro ? String(l.erro).split("\n")[0].slice(0, 160) : null,
+    ultimoOk: l.ultimo_ok ? new Date(String(l.ultimo_ok)) : null,
+  }));
+}

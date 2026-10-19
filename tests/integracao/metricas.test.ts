@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { and, eq } from "drizzle-orm";
 import { db, schema, sql } from "@/db/client";
 import {
+  statusIngestao,
   afastadosAgora,
   afastamentosDe,
   vagasOcupadas,
@@ -208,5 +209,26 @@ describe("busca: acentos e relevância", () => {
     } finally {
       await db.delete(schema.parlamentar).where(eq(schema.parlamentar.id, lia.id));
     }
+  });
+});
+
+describe("status das atualizações", () => {
+  it("última execução por tarefa, último sucesso e execução interrompida", async () => {
+    const h = (horas: number) => new Date(Date.now() - horas * 3_600_000);
+    await db.insert(schema.ingestaoLog).values([
+      { tarefa: "deputados", status: "ok", iniciadoEm: h(30), finalizadoEm: h(29.9), registros: 648 },
+      {
+        tarefa: "deputados",
+        status: "erro",
+        iniciadoEm: h(2),
+        finalizadoEm: h(1.9),
+        erro: "Error: HTTP 503\n  at stack",
+      },
+      { tarefa: "senadores", status: "rodando", iniciadoEm: h(5) },
+    ]);
+    const s = Object.fromEntries((await statusIngestao()).map((t) => [t.tarefa, t]));
+    expect(s.deputados).toMatchObject({ status: "erro", erro: "Error: HTTP 503" });
+    expect(s.deputados.ultimoOk?.getTime()).toBeCloseTo(h(29.9).getTime(), -4);
+    expect(s.senadores).toMatchObject({ status: "interrompida", ultimoOk: null });
   });
 });

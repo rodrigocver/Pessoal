@@ -62,7 +62,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <a className="underline" href="https://legis.senado.leg.br/dadosabertos">
             Senado Federal
           </a>
-          .{atualizado && <> Atualizado em {formatarDataHora(atualizado)}.</>}
+          .{atualizado && <> Atualizado em {formatarDataHora(atualizado)}.</>}{" "}
+          <Link href="/status" className="underline">
+            Status
+          </Link>
         </footer>
       </body>
     </html>
