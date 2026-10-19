@@ -27,9 +27,12 @@
 - **PROF-07** Seletor de período (ano, legislatura) em todas as abas.
 - **PROF-08** Comparação com a média da casa (ex.: presença do parlamentar vs. média da Câmara).
 
-## Resumo semanal
-- **MAIL-01** E-mail semanal com o que cada parlamentar da lista fez na semana: presença, votos nominais relevantes, novas proposições, gastos lançados.
+## Resumo mensal
+- **MAIL-01** E-mail mensal com o que cada parlamentar da lista fez no mês: presença, votos nominais relevantes, novas proposições, gastos lançados.
 - **MAIL-02** Usuário ativa/desativa o e-mail e pode se descadastrar por link.
+
+## Implantação
+- **DEPLOY-01** Site publicado com banco, login, ingestão agendada e envio de e-mail em produção.
 
 ## Qualidade
 - **UX-01** Funciona bem em telas de celular (≥ 360px) e é instalável como PWA.
@@ -52,3 +55,4 @@
 | DATA-03, DATA-04..DATA-06, DATA-08 (Senado) | 4 |
 | PROF-04, PROF-08 | 5 |
 | MAIL-01, MAIL-02 | 6 |
+| DEPLOY-01 | 7 |

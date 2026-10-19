@@ -2,11 +2,11 @@
 
 ## Fase 1 — Fundação
 **Meta:** projeto rodando com banco e cadastro de parlamentares.
-- Next.js + TypeScript + Tailwind; Supabase (Postgres + Auth); deploy na Vercel.
+- Next.js + TypeScript + Tailwind; Postgres local + Drizzle. Nenhuma conta externa.
 - Esquema do banco comum Câmara/Senado (`parlamentar`, `sessao`, `presenca`, `votacao`, `voto`, `proposicao`, `despesa`, `usuario_parlamentar`), com `casa`, `fonte`, `atualizado_em`.
-- Job de ingestão diário (GitHub Actions) para deputados e senadores em exercício.
+- Script de ingestão de deputados e senadores em exercício (agendamento só na Fase 7).
 - **Requisitos:** DATA-01, DATA-07
-- **Pronto quando:** a tabela `parlamentar` tem os 513 deputados e 81 senadores e se atualiza sozinha todo dia.
+- **Pronto quando:** a tabela `parlamentar` tem os 513 deputados e 81 senadores e o script pode ser re-executado sem duplicar dados.
 
 ## Fase 2 — Ingestão Câmara
 **Meta:** histórico completo da Câmara desde 2023.
@@ -19,7 +19,7 @@
 
 ## Fase 3 — Site: busca, lista pessoal e perfil
 **Meta:** usuário entra, monta sua lista e entende a atuação dos deputados.
-- Login (Google / link mágico), exclusão de conta.
+- Login com Auth.js (em desenvolvimento: link mágico exibido no terminal), exclusão de conta.
 - Busca com filtros; adicionar/remover da lista; painel "Meus parlamentares".
 - Página de perfil pública com abas Presença, Votações, Proposições, Gastos; seletor de período; "como calculamos".
 - Layout mobile-first + PWA.
@@ -40,8 +40,16 @@
 - Comparação com a média da casa e do partido.
 - **Requisitos:** PROF-04, PROF-08
 
-## Fase 6 — Resumo semanal por e-mail
-**Meta:** usuário recebe toda semana o que seus parlamentares fizeram.
-- Job semanal gera e envia o e-mail (Resend); preferências e descadastro.
+## Fase 6 — Resumo mensal por e-mail
+**Meta:** usuário recebe todo mês o que seus parlamentares fizeram.
+- Job mensal gera o e-mail; preferências e descadastro. Em desenvolvimento o e-mail é gravado em arquivo/visualizado no navegador (sem provedor).
 - **Requisitos:** MAIL-01, MAIL-02
-- **Pronto quando:** e-mail chega toda segunda com dados da semana anterior e o link de descadastro funciona.
+- **Pronto quando:** o resumo do mês anterior é gerado corretamente para uma lista de teste e o link de descadastro funciona.
+
+## Fase 7 — Contas e publicação
+**Meta:** colocar no ar. Única fase que exige criar contas externas.
+- Criar contas: GitHub (acesso do app Claude), Vercel, Supabase ou Neon (Postgres), Google Cloud (OAuth), Resend.
+- Configurar variáveis de ambiente, rodar migrações e carga histórica no banco de produção.
+- Agendar jobs (GitHub Actions): ingestão diária e e-mail mensal no dia 1º.
+- **Requisitos:** DEPLOY-01
+- **Pronto quando:** site no ar, login funcionando e primeiro resumo mensal enviado.
