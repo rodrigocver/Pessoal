@@ -3,6 +3,7 @@
 - **Fase atual:** 7 (contas e publicação) e 8 (abrir o repositório) — código pronto; faltam passos do dono no GitHub e nos provedores
 - **Concluídas:** 1 (Fundação), 2 (Ingestão Câmara), 3 (Site), 4 (Ingestão Senado), 5 (Métricas comparativas), 6 (Resumo mensal)
 - **Última atualização:** 19/10/2026
+- **Backlog:** 11 de 18 tarefas concluídas (#01–#07, #09, #13–#15). Abertas para a comunidade: boas primeiras issues #08, #10, #11, #12, #16; v2 para discussão: #17, #18.
 
 ## Decisões
 - Web responsivo/PWA; login com Google + link mágico; dados v1 = presença, votações, proposições, gastos; **resumo mensal** por e-mail.
@@ -16,10 +17,15 @@
 - Carga histórica completa da Câmara (2023–2026) leva ~6 min localmente.
 - Alinhamento: partido na data do voto; orientação do partido > federação > bloco (composição lida do nome abreviado do bloco). Tabela `estatistica` é recalculada pela tarefa `estatisticas` (última da ingestão, ~1 min).
 
+## Requisitos v1
+Todos concluídos, exceto DEPLOY-01 (publicação), que depende das contas externas (Fase 7, `DEPLOY.md`).
+
 ## Pendências / riscos
 - ✅ Virada para a 58ª legislatura implementada (backlog #01). Conferir a ingestão logo após a posse, em 01/02/2027.
 - Fontes e armadilhas documentadas em `docs/FONTES.md`; métricas em `docs/METRICAS.md`.
 - Presença no Senado: resolvida via comparecimento às votações nominais (cobre só sessões com votação nominal, ~36/ano).
+- Conferir em aparelho real: instalação do app (Android/iPhone) e cartão de compartilhamento no WhatsApp.
+- Não rodar `npm run dev` e `npm run build`/`next start` ao mesmo tempo: os dois usam a pasta `.next` e o build sai corrompido (erro 500 sem log).
 - API de despesas da Câmara deu timeout — usar arquivos CSV anuais.
 - Serviço antigo de votações do Senado foi desativado (02/2026) — usar `/votacao`.
 - Push para o GitHub bloqueado: instalar o app Claude no repositório (Fase 7 ou antes).

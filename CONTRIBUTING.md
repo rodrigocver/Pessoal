@@ -47,6 +47,8 @@ npm run dev                     # http://localhost:3000
 - Para a legislatura inteira: `npm run ingest -- --desde 2023` (~10 min).
 - **Login local:** o link de acesso aparece no terminal do `npm run dev`.
 - **E-mails locais:** `npm run resumo-mensal` grava os e-mails em `.emails/` em vez de enviar.
+- Não rode `npm run dev` junto com `npm run build` ou `npm start`: os dois usam a pasta `.next` e o build
+  sai corrompido. Pare um antes de iniciar o outro.
 - A Câmara regenera os arquivos em lote de madrugada; se a ingestão falhar com JSON inválido
   nesse horário, rode de novo mais tarde.
 
