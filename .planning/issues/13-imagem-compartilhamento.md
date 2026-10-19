@@ -1,6 +1,7 @@
 ---
 titulo: "Imagem de compartilhamento (Open Graph) por parlamentar"
 rotulos: ["funcionalidade", "interface"]
+status: feito
 ---
 ## Contexto
 Compartilhar o perfil no WhatsApp mostra só o título. Uma imagem com foto, nome e números do ano
@@ -13,3 +14,7 @@ aumenta muito o alcance.
 
 ## Pronto quando
 - Colar o link no WhatsApp/Telegram mostra a imagem.
+
+## Feito
+- `opengraph-image.tsx` no perfil: foto oficial (com a inicial como reserva), nome, cargo, partido-UF e
+  presença, votos e gastos do ano corrente (tabela `estatistica`), com a fonte e o ano.
