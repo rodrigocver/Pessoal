@@ -53,13 +53,13 @@ Verificado em 19/10/2026. Se algo mudou na fonte, atualize este arquivo no mesmo
 | Voto vazio na Câmara | É votação secreta (escolha de autoridades): rótulo "Votou (secreto)" |
 | Senado devolve objeto quando há um item e lista quando há vários | `comoLista()` |
 | Nomes de bancada inconsistentes ("Republica", "Republican", "Progressistas" = PP) | `prioridadeOrientacao()` em `src/ingest/alinhamento.ts`, com testes |
-| Nomes de blocos abreviados e cortados ("Bl UniPpPsd...") | Orientação de bloco é ignorada (há issue para resolver com `/blocos`) |
+| Nomes de blocos abreviados e cortados ("Bl UniPpPsd...") | `partidosDoBloco()` lê as siglas do nome; partidos escondidos pelo corte não recebem a orientação |
 
 ## Outras fontes úteis (ainda não usadas)
 
 | Fonte | Para quê |
 |---|---|
-| Câmara `GET /blocos`, `/blocos/{id}/partidos` | Composição de blocos — alinhamento por bloco |
+| Câmara `GET /blocos`, `/blocos/{id}/partidos` | Composição completa de blocos (resolveria os nomes cortados) |
 | Câmara `GET /deputados/{id}/historico` | Entradas e saídas de exercício (suplentes, licenças) |
 | Câmara `arquivos/proposicoesTemas/json/proposicoesTemas-{ano}.json` | Temas das proposições — filtro por tema |
 | Câmara `GET /orgaos`, `/orgaos/{id}/membros`, `/orgaos/{id}/eventos` | Comissões |

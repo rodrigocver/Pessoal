@@ -23,7 +23,7 @@ Depois de publicadas, o GitHub passa a ser a fonte da verdade: discussão e anda
 |---|---|---|
 | 02 | ✅ [Janela de exercício dos deputados pelo histórico oficial](issues/02-exercicio-deputados-historico.md) | métricas, ingestão, câmara, ajuda bem-vinda |
 | 03 | ✅ [Janela de exercício dos senadores pelas licenças oficiais](issues/03-exercicio-senadores-licencas.md) | métricas, ingestão, senado, ajuda bem-vinda |
-| 04 | [Usar orientação de blocos parlamentares no alinhamento](issues/04-alinhamento-blocos.md) | métricas, câmara |
+| 04 | ✅ [Usar orientação de blocos parlamentares no alinhamento](issues/04-alinhamento-blocos.md) | métricas, câmara |
 | 05 | [Filtro por tema na aba de votações (PROF-03)](issues/05-filtro-tema-votacoes.md) | funcionalidade, interface, câmara |
 | 06 | ✅ [Testes de integração com Postgres no CI](issues/06-testes-integracao-postgres.md) | infra, ajuda bem-vinda |
 | 07 | ✅ [Limitar pedidos de link de login por e-mail](issues/07-limite-login-email.md) | segurança |

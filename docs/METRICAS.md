@@ -52,7 +52,10 @@ Só entram votos e orientações `Sim`, `Não`, `Abstenção` ou `Obstrução` (
 ausências ficam de fora).
 
 - **Partido:** usa o partido do parlamentar **na data do voto**. Vale a orientação do próprio partido;
-  se não houver, a da federação que ele integra. Orientações de blocos não são usadas.
+  se não houver, a da federação que ele integra; se não houver, a do bloco. A composição do bloco vem do
+  próprio nome da bancada na votação ("Bl MdbPsdRepPode" = MDB, PSD, Republicanos, Podemos; "Fdr" seguido
+  de um partido inclui a federação dele). Partidos escondidos quando a fonte corta o nome ("Bl UniPpPsd...")
+  não recebem a orientação do bloco. Implementação: `src/ingest/alinhamento.ts`.
 - **Governo:** orientação da bancada "Governo".
 
 ## Projetos apresentados

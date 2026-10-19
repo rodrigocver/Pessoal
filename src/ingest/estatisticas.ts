@@ -3,7 +3,7 @@ import { db } from "@/db/client";
 import { periodosDisponiveis } from "@/lib/periodo";
 import { VOTOS_EFETIVOS } from "@/lib/votos";
 import { sessaoConta } from "@/lib/exercicio";
-import { BANCADA_GOVERNO, prioridadeOrientacao } from "./alinhamento";
+import { BANCADA_GOVERNO, federacoesDasBancadas, prioridadeOrientacao } from "./alinhamento";
 
 /** Votos/orientações comparáveis no alinhamento ("Liberado" e ausências ficam de fora). */
 const POSICOES = ["Sim", "Não", "Abstenção", "Obstrução"];
@@ -19,9 +19,10 @@ export async function calcularEstatisticas(): Promise<number> {
     const partidos = await tx.execute<{ partido: string }>(
       sql`select distinct partido from voto where partido is not null`,
     );
+    const federacoes = federacoesDasBancadas(bancadas.map((b) => b.bancada));
     const pares = bancadas.flatMap(({ bancada }) =>
       partidos.flatMap(({ partido }) => {
-        const prioridade = prioridadeOrientacao(bancada, partido);
+        const prioridade = prioridadeOrientacao(bancada, partido, federacoes);
         return prioridade ? [{ bancada, partido, prioridade }] : [];
       }),
     );
@@ -36,7 +37,7 @@ export async function calcularEstatisticas(): Promise<number> {
         )}`,
       );
 
-    // Orientação aplicável a cada voto (partido tem prioridade sobre federação).
+    // Orientação aplicável a cada voto: partido > federação > bloco.
     await tx.execute(sql`
       create temp table voto_orientado on commit drop as
       select distinct on (vo.votacao_id, vo.parlamentar_id)

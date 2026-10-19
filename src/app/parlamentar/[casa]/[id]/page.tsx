@@ -234,9 +234,9 @@ async function AbaVotacoes({
             que havia orientação. Orientações &quot;liberado&quot; e ausências não entram.
           </p>
           <p>
-            Usamos o partido do parlamentar na data de cada voto. Se o partido não orientou, mas a federação dele sim,
-            vale a da federação. Orientações de blocos não são usadas: a fonte abrevia os nomes e não informa a
-            composição.
+            Usamos o partido do parlamentar na data de cada voto. Vale a orientação do partido; se ele não orientou, a
+            da federação; se nenhum dos dois orientou, a do bloco parlamentar de que o partido fazia parte naquela
+            votação.
             {p.casa === "SF" &&
               " No Senado, a orientação de bancada raramente é publicada, então o número pode se basear em poucas votações."}
           </p>
