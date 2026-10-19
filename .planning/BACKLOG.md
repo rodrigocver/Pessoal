@@ -30,7 +30,7 @@ Depois de publicadas, o GitHub passa a ser a fonte da verdade: discussão e anda
 | 27 | ✅ [Baixar os dados do perfil em CSV](issues/27-baixar-csv.md) | funcionalidade, interface, ajuda bem-vinda |
 | 28 | ✅ [Testes de ponta a ponta das páginas principais no CI](issues/28-testes-ponta-a-ponta.md) | infra, ajuda bem-vinda |
 | 31 | ✅ [TSE: incluir eleições de 2014 e 2010](issues/31-tse-eleicoes-anteriores.md) | ingestão, ajuda bem-vinda, v2 |
-| 30 | [Mostrar nomes de doadores pessoas físicas?](issues/30-nomes-doadores.md) | discussão, segurança |
+| 30 | ✅ [Mostrar nomes de doadores pessoas físicas?](issues/30-nomes-doadores.md) | discussão, segurança |
 
 ## Próximas
 

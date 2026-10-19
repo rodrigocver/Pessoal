@@ -123,7 +123,7 @@ describe("casarCandidaturas", () => {
 });
 
 describe("receitas e bens", () => {
-  it("pessoas físicas agregadas sem nome; partidos pelo nome; doadores distintos", () => {
+  it("pessoas físicas: 3 maiores doadores pelo nome, demais somados; partidos pelo nome; sem CPF", () => {
     const l = (origem: string, doador: string, cpf: string, valor: string) => ({
       SQ_CANDIDATO: "1",
       DS_ORIGEM_RECEITA: origem,
@@ -132,22 +132,31 @@ describe("receitas e bens", () => {
       NR_CPF_CNPJ_DOADOR: cpf,
       VR_RECEITA: valor,
     });
+    const pf = "Recursos de pessoas físicas";
     const r = receitasPorCandidato(
       [
-        l("Recursos de pessoas físicas", "FULANO", "111", "100,00"),
-        l("Recursos de pessoas físicas", "FULANO", "111", "50,50"),
-        l("Recursos de pessoas físicas", "BELTRANA", "222", "10,00"),
-        l("Recursos de partido político", "DIREÇÃO NACIONAL", "333", "1.000,00"),
+        // Duas doações da mesma pessoa somam: FULANO é o maior (150,50).
+        l(pf, "FULANO", "11111111111", "100,00"),
+        l(pf, "FULANO", "11111111111", "50,50"),
+        l(pf, "BELTRANA", "22222222222", "120,00"),
+        l(pf, "CICRANO", "33333333333", "90,00"),
+        l(pf, "QUARTA PESSOA", "44444444444", "80,00"),
+        l(pf, "QUINTA PESSOA", "55555555555", "10,00"),
+        l("Recursos de partido político", "DIREÇÃO NACIONAL", "66666666000166", "1.000,00"),
         l("#NULO", "", "", "5,00"),
       ],
       new Set(["1"]),
     ).get("1")!;
     expect(r).toEqual([
-      { origem: "Recursos de pessoas físicas", doador: "", total: 160.5, doacoes: 3, doadores: 2 },
+      { origem: pf, doador: "FULANO", total: 150.5, doacoes: 2, doadores: 1 },
+      { origem: pf, doador: "BELTRANA", total: 120, doacoes: 1, doadores: 1 },
+      { origem: pf, doador: "CICRANO", total: 90, doacoes: 1, doadores: 1 },
+      { origem: pf, doador: "", total: 90, doacoes: 2, doadores: 2 },
       { origem: "Recursos de partido político", doador: "DIREÇÃO NACIONAL", total: 1000, doacoes: 1, doadores: 1 },
       { origem: "Origem não informada", doador: "", total: 5, doacoes: 1, doadores: 1 },
     ]);
-    expect(JSON.stringify(r)).not.toMatch(/FULANO|BELTRANA|111|222/);
+    const texto = JSON.stringify(r);
+    expect(texto).not.toMatch(/QUARTA|QUINTA|\d{11}/);
   });
 
   it("bens: só tipo e valor (sem descrição)", () => {
@@ -214,7 +223,7 @@ describe("eleições de 2014 e 2010 (formatos antigos)", () => {
     ]);
   });
 
-  it("receitas de 2014: empresas e comitês aparecem pelo nome (Receita Federal); pessoas físicas não", () => {
+  it("receitas de 2014: empresas e comitês aparecem pelo nome (Receita Federal)", () => {
     const linha = (tipo: string, nome: string, rfb: string, cpf: string, valor: string) =>
       ({
         "Sequencial Candidato": "10000000120",
@@ -241,7 +250,8 @@ describe("eleições de 2014 e 2010 (formatos antigos)", () => {
     expect(r.map((x) => [x.origem, x.doador, x.total])).toEqual([
       ["Recursos de outros candidatos/comitês", "COMITE FINANCEIRO AC", 5010],
       ["Recursos de pessoas jurídicas", "CONSTRUTORA X LTDA", 1000],
-      ["Recursos de pessoas físicas", "", 50],
+      // Único doador pessoa física: está entre os 3 maiores, aparece pelo nome da Receita Federal.
+      ["Recursos de pessoas físicas", "FULANO DE TAL", 50],
     ]);
   });
 

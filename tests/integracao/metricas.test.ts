@@ -277,7 +277,7 @@ describe("eleições", () => {
         partido: "PT",
         sqCandidato: "1",
         patrimonio: "270.00",
-        receitaTotal: "1150.00",
+        receitaTotal: "1550.00",
         fonteUrl: "teste",
       })
       .returning();
@@ -297,6 +297,14 @@ describe("eleições", () => {
       },
       {
         candidaturaId: cand.id,
+        origem: "Recursos de pessoas físicas",
+        doador: "MARIA DA SILVA",
+        total: "400.00",
+        doacoes: 1,
+        doadores: 1,
+      },
+      {
+        candidaturaId: cand.id,
         origem: "Recursos de partido político",
         doador: "DIREÇÃO NACIONAL",
         total: "1000.00",
@@ -305,16 +313,18 @@ describe("eleições", () => {
       },
     ]);
     const [r] = await candidaturasDe(c.ana);
-    expect(r).toMatchObject({ ano: 2022, cargo: "DEPUTADO FEDERAL", patrimonio: 270, receitaTotal: 1150 });
+    expect(r).toMatchObject({ ano: 2022, cargo: "DEPUTADO FEDERAL", patrimonio: 270, receitaTotal: 1550 });
     expect(r.bensPorTipo).toEqual([
       { tipo: "Terreno", total: 150, n: 2 },
       { tipo: "Veículo", total: 120, n: 1 },
     ]);
     expect(r.receitasPorOrigem.map((x) => [x.origem, x.total, x.doadores])).toEqual([
       ["Recursos de partido político", 1000, 1],
-      ["Recursos de pessoas físicas", 150, 2],
+      ["Recursos de pessoas físicas", 550, 3],
     ]);
+    // Pessoas físicas com nome (os 3 maiores, gravados assim pela ingestão) ficam fora da lista institucional.
     expect(r.doadoresInstitucionais.map((d) => d.doador)).toEqual(["DIREÇÃO NACIONAL"]);
+    expect(r.maioresDoadores).toEqual([{ doador: "MARIA DA SILVA", total: 400 }]);
     expect(await candidaturasDe(c.beto)).toEqual([]);
   });
 });

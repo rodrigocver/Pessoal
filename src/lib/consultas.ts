@@ -733,6 +733,8 @@ export interface CandidaturaDetalhada {
   bensPorTipo: { tipo: string; total: number; n: number }[];
   receitasPorOrigem: { origem: string; total: number; doadores: number }[];
   doadoresInstitucionais: { doador: string; origem: string; total: number }[];
+  /** Os 3 maiores doadores pessoas físicas (os demais só aparecem somados). */
+  maioresDoadores: { doador: string; total: number }[];
   fonteUrl: string;
 }
 
@@ -745,7 +747,13 @@ export async function candidaturasDe(p: Parlamentar): Promise<CandidaturaDetalha
       (select json_agg(json_build_object('origem', origem, 'total', total, 'doadores', doadores) order by total desc)
         from (select origem, sum(total) total, sum(doadores) doadores from candidatura_receita where candidatura_id = c.id group by origem) r) as receitas,
       (select json_agg(json_build_object('doador', doador, 'origem', origem, 'total', total) order by total desc)
-        from (select doador, origem, total from candidatura_receita where candidatura_id = c.id and doador <> '' order by total desc limit 8) d) as institucionais
+        from (select doador, origem, total from candidatura_receita
+              where candidatura_id = c.id and doador <> '' and origem <> 'Recursos de pessoas físicas'
+              order by total desc limit 8) d) as institucionais,
+      (select json_agg(json_build_object('doador', doador, 'total', total) order by total desc)
+        from (select doador, total from candidatura_receita
+              where candidatura_id = c.id and doador <> '' and origem = 'Recursos de pessoas físicas'
+              order by total desc, doador limit 3) m) as maiores
     from candidatura c
     where c.parlamentar_id = ${p.id}
     order by c.ano desc, c.data_eleicao desc nulls last`);
@@ -778,6 +786,10 @@ export async function candidaturasDe(p: Parlamentar): Promise<CandidaturaDetalha
     ).map((d) => ({
       doador: d.doador,
       origem: d.origem,
+      total: num(d.total),
+    })),
+    maioresDoadores: ((l.maiores as { doador: string; total: string }[] | null) ?? []).map((d) => ({
+      doador: d.doador,
       total: num(d.total),
     })),
     fonteUrl: String(l.fonte_url),

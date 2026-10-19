@@ -141,7 +141,8 @@ eleições suplementares que constam no arquivo do ano), com dados abertos do Tr
 - **Patrimônio declarado:** soma dos bens declarados pelo candidato no registro da candidatura. Mostramos tipo e
   valor; a descrição não aparece, porque pode trazer endereços. Valores nominais, sem correção pela inflação.
 - **Receitas de campanha:** soma das receitas da prestação de contas do candidato, por origem. Doações de pessoas
-  físicas aparecem só como total e número de doadores distintos, sem nomes; partidos, outros candidatos, comitês
+  físicas aparecem como total e número de doadores distintos; só os **3 maiores doadores** de cada campanha (soma das
+  doações de cada um, desempate pelo nome) aparecem pelo nome, sem CPF; partidos, outros candidatos, comitês
   financeiros (até 2014) e empresas (pessoas jurídicas, que podiam doar até 2014) aparecem pelo nome.
 
 ## Baixar os dados

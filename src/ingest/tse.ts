@@ -161,18 +161,54 @@ export function bensPorCandidato(linhas: Linha[], sqs: Set<string>) {
   return r;
 }
 
+const PESSOAS_FISICAS = "Recursos de pessoas físicas";
+/** Pessoas físicas: só os maiores doadores de cada candidatura aparecem pelo nome; os demais ficam somados. */
+export const MAIORES_DOADORES_COM_NOME = 3;
+
+/**
+ * Pessoas físicas: os 3 maiores doadores (pela soma das doações) aparecem pelo nome, como no TSE; os demais
+ * ficam somados, sem nome (decisão do projeto, issue #30). O CPF só identifica o doador na memória.
+ */
+function destacarMaioresDoadores(linhas: Linha[]): Linha[] {
+  const porDoador = new Map<string, { total: number; nome: string }>();
+  for (const l of linhas) {
+    if (l.DS_ORIGEM_RECEITA !== PESSOAS_FISICAS) continue;
+    const id = l.NR_CPF_CNPJ_DOADOR || l.NM_DOADOR;
+    const d = porDoador.get(id) ?? { total: 0, nome: (l.NM_DOADOR_RFB || l.NM_DOADOR || "").trim() };
+    d.total += valorTse(l.VR_RECEITA);
+    porDoador.set(id, d);
+  }
+  const maiores = new Map(
+    [...porDoador]
+      .filter(([, d]) => d.nome && d.total > 0)
+      .sort((a, b) => b[1].total - a[1].total || a[1].nome.localeCompare(b[1].nome))
+      .slice(0, MAIORES_DOADORES_COM_NOME)
+      .map(([id, d]) => [id, d.nome]),
+  );
+  return linhas.map((l) => {
+    const nome = l.DS_ORIGEM_RECEITA === PESSOAS_FISICAS && maiores.get(l.NR_CPF_CNPJ_DOADOR || l.NM_DOADOR);
+    return nome ? { ...l, NOME_EXIBIDO: nome } : l;
+  });
+}
+
 export function receitasPorCandidato(linhas: Linha[], sqs: Set<string>) {
   // origem|doador -> totais; doadores distintos contados pelo CPF/CNPJ só na memória.
   const r = new Map<
     string,
     Map<string, { origem: string; doador: string; total: number; doacoes: number; ids: Set<string> }>
   >();
+  const porCandidato = new Map<string, Linha[]>();
   for (const bruta of linhas) {
     const l = normalizarReceita(bruta);
     if (!sqs.has(l.SQ_CANDIDATO)) continue;
-    const origem =
-      !l.DS_ORIGEM_RECEITA || l.DS_ORIGEM_RECEITA === "#NULO" ? "Origem não informada" : l.DS_ORIGEM_RECEITA;
-    const doador = ORIGENS_INSTITUCIONAIS.has(origem) ? (l.NM_DOADOR_RFB || l.NM_DOADOR || "").trim() : "";
+    if (!l.DS_ORIGEM_RECEITA || l.DS_ORIGEM_RECEITA === "#NULO") l.DS_ORIGEM_RECEITA = "Origem não informada";
+    porCandidato.set(l.SQ_CANDIDATO, [...(porCandidato.get(l.SQ_CANDIDATO) ?? []), l]);
+  }
+  for (const l of [...porCandidato.values()].flatMap(destacarMaioresDoadores)) {
+    const origem = l.DS_ORIGEM_RECEITA;
+    const doador = ORIGENS_INSTITUCIONAIS.has(origem)
+      ? (l.NM_DOADOR_RFB || l.NM_DOADOR || "").trim()
+      : (l.NOME_EXIBIDO ?? "");
     const doCand = r.get(l.SQ_CANDIDATO) ?? new Map();
     const k = `${origem}|${doador}`;
     const g = doCand.get(k) ?? { origem, doador, total: 0, doacoes: 0, ids: new Set<string>() };

@@ -3,7 +3,7 @@
 - **Fase atual:** 7 (contas e publicação) e 8 (abrir o repositório) — código pronto; faltam passos do dono no GitHub e nos provedores
 - **Concluídas:** 1 (Fundação), 2 (Ingestão Câmara), 3 (Site), 4 (Ingestão Senado), 5 (Métricas comparativas), 6 (Resumo mensal)
 - **Última atualização:** 19/10/2026
-- **Backlog:** todas as tarefas concluídas, exceto #30 (nomes de doadores pessoas físicas), que é uma decisão do dono do projeto.
+- **Backlog:** todas as tarefas concluídas (#30 decidida: nome só dos 3 maiores doadores pessoas físicas).
 - **Escala:** páginas públicas estáticas na CDN, busca no navegador, resumo mensal em lote (docs/ESCALA.md).
 
 ## Decisões

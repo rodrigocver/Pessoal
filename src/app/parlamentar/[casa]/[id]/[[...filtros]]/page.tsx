@@ -562,6 +562,13 @@ async function AbaComissoes({ p, periodo }: { p: Parlamentar; periodo: Periodo }
 }
 
 const tituloCase = (s: string) => (s.charAt(0) + s.slice(1).toLowerCase()).replace(/\bqp\b/, "QP");
+// "MARIA DA SILVA" -> "Maria da Silva" (nomes de pessoas vêm em maiúsculas do TSE).
+const nomeProprio = (s: string) =>
+  s
+    .toLowerCase()
+    .split(" ")
+    .map((p, i) => (i > 0 && /^(da|de|do|das|dos|e)$/.test(p) ? p : p.charAt(0).toUpperCase() + p.slice(1)))
+    .join(" ");
 // O TSE grava alguns tipos de bem em maiúsculas ("OUTROS BENS E DIREITOS") e outros não.
 const tipoBem = (s: string) => (s === s.toUpperCase() ? tituloCase(s) : s);
 
@@ -642,6 +649,22 @@ async function AbaEleicoes({ p }: { p: Parlamentar }) {
                 )}
               </div>
             </div>
+            {c.maioresDoadores.length > 0 && (
+              <details className="text-sm">
+                <summary className="cursor-pointer text-suave">
+                  {c.maioresDoadores.length === 1 ? "Maior doador" : `${c.maioresDoadores.length} maiores doadores`}{" "}
+                  pessoas físicas
+                </summary>
+                <ul className="mt-2 flex flex-col gap-1">
+                  {c.maioresDoadores.map((d) => (
+                    <li key={d.doador} className="flex justify-between gap-3">
+                      <span className="min-w-0 truncate">{nomeProprio(d.doador)}</span>
+                      <span className="shrink-0 tabular-nums text-suave">{formatarReais(d.total)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
             {c.doadoresInstitucionais.length > 0 && (
               <details className="text-sm">
                 <summary className="cursor-pointer text-suave">
@@ -668,9 +691,10 @@ async function AbaEleicoes({ p }: { p: Parlamentar }) {
           ligação e não é guardado.
         </p>
         <p>
-          Por privacidade, mostramos o tipo e o valor dos bens, sem a descrição (que pode trazer endereços), e o total
-          das doações de pessoas físicas com o número de doadores, sem os nomes. Os detalhes completos estão nos dados
-          do TSE. Valores sem correção pela inflação.
+          Por privacidade, mostramos o tipo e o valor dos bens, sem a descrição (que pode trazer endereços). Das doações
+          de pessoas físicas, só os 3 maiores doadores de cada campanha aparecem pelo nome (somando todas as doações de
+          cada um); os demais aparecem no total, com o número de doadores. Os detalhes completos estão nos dados do TSE.
+          Valores sem correção pela inflação.
         </p>
       </ComoCalculamos>
     </>
