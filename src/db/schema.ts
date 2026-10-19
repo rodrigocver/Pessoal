@@ -40,6 +40,20 @@ export const parlamentar = pgTable(
   (t) => [uniqueIndex("parlamentar_casa_id_externo").on(t.casa, t.idExterno), index("parlamentar_nome").on(t.nome)],
 );
 
+/** Períodos em que o parlamentar esteve em exercício, segundo a fonte oficial (fim nulo = até hoje). */
+export const exercicio = pgTable(
+  "exercicio",
+  {
+    parlamentarId: integer("parlamentar_id")
+      .notNull()
+      .references(() => parlamentar.id, { onDelete: "cascade" }),
+    inicio: timestamp("inicio", { withTimezone: true }).notNull(),
+    fim: timestamp("fim", { withTimezone: true }),
+    ...origem,
+  },
+  (t) => [primaryKey({ columns: [t.parlamentarId, t.inicio] })],
+);
+
 export const sessao = pgTable(
   "sessao",
   {

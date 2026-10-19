@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { periodosDisponiveis } from "@/lib/periodo";
 import { VOTOS_EFETIVOS } from "@/lib/votos";
+import { sessaoConta } from "@/lib/exercicio";
 import { BANCADA_GOVERNO, prioridadeOrientacao } from "./alinhamento";
 
 /** Votos/orientações comparáveis no alinhamento ("Liberado" e ausências ficam de fora). */
@@ -9,7 +10,7 @@ const POSICOES = ["Sim", "Não", "Abstenção", "Obstrução"];
 
 /**
  * Recalcula a tabela `estatistica` para todos os parlamentares e períodos.
- * A presença segue a mesma definição de `presenca()` em lib/consultas.ts.
+ * A presença usa a mesma expressão de `presenca()` em lib/consultas.ts (`sessaoConta`).
  */
 export async function calcularEstatisticas(): Promise<number> {
   return db.transaction(async (tx) => {
@@ -45,13 +46,8 @@ export async function calcularEstatisticas(): Promise<number> {
       join orientacao o on o.votacao_id = vo.votacao_id and o.bancada = bp.bancada
       order by vo.votacao_id, vo.parlamentar_id, bp.prioridade`);
 
-    await tx.execute(sql`
-      create temp table atividade on commit drop as
-      select parlamentar_id, min(t) as primeira, max(t) as ultima from (
-        select pr.parlamentar_id, s.inicio as t from presenca pr join sessao s on s.id = pr.sessao_id
-        union all
-        select vo.parlamentar_id, v.data from voto vo join votacao v on v.id = vo.votacao_id
-      ) x group by 1`);
+    // Janela de exercício atualizada com os períodos oficiais e a atividade mais recente.
+    await tx.execute(sql`refresh materialized view janela_exercicio`);
 
     await tx.execute(sql`delete from estatistica`);
     let linhas = 0;
@@ -74,14 +70,12 @@ export async function calcularEstatisticas(): Promise<number> {
             where a.parlamentar_id = p.id and pr.apresentada_em >= ${ini}::date and pr.apresentada_em < ${fim}::date),
           coalesce(al.iguais, 0), coalesce(al.total, 0), coalesce(gov.iguais, 0), coalesce(gov.total, 0)
         from parlamentar p
-        join atividade a on a.parlamentar_id = p.id
         left join lateral (
           select count(s.id) as sessoes, count(pr.sessao_id) as presencas
           from sessao s
           left join presenca pr on pr.sessao_id = s.id and pr.parlamentar_id = p.id
-          where s.casa = p.casa
-            and s.inicio >= greatest(a.primeira, ${ini}::timestamptz)
-            and s.inicio <= least(case when p.em_exercicio then now() else a.ultima end, ${fim}::timestamptz)
+          where s.casa = p.casa and s.inicio >= ${ini} and s.inicio < ${fim}
+            and ${sessaoConta(sql`p.id`, sql`s.id`, sql`s.inicio`)}
         ) pres on true
         left join lateral (
           select count(*) filter (where vo.voto = vo.orientacao) as iguais, count(*) as total
@@ -96,7 +90,11 @@ export async function calcularEstatisticas(): Promise<number> {
           where vo.parlamentar_id = p.id and v.data >= ${ini} and v.data < ${fim}
             and vo.voto in ${POSICOES} and o.orientacao in ${POSICOES}
         ) gov on true
-        where a.primeira < ${fim}`);
+        -- Uma linha por parlamentar que esteve em exercício em algum momento do período.
+        where exists (
+          select 1 from janela_exercicio j
+          where j.parlamentar_id = p.id and j.inicio < ${fim} and coalesce(j.fim, 'infinity') > ${ini}
+        )`);
       linhas += r.count;
     }
     return linhas;

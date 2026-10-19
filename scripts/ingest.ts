@@ -8,6 +8,7 @@ import { buscarDeputados, buscarSenadores, salvarParlamentares } from "@/ingest/
 import { ingerirDespesas, ingerirPresencas, ingerirProposicoes, ingerirVotacoes } from "@/ingest/camara";
 import { ingerirDespesasSenado, ingerirProposicoesSenado, ingerirVotacoesSenado } from "@/ingest/senado";
 import { calcularEstatisticas } from "@/ingest/estatisticas";
+import { ingerirExercicioCamara, ingerirExercicioSenado } from "@/ingest/exercicio";
 import { lerArgumentosIngestao } from "@/ingest/util";
 
 const { tarefas: pedidas, anos } = lerArgumentosIngestao(process.argv.slice(2));
@@ -22,6 +23,8 @@ const porAno = (fn: (ano: number) => Promise<number>) => async () => {
 const tarefas: Record<string, () => Promise<number>> = {
   deputados: async () => salvarParlamentares(await buscarDeputados()),
   senadores: async () => salvarParlamentares(await buscarSenadores()),
+  "camara:exercicio": ingerirExercicioCamara, // períodos em exercício (licenças, suplências)
+  "senado:exercicio": ingerirExercicioSenado,
   "camara:presencas": porAno(ingerirPresencas),
   "camara:votacoes": porAno(ingerirVotacoes),
   "camara:proposicoes": porAno(ingerirProposicoes),

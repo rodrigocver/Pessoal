@@ -8,13 +8,19 @@ precisam seguir a mesma definição.
 
 ## Janela de exercício
 
-As fontes não publicam, de forma simples, quando cada parlamentar esteve licenciado ou foi substituído
-por suplente. Aproximação atual: do **primeiro ao último registro de atividade** (presença ou voto)
-do parlamentar, estendendo **até hoje** se ele está em exercício. Recortada pelo período escolhido.
+Só contam as sessões em que o parlamentar estava **em exercício** (fora disso, um suplente ocupava a vaga):
+- **Câmara:** `GET /deputados/{id}/historico`. Eventos cuja descrição começa com "Entrada" (posse,
+  reassunção) abrem um período; os que começam com "Saída" (licença com suplente, afastamento, fim de
+  mandato) fecham. O campo `situacao` não é usado: há reassunções registradas como "CONVOCADO".
+- **Senado:** `GET /senador/{codigo}/mandatos.json`, lista de `Exercicios` (data final inclusiva).
 
-> Limitação conhecida: um titular que se licencia no meio do período e volta depois tem as sessões
-> do intervalo contadas como ausência. Há issues para usar `/deputados/{id}/historico` e
-> `/senador/{codigo}/licencas`.
+Implementação: tabela `exercicio` (tarefas `camara:exercicio` e `senado:exercicio`) e visão
+`janela_exercicio`, recalculada pela tarefa `estatisticas`. Para quem não tem histórico ingerido, a visão
+usa a aproximação antiga: da primeira à última atividade registrada (presença ou voto), ou até hoje se em
+exercício. A expressão SQL única fica em `src/lib/exercicio.ts` (`sessaoConta`).
+
+Licenças curtas, em que o titular não é substituído, **continuam contando como ausência** (no Senado, o
+motivo aparece na lista de ausências).
 
 ## Presença
 
@@ -22,6 +28,10 @@ do parlamentar, estendendo **até hoje** se ele está em exercício. Recortada p
 canceladas) com registro de presença do deputado ÷ sessões deliberativas dentro da janela de exercício.
 Sessões solenes, não deliberativas e reuniões de comissão não entram. Faltas justificadas contam
 como ausência.
+
+Só entram sessões que **já aconteceram e têm alguma presença publicada**. Isso exclui as sessões do
+Congresso Nacional realizadas no plenário da Câmara (vetos, orçamento), para as quais a Câmara não
+publica presença, e evita que uma sessão recente, com a lista ainda não divulgada, vire falta de todos.
 
 **Senado:** não há lista de presença publicada. Usamos as sessões com **ao menos uma votação nominal**.
 Presente = teve em alguma votação da sessão um destes códigos: `Sim`, `Não`, `Abstenção`, `Obstrução`,

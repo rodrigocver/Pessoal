@@ -155,10 +155,16 @@ async function AbaPresenca({ p, periodo }: { p: Parlamentar; periodo: Periodo })
             </p>
           )}
           <p>
-            A fonte não informa licenças. Por isso consideramos o período entre a primeira e a última atividade
-            registrada (presença ou voto) — ou até hoje, se ele segue em exercício. Faltas justificadas contam como
-            ausência.
+            Só contam as sessões em que o parlamentar estava em exercício, segundo o histórico oficial da casa: períodos
+            em que um suplente ocupava a vaga ficam de fora. Licenças curtas, sem suplente, e faltas justificadas contam
+            como ausência.
           </p>
+          {p.casa === "CD" && (
+            <p>
+              Sessões do Congresso Nacional realizadas no plenário da Câmara não entram: a Câmara não publica a lista de
+              presença delas.
+            </p>
+          )}
         </ComoCalculamos>
       </Secao>
       {d.ausencias.length > 0 && (

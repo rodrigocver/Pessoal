@@ -1,6 +1,7 @@
 import { and, asc, eq, ilike, or, sql } from "drizzle-orm";
 import { db, schema } from "@/db/client";
 import type { Periodo } from "./periodo";
+import { sessaoConta } from "./exercicio";
 
 const { parlamentar } = schema;
 export type Parlamentar = typeof parlamentar.$inferSelect;
@@ -62,36 +63,22 @@ export async function obterParlamentar(casa: Casa, idExterno: string) {
 
 // ---------- Presença ----------
 
-/**
- * Janela em que o parlamentar estava em exercício dentro do período. A fonte não traz o histórico
- * de licenças, então aproximamos: da primeira à última atividade registrada (presença ou voto),
- * estendendo até hoje se ele ainda está em exercício.
- */
-function janelaSql(p: Parlamentar, periodo: Periodo) {
+/** Sessões do período que contam para a presença do parlamentar (ver lib/exercicio.ts). */
+function sessoesSql(p: Parlamentar, periodo: Periodo) {
   return sql`
-    with atividade as (
-      select min(s.inicio) as primeira, max(s.inicio) as ultima
-      from presenca pr join sessao s on s.id = pr.sessao_id where pr.parlamentar_id = ${p.id}
-      union all
-      select min(v.data), max(v.data)
-      from voto vo join votacao v on v.id = vo.votacao_id where vo.parlamentar_id = ${p.id}
-    ),
-    janela as (
-      select greatest(min(primeira), ${periodo.inicio.toISOString()}::timestamptz) as ini,
-             least(${p.emExercicio ? sql`now()` : sql`max(ultima)`}, ${periodo.fim.toISOString()}::timestamptz) as fim
-      from atividade
-    ),
-    sessoes as (
+    with sessoes as (
       select s.id, s.inicio, s.descricao, exists(
         select 1 from presenca pr where pr.sessao_id = s.id and pr.parlamentar_id = ${p.id}
       ) as presente
-      from sessao s, janela j
-      where s.casa = ${p.casa} and s.inicio >= j.ini and s.inicio <= j.fim
+      from sessao s
+      where s.casa = ${p.casa}
+        and s.inicio >= ${periodo.inicio.toISOString()} and s.inicio < ${periodo.fim.toISOString()}
+        and ${sessaoConta(p.id, sql`s.id`, sql`s.inicio`)}
     )`;
 }
 
 export async function presenca(p: Parlamentar, periodo: Periodo) {
-  const base = janelaSql(p, periodo);
+  const base = sessoesSql(p, periodo);
   const [resumo, mensal, ausencias] = await Promise.all([
     db.execute(sql`${base} select count(*) as total, count(*) filter (where presente) as presentes from sessoes`),
     db.execute(sql`${base}

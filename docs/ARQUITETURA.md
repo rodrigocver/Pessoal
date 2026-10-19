@@ -47,6 +47,7 @@
 | Tarefa | O que faz |
 |---|---|
 | `deputados`, `senadores` | Cadastro (marca quem está em exercício) |
+| `camara:exercicio`, `senado:exercicio` | Períodos em exercício (licenças, suplências) |
 | `camara:presencas` | Sessões deliberativas e presença |
 | `camara:votacoes` | Votações nominais de plenário, votos e orientações |
 | `camara:proposicoes` | Proposições de autoria de deputados |
@@ -54,6 +55,6 @@
 | `senado:votacoes` | Votações nominais, votos, orientações e comparecimento |
 | `senado:proposicoes` | Proposições de autoria de senadores |
 | `senado:despesas` | Cota parlamentar (CEAPS) |
-| `estatisticas` | Recalcula a tabela `estatistica` (sempre por último) |
+| `estatisticas` | Recalcula a visão `janela_exercicio` e a tabela `estatistica` (sempre por último) |
 
 Cada execução é registrada em `ingestao_log`; o rodapé do site mostra a última atualização bem-sucedida.
