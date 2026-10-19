@@ -2,9 +2,11 @@
 
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth, signIn, signOut, provedorEmail } from "@/auth";
 import { db, schema } from "@/db/client";
+import { LIMITES_LOGIN, dentroDoLimite, normalizarEmail } from "@/lib/limite";
 
 async function usuarioAtual() {
   const sessao = await auth();
@@ -29,11 +31,14 @@ export async function deixarDeSeguir(parlamentarId: number, caminho: string) {
 }
 
 export async function entrarComEmail(formData: FormData) {
-  await signIn(provedorEmail, {
-    email: String(formData.get("email") ?? ""),
-    redirectTo: "/minha-lista",
-    redirect: false,
-  });
+  const email = normalizarEmail(String(formData.get("email") ?? ""));
+  const ip = (await headers()).get("x-forwarded-for")?.split(",")[0].trim() ?? "desconhecido";
+  // Ordem importa: se o IP já estourou, nem registra tentativa para o e-mail.
+  const permitido =
+    (await dentroDoLimite(`ip:${ip}`, LIMITES_LOGIN.porIp)) &&
+    (await dentroDoLimite(`email:${email}`, LIMITES_LOGIN.porEmail));
+  if (!permitido) redirect("/entrar?limite=1");
+  await signIn(provedorEmail, { email, redirectTo: "/minha-lista", redirect: false });
   redirect("/entrar/verifique");
 }
 

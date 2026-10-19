@@ -9,7 +9,7 @@ const fonteUrl = "teste";
 export async function prepararBanco() {
   await migrate(db, { migrationsFolder: "drizzle" });
   await db.execute(sql`
-    truncate parlamentar, sessao, votacao, proposicao, despesa, estatistica, ingestao_log, "user" restart identity cascade`);
+    truncate parlamentar, sessao, votacao, proposicao, despesa, estatistica, ingestao_log, tentativa_login, "user" restart identity cascade`);
 }
 
 /**

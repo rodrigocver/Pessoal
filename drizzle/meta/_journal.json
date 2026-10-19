@@ -57,6 +57,13 @@
       "when": 1792401353557,
       "tag": "0007_janela_exercicio",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792401729216,
+      "tag": "0008_short_ricochet",
+      "breakpoints": true
     }
   ]
 }

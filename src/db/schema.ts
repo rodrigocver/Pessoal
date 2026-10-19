@@ -299,3 +299,14 @@ export const envioResumo = pgTable(
   },
   (t) => [primaryKey({ columns: [t.usuarioId, t.mes] })],
 );
+
+/** Pedidos recentes de link de login, para limitar abuso (envio em massa de e-mails). */
+export const tentativaLogin = pgTable(
+  "tentativa_login",
+  {
+    id: serial("id").primaryKey(),
+    chave: text("chave").notNull(), // "email:fulano@x.com" ou "ip:1.2.3.4"
+    criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("tentativa_login_chave_criado").on(t.chave, t.criadoEm)],
+);
