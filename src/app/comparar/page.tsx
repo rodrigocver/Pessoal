@@ -36,6 +36,15 @@ export default async function Comparar({ searchParams }: { searchParams: Promise
   const rb = r.get(b.id);
   const linhas: { rotulo: string; a: string; b: string }[] = [
     { rotulo: "Presença", a: formatarPct(ra?.presenca ?? null), b: formatarPct(rb?.presenca ?? null) },
+    ...(a.casa === "CD" || b.casa === "CD"
+      ? [
+          {
+            rotulo: "Presença em comissões",
+            a: formatarPct(ra?.presencaComissoes ?? null),
+            b: formatarPct(rb?.presencaComissoes ?? null),
+          },
+        ]
+      : []),
     { rotulo: "Votos em votações nominais", a: String(ra?.votos ?? 0), b: String(rb?.votos ?? 0) },
     { rotulo: "Seguiu o partido", a: formatarPct(ra?.alinhPartido ?? null), b: formatarPct(rb?.alinhPartido ?? null) },
     { rotulo: "Seguiu o governo", a: formatarPct(ra?.alinhGoverno ?? null), b: formatarPct(rb?.alinhGoverno ?? null) },

@@ -66,6 +66,27 @@ Presente = teve em alguma votação da sessão um destes códigos: `Sim`, `Não`
 `Votou` (secreto), `P-NRV` (presente sem voto), `Presidente (art. 51 RISF)`. Os demais códigos
 (`AP`, `MIS`, `LS`, `LP`, `NCom`...) são ausência, e o motivo aparece na lista de ausências.
 
+**Diferença em relação ao portal da Câmara:** o perfil de cada deputado no portal conta **dias** com sessão
+deliberativa (não sessões) e separa **ausências justificadas** das não justificadas. As justificativas não são
+publicadas nos dados abertos, e o portal parece considerar sessões que não aparecem neles. Por isso os números
+não coincidem (ex.: Tabata Amaral em 2025 — portal: 117 dias presente e 4 ausências justificadas; Fiscaliza:
+115 de 127 sessões). Há uma issue para alinhar.
+
+## Comissões
+
+- **Câmara — presença em comissões:** reuniões **deliberativas** ("Reunião Deliberativa" e "Audiência Pública e
+  Deliberação") das comissões permanentes, especiais e CPIs em que o deputado era **membro titular** na data
+  (qualquer cargo menos suplente), enquanto em exercício, já realizadas e com presença publicada. Reunião conjunta
+  conta para cada comissão. Audiências públicas, seminários e comissões em que é suplente não entram. Expressão
+  SQL única: `reuniaoConta` em `src/lib/exercicio.ts`. O portal da Câmara conta todas as reuniões, inclusive
+  audiências e comissões como suplente, e separa ausências justificadas.
+- **Senado — relatorias:** projetos de que o senador foi relator (designação, saída e motivo), designados a partir
+  de 2023, ativos no período. O Senado **não publica presença** em reuniões de comissão.
+- **Membros:** comissões de que foi membro no período, com cargo e datas (Câmara: `orgaosDeputados-L{n}`; Senado:
+  `/senador/{codigo}/comissoes`). Grupos e frentes parlamentares aparecem à parte.
+- A Câmara não publica o histórico de relatorias nos dados abertos (o serviço de relatores responde "método não
+  suportado").
+
 ## Votações
 
 Só **votações nominais de plenário** (o voto de cada parlamentar fica registrado). Na Câmara: órgão

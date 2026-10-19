@@ -65,7 +65,16 @@ Verificado em 19/10/2026. Se algo mudou na fonte, atualize este arquivo no mesmo
 | Câmara `GET /blocos`, `/blocos/{id}/partidos` | Composição completa de blocos (resolveria os nomes cortados) |
 | Câmara `GET /deputados/{id}/historico` | Entradas e saídas de exercício (suplentes, licenças) |
 | Câmara `arquivos/proposicoesTemas/json/proposicoesTemas-{ano}.json` | Temas das proposições — filtro por tema |
-| Câmara `GET /orgaos`, `/orgaos/{id}/membros`, `/orgaos/{id}/eventos` | Comissões |
 | Senado `GET /senador/{codigo}/licencas.json` | Licenças — janela de exercício |
-| Senado `GET /senador/{codigo}/comissoes.json` | Comissões |
 | TSE — dados abertos de candidaturas, bens e prestação de contas | Patrimônio e doações (v2) |
+
+## Comissões (v2)
+| Dado | Fonte | Observação |
+|---|---|---|
+| Órgãos da Câmara | `arquivos/orgaos/json/orgaos.json` | Tipo do órgão em `tipoOrgao` |
+| Membros (Câmara) | `arquivos/orgaosDeputados/json/orgaosDeputados-L{n}.json` | Cargo e período; `dataFim` vazio = ainda membro |
+| Reuniões e presença (Câmara) | `eventos-{ano}`, `eventosOrgaos-{ano}`, `eventosPresencaDeputados-{ano}` | Presença registrada em ~99% das reuniões deliberativas |
+| Relatorias (Câmara) | — | `/proposicoes/{id}/relatores` responde 405; não há arquivo em lote |
+| Membros (Senado) | `/senador/{codigo}/comissoes.json` | Sem tipo de colegiado; grupos parlamentares identificados pelo nome |
+| Relatorias (Senado) | `/processo/relatoria?codigoParlamentar&dataInicio&dataFim` | Máximo 1 ano por consulta; consulta sem parlamentar dá 503; a resposta pode repetir itens |
+| Presença em comissões (Senado) | — | `/comissao/reuniao/{codigo}` não traz lista de presença |

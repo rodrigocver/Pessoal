@@ -9,6 +9,9 @@ import {
   obterParlamentar,
   presenca,
   proposicoes,
+  comissoesDe,
+  relatoriasDe,
+  type ComissaoDoParlamentar,
   afastamentosDe,
   vagasOcupadas,
   type AfastamentoDetalhado,
@@ -37,6 +40,7 @@ const ABAS = {
   presenca: "Presença",
   votacoes: "Votações",
   proposicoes: "Projetos",
+  comissoes: "Comissões",
   gastos: "Gastos",
 } as const;
 type Aba = keyof typeof ABAS;
@@ -124,6 +128,7 @@ export default async function Perfil({ params, searchParams }: Props) {
       {aba === "presenca" && <AbaPresenca p={p} periodo={periodo} afastamentos={afastamentos} vagas={vagas} />}
       {aba === "votacoes" && <AbaVotacoes p={p} periodo={periodo} pagina={pagina} tema={tema} link={link} />}
       {aba === "proposicoes" && <AbaProposicoes p={p} periodo={periodo} />}
+      {aba === "comissoes" && <AbaComissoes p={p} periodo={periodo} />}
       {aba === "gastos" && <AbaGastos p={p} periodo={periodo} />}
     </div>
   );
@@ -206,7 +211,8 @@ async function AbaPresenca({
           {p.casa === "CD" && (
             <p>
               Sessões do Congresso Nacional realizadas no plenário da Câmara não entram: a Câmara não publica a lista de
-              presença delas.
+              presença delas. O portal da Câmara mostra outro número: conta dias (não sessões) e separa ausências
+              justificadas, cujas justificativas não são publicadas nos dados abertos.
             </p>
           )}
         </ComoCalculamos>
@@ -409,6 +415,116 @@ async function AbaProposicoes({ p, periodo }: { p: Parlamentar; periodo: Periodo
         </p>
       </ComoCalculamos>
     </Secao>
+  );
+}
+
+async function AbaComissoes({ p, periodo }: { p: Parlamentar; periodo: Periodo }) {
+  const [comissoes, relatorias, comp] = await Promise.all([
+    comissoesDe(p, periodo),
+    p.casa === "SF" ? relatoriasDe(p, periodo) : Promise.resolve([]),
+    comparativo(p, periodo),
+  ]);
+  const ehComissao = (c: ComissaoDoParlamentar) => c.tipo !== "Grupo Parlamentar" && !/^Grupo|^Frente/i.test(c.nome);
+  const principais = comissoes.filter(ehComissao);
+  const outros = comissoes.filter((c) => !ehComissao(c));
+  const reunioes = principais.reduce((s, c) => s + c.reunioes, 0);
+  const presencas = principais.reduce((s, c) => s + c.presencas, 0);
+  const periodoMembro = (c: ComissaoDoParlamentar) =>
+    c.cargos
+      .map((x) => `${x.cargo} desde ${formatarData(x.inicio)}${x.fim ? ` até ${formatarData(x.fim)}` : ""}`)
+      .join("; ");
+
+  return (
+    <>
+      {p.casa === "CD" && (
+        <Secao titulo="Presença em comissões">
+          <Destaque
+            valor={formatarPct(reunioes ? presencas / reunioes : null)}
+            legenda={`${presencas} de ${reunioes} reuniões deliberativas das comissões em que era titular, em ${periodo.rotulo.toLowerCase()}`}
+          />
+          <Comparacao
+            maximo={1}
+            formatar={formatarPct}
+            linhas={linhasComparacao(p.nome, p.partido, nomeCasa(p), comp, "presencaComissoes")}
+          />
+          <ComoCalculamos>
+            <p>
+              Reuniões deliberativas (em que se votam projetos) das comissões permanentes, especiais e CPIs em que o
+              deputado era membro titular na data, enquanto estava em exercício. Audiências públicas, seminários e
+              comissões em que é suplente não entram.
+            </p>
+            <p>
+              O portal da Câmara mostra outro número: conta todas as reuniões de todas as comissões, inclusive
+              audiências e comissões em que o deputado é suplente, e separa ausências justificadas. As justificativas
+              não são publicadas nos dados abertos.
+            </p>
+          </ComoCalculamos>
+        </Secao>
+      )}
+
+      <Secao titulo={`Comissões (${principais.length})`}>
+        {principais.length === 0 && <p className="text-sm text-suave">Não foi membro de comissões no período.</p>}
+        <ul className="flex flex-col divide-y divide-borda text-sm">
+          {principais.map((c) => (
+            <li key={c.orgaoId} className="flex flex-col gap-0.5 py-2">
+              <div className="flex justify-between gap-3">
+                <span className="font-medium">{c.sigla}</span>
+                {p.casa === "CD" && c.reunioes > 0 && (
+                  <span className="shrink-0 tabular-nums text-suave">
+                    {c.presencas} de {c.reunioes} reuniões
+                  </span>
+                )}
+              </div>
+              <span>{c.nome}</span>
+              <span className="text-xs text-suave">{periodoMembro(c)}</span>
+            </li>
+          ))}
+        </ul>
+        {outros.length > 0 && (
+          <details className="text-sm">
+            <summary className="cursor-pointer text-suave">Grupos e frentes parlamentares ({outros.length})</summary>
+            <ul className="mt-2 flex flex-col gap-1">
+              {outros.map((c) => (
+                <li key={c.orgaoId}>
+                  {c.nome} <span className="text-xs text-suave">({c.cargos.map((x) => x.cargo).join(", ")})</span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
+      </Secao>
+
+      {p.casa === "SF" && (
+        <Secao titulo={`Relatorias (${relatorias.length})`}>
+          <p className="text-sm text-suave">
+            Projetos de que foi relator: quem relata estuda a proposta e apresenta o parecer que a comissão vota. O
+            Senado não publica a presença nas reuniões de comissão.
+          </p>
+          <ul className="flex flex-col divide-y divide-borda text-sm">
+            {relatorias.map((r, i) => (
+              <li key={i} className="py-2">
+                <div className="flex flex-wrap gap-x-2">
+                  <span className="font-medium">{r.proposicao}</span>
+                  <span className="text-suave">
+                    {r.colegiado} · desde {formatarData(r.designacao)}
+                    {r.destituicao
+                      ? ` até ${formatarData(r.destituicao)}${r.motivoFim ? ` (${r.motivoFim.toLowerCase()})` : ""}`
+                      : " · em andamento"}
+                  </span>
+                </div>
+                {r.ementa && <p className="line-clamp-2">{r.ementa}</p>}
+              </li>
+            ))}
+          </ul>
+          <ComoCalculamos>
+            <p>
+              Relatorias designadas a partir de 2023 que estiveram ativas no período, segundo o serviço de relatorias do
+              Senado. A Câmara não publica o histórico de relatorias nos dados abertos.
+            </p>
+          </ComoCalculamos>
+        </Secao>
+      )}
+    </>
   );
 }
 

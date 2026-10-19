@@ -56,6 +56,9 @@
 | `senado:votacoes` | Votações nominais, votos, orientações e comparecimento |
 | `senado:proposicoes` | Proposições de autoria de senadores |
 | `senado:despesas` | Cota parlamentar (CEAPS) |
+| `camara:comissoes`, `senado:comissoes` | Órgãos e membros das comissões |
+| `camara:reunioes` | Reuniões deliberativas de comissão e presença (por ano) |
+| `senado:relatorias` | Relatorias de projetos (por ano) |
 | `temas` | Temas oficiais das matérias votadas (incremental) |
 | `estatisticas` | Recalcula a visão `janela_exercicio` e a tabela `estatistica` (sempre por último) |
 

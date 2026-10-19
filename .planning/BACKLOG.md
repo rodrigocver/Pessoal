@@ -30,6 +30,7 @@ Depois de publicadas, o GitHub passa a ser a fonte da verdade: discussão e anda
 | 13 | ✅ [Imagem de compartilhamento (Open Graph) por parlamentar](issues/13-imagem-compartilhamento.md) | funcionalidade, interface |
 | 14 | ✅ [Página de cada votação: como cada partido e parlamentar votou](issues/14-pagina-votacao.md) | funcionalidade, interface |
 | 15 | ✅ [Comparar dois parlamentares lado a lado](issues/15-comparar-parlamentares.md) | funcionalidade, interface |
+| 21 | [Alinhar a presença em plenário com o portal da Câmara](issues/21-alinhar-presenca-portal-camara.md) | métricas, câmara, discussão |
 | 19 | ✅ [Destacar quando o titular se afasta e o suplente assume](issues/19-afastamentos-suplentes.md) | funcionalidade, interface, ingestão |
 
 ## Boas primeiras issues
@@ -47,5 +48,5 @@ Depois de publicadas, o GitHub passa a ser a fonte da verdade: discussão e anda
 
 | # | Tarefa | Rótulos |
 |---|---|---|
-| 17 | [Comissões: participação e relatorias (v2)](issues/17-comissoes.md) | v2, funcionalidade, ingestão, discussão |
+| 17 | ✅ [Comissões: participação e relatorias (v2)](issues/17-comissoes.md) | v2, funcionalidade, ingestão, discussão |
 | 18 | [Dados do TSE: patrimônio declarado e doações de campanha (v2)](issues/18-dados-tse.md) | v2, funcionalidade, ingestão, discussão |

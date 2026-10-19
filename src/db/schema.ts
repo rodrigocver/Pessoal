@@ -262,6 +262,9 @@ export const estatistica = pgTable(
     alinhPartidoTotal: integer("alinh_partido_total").notNull(),
     alinhGovernoIguais: integer("alinh_governo_iguais").notNull(),
     alinhGovernoTotal: integer("alinh_governo_total").notNull(),
+    // Câmara: reuniões deliberativas das comissões em que era titular, e em quantas esteve presente.
+    comissaoReunioes: integer("comissao_reunioes").notNull().default(0),
+    comissaoPresencas: integer("comissao_presencas").notNull().default(0),
     calculadoEm: timestamp("calculado_em", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.parlamentarId, t.periodo] })],
@@ -370,4 +373,103 @@ export const tentativaLogin = pgTable(
     criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("tentativa_login_chave_criado").on(t.chave, t.criadoEm)],
+);
+
+// ---------- Comissões ----------
+
+/** Comissões e outros órgãos colegiados (Câmara: /orgaos; Senado: colegiados). */
+export const orgao = pgTable(
+  "orgao",
+  {
+    id: serial("id").primaryKey(),
+    casa: casaEnum("casa").notNull(),
+    idExterno: text("id_externo").notNull(),
+    sigla: text("sigla").notNull(),
+    nome: text("nome").notNull(),
+    tipo: text("tipo"), // "Comissão Permanente", "Comissão Parlamentar de Inquérito"...
+    ...origem,
+  },
+  (t) => [uniqueIndex("orgao_casa_id_externo").on(t.casa, t.idExterno)],
+);
+
+/** Participação do parlamentar num órgão: cargo (Titular, Suplente, Presidente...) e período. */
+export const membroOrgao = pgTable(
+  "membro_orgao",
+  {
+    parlamentarId: integer("parlamentar_id")
+      .notNull()
+      .references(() => parlamentar.id, { onDelete: "cascade" }),
+    orgaoId: integer("orgao_id")
+      .notNull()
+      .references(() => orgao.id, { onDelete: "cascade" }),
+    cargo: text("cargo").notNull(),
+    inicio: date("inicio").notNull(),
+    fim: date("fim"), // nulo = ainda membro
+  },
+  (t) => [
+    primaryKey({ columns: [t.parlamentarId, t.orgaoId, t.cargo, t.inicio] }),
+    index("membro_orgao_orgao").on(t.orgaoId),
+  ],
+);
+
+/** Reuniões de comissão (Câmara), para a presença em comissões. */
+export const reuniao = pgTable(
+  "reuniao",
+  {
+    id: serial("id").primaryKey(),
+    casa: casaEnum("casa").notNull(),
+    idExterno: text("id_externo").notNull(),
+    orgaoId: integer("orgao_id")
+      .notNull()
+      .references(() => orgao.id, { onDelete: "cascade" }),
+    inicio: timestamp("inicio", { withTimezone: true }).notNull(),
+    tipo: text("tipo").notNull(),
+    descricao: text("descricao"),
+    ...origem,
+  },
+  (t) => [
+    uniqueIndex("reuniao_casa_id_externo_orgao").on(t.casa, t.idExterno, t.orgaoId),
+    index("reuniao_orgao_inicio").on(t.orgaoId, t.inicio),
+  ],
+);
+
+export const presencaReuniao = pgTable(
+  "presenca_reuniao",
+  {
+    reuniaoId: integer("reuniao_id")
+      .notNull()
+      .references(() => reuniao.id, { onDelete: "cascade" }),
+    parlamentarId: integer("parlamentar_id")
+      .notNull()
+      .references(() => parlamentar.id, { onDelete: "cascade" }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.reuniaoId, t.parlamentarId] }),
+    index("presenca_reuniao_parlamentar").on(t.parlamentarId),
+  ],
+);
+
+/** Relatorias de projetos (Senado: /processo/relatoria). */
+export const relatoria = pgTable(
+  "relatoria",
+  {
+    id: serial("id").primaryKey(),
+    casa: casaEnum("casa").notNull(),
+    parlamentarId: integer("parlamentar_id")
+      .notNull()
+      .references(() => parlamentar.id, { onDelete: "cascade" }),
+    proposicao: text("proposicao").notNull(), // rótulo, ex.: "PL 2234/2022"
+    proposicaoRef: text("proposicao_ref").notNull(),
+    ementa: text("ementa"),
+    colegiado: text("colegiado").notNull(), // sigla da comissão ou "PLEN"
+    tipoRelator: text("tipo_relator"),
+    designacao: timestamp("designacao", { withTimezone: true }).notNull(),
+    destituicao: timestamp("destituicao", { withTimezone: true }),
+    motivoFim: text("motivo_fim"),
+    ...origem,
+  },
+  (t) => [
+    uniqueIndex("relatoria_unica").on(t.casa, t.parlamentarId, t.proposicaoRef, t.colegiado, t.designacao),
+    index("relatoria_parlamentar").on(t.parlamentarId),
+  ],
 );

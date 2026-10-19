@@ -9,7 +9,7 @@ const fonteUrl = "teste";
 export async function prepararBanco() {
   await migrate(db, { migrationsFolder: "drizzle" });
   await db.execute(sql`
-    truncate parlamentar, sessao, votacao, proposicao, despesa, estatistica, ingestao_log, tentativa_login, tema_proposicao, tema_consultado, afastamento, substituicao, "user" restart identity cascade`);
+    truncate parlamentar, sessao, votacao, proposicao, despesa, estatistica, ingestao_log, tentativa_login, tema_proposicao, tema_consultado, afastamento, substituicao, orgao, relatoria, "user" restart identity cascade`);
 }
 
 /**
@@ -176,6 +176,67 @@ export async function criarCenario() {
     fim: null,
     certeza: "datas",
   });
+
+  // Comissão de Educação (CD): Ana titular desde 01/01/2025, Beto suplente.
+  const [ce] = await db
+    .insert(schema.orgao)
+    .values({
+      casa: "CD",
+      idExterno: "2009",
+      sigla: "CE",
+      nome: "Comissão de Educação",
+      tipo: "Comissão Permanente",
+      fonteUrl,
+    })
+    .returning();
+  await db.insert(schema.membroOrgao).values([
+    { parlamentarId: ana.id, orgaoId: ce.id, cargo: "Titular", inicio: "2025-01-01", fim: null },
+    { parlamentarId: beto.id, orgaoId: ce.id, cargo: "Suplente", inicio: "2025-03-01", fim: null },
+  ]);
+  const reunioes = await db
+    .insert(schema.reuniao)
+    .values([
+      {
+        casa: "CD",
+        idExterno: "r0",
+        orgaoId: ce.id,
+        inicio: t("2024-12-03T10:00:00"),
+        tipo: "Reunião Deliberativa",
+        fonteUrl,
+      }, // antes da filiação
+      {
+        casa: "CD",
+        idExterno: "r1",
+        orgaoId: ce.id,
+        inicio: t("2025-04-01T10:00:00"),
+        tipo: "Reunião Deliberativa",
+        fonteUrl,
+      },
+      {
+        casa: "CD",
+        idExterno: "r2",
+        orgaoId: ce.id,
+        inicio: t("2025-05-06T10:00:00"),
+        tipo: "Reunião Deliberativa",
+        fonteUrl,
+      },
+      {
+        casa: "CD",
+        idExterno: "r3",
+        orgaoId: ce.id,
+        inicio: t("2025-05-13T10:00:00"),
+        tipo: "Reunião Deliberativa",
+        fonteUrl,
+      }, // sem presença publicada
+    ])
+    .returning();
+  const r = Object.fromEntries(reunioes.map((x) => [x.idExterno, x.id]));
+  await db.insert(schema.presencaReuniao).values([
+    { reuniaoId: r.r0, parlamentarId: ana.id },
+    { reuniaoId: r.r1, parlamentarId: ana.id },
+    { reuniaoId: r.r1, parlamentarId: beto.id },
+    { reuniaoId: r.r2, parlamentarId: beto.id }, // Ana faltou em r2
+  ]);
 
   return { ana, beto, carla, davi };
 }

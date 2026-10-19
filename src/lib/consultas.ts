@@ -1,7 +1,7 @@
 import { and, asc, eq, or, sql } from "drizzle-orm";
 import { db, schema } from "@/db/client";
 import type { Periodo } from "./periodo";
-import { sessaoConta } from "./exercicio";
+import { reuniaoConta, sessaoConta } from "./exercicio";
 import { POSICOES } from "./votos";
 
 const { parlamentar } = schema;
@@ -271,6 +271,7 @@ export interface Indicadores {
   proposicoes: number;
   alinhPartido: number | null;
   alinhGoverno: number | null;
+  presencaComissoes: number | null; // Câmara; nulo no Senado (não publica)
 }
 
 /** Cartões da lista: lê a tabela pré-calculada (rápido mesmo com muitos parlamentares). */
@@ -289,6 +290,7 @@ export async function resumos(ids: number[], periodo: Periodo) {
       proposicoes: e.proposicoes,
       alinhPartido: razao(e.alinhPartidoIguais, e.alinhPartidoTotal),
       alinhGoverno: razao(e.alinhGovernoIguais, e.alinhGovernoTotal),
+      presencaComissoes: razao(e.comissaoPresencas, e.comissaoReunioes),
     });
   return r;
 }
@@ -304,7 +306,8 @@ export async function comparativo(p: Parlamentar, periodo: Periodo) {
         avg(e.presencas::numeric / nullif(e.sessoes, 0)) as presenca,
         avg(e.votos) as votos, avg(e.gastos) as gastos, avg(e.proposicoes) as proposicoes,
         avg(e.alinh_partido_iguais::numeric / nullif(e.alinh_partido_total, 0)) as alinh_partido,
-        avg(e.alinh_governo_iguais::numeric / nullif(e.alinh_governo_total, 0)) as alinh_governo
+        avg(e.alinh_governo_iguais::numeric / nullif(e.alinh_governo_total, 0)) as alinh_governo,
+        avg(e.comissao_presencas::numeric / nullif(e.comissao_reunioes, 0)) as presenca_comissoes
       from estatistica e join parlamentar x on x.id = e.parlamentar_id
       where e.periodo = ${periodo.valor} and x.em_exercicio and x.casa = ${p.casa} and ${filtro}`);
   const comoIndicadores = (m: Record<string, unknown> | undefined): Indicadores & { n: number } => ({
@@ -315,6 +318,7 @@ export async function comparativo(p: Parlamentar, periodo: Periodo) {
     proposicoes: num(m?.proposicoes),
     alinhPartido: m?.alinh_partido == null ? null : num(m.alinh_partido),
     alinhGoverno: m?.alinh_governo == null ? null : num(m.alinh_governo),
+    presencaComissoes: m?.presenca_comissoes == null ? null : num(m.presenca_comissoes),
   });
   const [proprio, partido, casa] = await Promise.all([
     resumos([p.id], periodo).then((r) => r.get(p.id) ?? null),
@@ -617,5 +621,74 @@ export async function statusIngestao() {
     // Página pública: só a primeira linha do erro, curta.
     erro: l.erro ? String(l.erro).split("\n")[0].slice(0, 160) : null,
     ultimoOk: l.ultimo_ok ? new Date(String(l.ultimo_ok)) : null,
+  }));
+}
+
+// ---------- Comissões ----------
+
+export interface ComissaoDoParlamentar {
+  orgaoId: number;
+  sigla: string;
+  nome: string;
+  tipo: string | null;
+  cargos: { cargo: string; inicio: string; fim: string | null }[];
+  reunioes: number; // Câmara: reuniões deliberativas que contam (titular, em exercício)
+  presencas: number;
+}
+
+/** Comissões de que foi membro no período, com cargos e (Câmara) presença nas reuniões deliberativas. */
+export async function comissoesDe(p: Parlamentar, periodo: Periodo): Promise<ComissaoDoParlamentar[]> {
+  const ini = periodo.inicio.toISOString();
+  const fim = periodo.fim.toISOString();
+  const linhas = await db.execute(sql`
+    select o.id, o.sigla, o.nome, o.tipo,
+      json_agg(json_build_object('cargo', m.cargo, 'inicio', m.inicio, 'fim', m.fim) order by m.inicio) as cargos,
+      (select count(*) from reuniao r where r.orgao_id = o.id and r.inicio >= ${ini} and r.inicio < ${fim}
+        and ${reuniaoConta(p.id, { id: sql`r.id`, orgaoId: sql`r.orgao_id`, inicio: sql`r.inicio` })}) as reunioes,
+      (select count(*) from reuniao r join presenca_reuniao pr on pr.reuniao_id = r.id and pr.parlamentar_id = ${p.id}
+        where r.orgao_id = o.id and r.inicio >= ${ini} and r.inicio < ${fim}
+        and ${reuniaoConta(p.id, { id: sql`r.id`, orgaoId: sql`r.orgao_id`, inicio: sql`r.inicio` })}) as presencas
+    from membro_orgao m join orgao o on o.id = m.orgao_id
+    where m.parlamentar_id = ${p.id}
+      and m.inicio < ${fim}::date and (m.fim is null or m.fim >= ${ini}::date)
+    group by o.id
+    order by bool_or(m.cargo <> 'Suplente') desc, o.sigla`);
+  return linhas.map((l) => ({
+    orgaoId: num(l.id),
+    sigla: String(l.sigla),
+    nome: String(l.nome),
+    tipo: l.tipo as string | null,
+    cargos: (l.cargos as { cargo: string; inicio: string; fim: string | null }[]) ?? [],
+    reunioes: num(l.reunioes),
+    presencas: num(l.presencas),
+  }));
+}
+
+export interface RelatoriaDetalhada {
+  proposicao: string;
+  ementa: string | null;
+  colegiado: string;
+  tipoRelator: string | null;
+  designacao: Date;
+  destituicao: Date | null;
+  motivoFim: string | null;
+}
+
+/** Relatorias (Senado) que estiveram ativas em algum momento do período. */
+export async function relatoriasDe(p: Parlamentar, periodo: Periodo): Promise<RelatoriaDetalhada[]> {
+  const linhas = await db.execute(sql`
+    select proposicao, ementa, colegiado, tipo_relator, designacao, destituicao, motivo_fim from relatoria
+    where parlamentar_id = ${p.id}
+      and designacao < ${periodo.fim.toISOString()}
+      and (destituicao is null or destituicao >= ${periodo.inicio.toISOString()})
+    order by designacao desc`);
+  return linhas.map((l) => ({
+    proposicao: String(l.proposicao),
+    ementa: l.ementa as string | null,
+    colegiado: String(l.colegiado),
+    tipoRelator: l.tipo_relator as string | null,
+    designacao: new Date(String(l.designacao)),
+    destituicao: l.destituicao ? new Date(String(l.destituicao)) : null,
+    motivoFim: l.motivo_fim as string | null,
   }));
 }

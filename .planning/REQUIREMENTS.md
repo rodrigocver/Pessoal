@@ -42,9 +42,9 @@ Status: ✅ feito · 🟡 parcial (issue no backlog) · ⬜ pendente
 - ✅ **UX-02** Páginas de perfil carregam em < 2s (dados vêm do banco próprio, nunca da API do governo em tempo real).
 - ✅ **UX-03** Explicação de cada métrica ("como calculamos") ao lado do número.
 
-## v2 (fora da v1)
-- Dados do TSE (patrimônio declarado, doações de campanha) — backlog #18.
-- Comissões (presença e relatorias) — backlog #17.
+## v2
+- ✅ **COM-01** Comissões: membros e cargos; presença em reuniões deliberativas (Câmara); relatorias (Senado) — backlog #17.
+- ⬜ Dados do TSE (patrimônio declarado, doações de campanha) — backlog #18.
 - App nativo; notificações push.
 - Deputados estaduais/vereadores onde houver dados abertos.
 

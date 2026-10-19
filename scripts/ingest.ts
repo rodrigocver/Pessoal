@@ -10,6 +10,12 @@ import { ingerirDespesasSenado, ingerirProposicoesSenado, ingerirVotacoesSenado 
 import { calcularEstatisticas } from "@/ingest/estatisticas";
 import { ingerirExercicioCamara, ingerirExercicioSenado } from "@/ingest/exercicio";
 import { ingerirTemas } from "@/ingest/temas";
+import {
+  ingerirComissoesCamara,
+  ingerirComissoesSenado,
+  ingerirRelatoriasSenado,
+  ingerirReunioesCamara,
+} from "@/ingest/comissoes";
 import { lerArgumentosIngestao } from "@/ingest/util";
 
 const { tarefas: pedidas, anos } = lerArgumentosIngestao(process.argv.slice(2));
@@ -33,6 +39,10 @@ const tarefas: Record<string, () => Promise<number>> = {
   "senado:votacoes": porAno(ingerirVotacoesSenado), // inclui o comparecimento
   "senado:proposicoes": porAno(ingerirProposicoesSenado),
   "senado:despesas": porAno(ingerirDespesasSenado),
+  "camara:comissoes": ingerirComissoesCamara, // órgãos e membros
+  "camara:reunioes": porAno(ingerirReunioesCamara), // reuniões deliberativas de comissão e presença
+  "senado:comissoes": ingerirComissoesSenado,
+  "senado:relatorias": porAno(ingerirRelatoriasSenado),
   temas: ingerirTemas, // temas das matérias votadas (incremental)
   estatisticas: calcularEstatisticas, // por último: depende de todo o resto
 };

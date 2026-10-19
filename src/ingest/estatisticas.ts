@@ -2,7 +2,7 @@ import { sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { periodosDisponiveis } from "@/lib/periodo";
 import { POSICOES, VOTOS_EFETIVOS } from "@/lib/votos";
-import { sessaoConta } from "@/lib/exercicio";
+import { reuniaoConta, sessaoConta } from "@/lib/exercicio";
 import { BANCADA_GOVERNO, federacoesDasBancadas, prioridadeOrientacao } from "./alinhamento";
 
 /**
@@ -57,7 +57,8 @@ export async function calcularEstatisticas(): Promise<number> {
       const mesFim = ultimo.getFullYear() * 100 + ultimo.getMonth() + 1;
       const r = await tx.execute(sql`
         insert into estatistica (parlamentar_id, periodo, sessoes, presencas, votos, gastos, proposicoes,
-          alinh_partido_iguais, alinh_partido_total, alinh_governo_iguais, alinh_governo_total)
+          alinh_partido_iguais, alinh_partido_total, alinh_governo_iguais, alinh_governo_total,
+          comissao_reunioes, comissao_presencas)
         select p.id, ${per.valor},
           coalesce(pres.sessoes, 0), coalesce(pres.presencas, 0),
           (select count(*) from voto vo join votacao v on v.id = vo.votacao_id
@@ -66,7 +67,8 @@ export async function calcularEstatisticas(): Promise<number> {
             where d.parlamentar_id = p.id and (d.ano * 100 + d.mes) between ${mesIni} and ${mesFim}),
           (select count(*) from autoria a join proposicao pr on pr.id = a.proposicao_id
             where a.parlamentar_id = p.id and pr.apresentada_em >= ${ini}::date and pr.apresentada_em < ${fim}::date),
-          coalesce(al.iguais, 0), coalesce(al.total, 0), coalesce(gov.iguais, 0), coalesce(gov.total, 0)
+          coalesce(al.iguais, 0), coalesce(al.total, 0), coalesce(gov.iguais, 0), coalesce(gov.total, 0),
+          coalesce(com.reunioes, 0), coalesce(com.presencas, 0)
         from parlamentar p
         left join lateral (
           select count(s.id) as sessoes, count(pr.sessao_id) as presencas
@@ -88,6 +90,13 @@ export async function calcularEstatisticas(): Promise<number> {
           where vo.parlamentar_id = p.id and v.data >= ${ini} and v.data < ${fim}
             and vo.voto in ${POSICOES} and o.orientacao in ${POSICOES}
         ) gov on true
+        left join lateral (
+          select count(*) as reunioes, count(pr.reuniao_id) as presencas
+          from reuniao r
+          left join presenca_reuniao pr on pr.reuniao_id = r.id and pr.parlamentar_id = p.id
+          where r.casa = p.casa and r.inicio >= ${ini} and r.inicio < ${fim}
+            and ${reuniaoConta(sql`p.id`, { id: sql`r.id`, orgaoId: sql`r.orgao_id`, inicio: sql`r.inicio` })}
+        ) com on true
         -- Uma linha por parlamentar que esteve em exercício em algum momento do período.
         where exists (
           select 1 from janela_exercicio j

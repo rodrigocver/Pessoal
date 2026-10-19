@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { and, eq } from "drizzle-orm";
 import { db, schema, sql } from "@/db/client";
 import {
+  comissoesDe,
   statusIngestao,
   afastadosAgora,
   afastamentosDe,
@@ -230,5 +231,18 @@ describe("status das atualizações", () => {
     expect(s.deputados).toMatchObject({ status: "erro", erro: "Error: HTTP 503" });
     expect(s.deputados.ultimoOk?.getTime()).toBeCloseTo(h(29.9).getTime(), -4);
     expect(s.senadores).toMatchObject({ status: "interrompida", ultimoOk: null });
+  });
+});
+
+describe("comissões", () => {
+  it("só reuniões com presença publicada, depois da filiação e como titular; perfil e médias batem", async () => {
+    const [ce] = await comissoesDe(c.ana, ano2025);
+    expect(ce).toMatchObject({ sigla: "CE", reunioes: 2, presencas: 1 });
+    expect(ce.cargos.map((x) => x.cargo)).toEqual(["Titular"]);
+    const e = await estatistica(c.ana.id);
+    expect([e.comissaoPresencas, e.comissaoReunioes]).toEqual([1, 2]);
+    // Beto é suplente na comissão: aparece como membro, mas as reuniões não contam para ele.
+    const [doBeto] = await comissoesDe(c.beto, ano2025);
+    expect(doBeto).toMatchObject({ sigla: "CE", reunioes: 0, presencas: 0 });
   });
 });
