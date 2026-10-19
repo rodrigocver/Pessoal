@@ -42,17 +42,22 @@ Necessário para os commits desta sessão chegarem ao GitHub.
 | `EMAIL_FROM` | remetente do passo 3 |
 | `APP_URL` | URL do site, ex.: `https://fiscaliza.vercel.app` |
 | `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` | opcional, passo 4 |
+| `REVALIDAR_SEGREDO` | gere com `openssl rand -hex 32`; o mesmo valor vai no GitHub (passo 6) |
+| `DATABASE_POOL_MAX` | `3` (poucas conexões por instância; ver `docs/ESCALA.md`) |
 
 3. Faça o deploy.
 
 ## 6. Tarefas agendadas — GitHub Actions
 No repositório: **Settings → Secrets and variables → Actions**.
-- **Secrets:** `DATABASE_URL` (string do **Session pooler**), `AUTH_RESEND_KEY`, `EMAIL_FROM`
+- **Secrets:** `DATABASE_URL` (string do **Session pooler**), `AUTH_RESEND_KEY`, `EMAIL_FROM`, `REVALIDAR_SEGREDO`
+  (o mesmo da Vercel: depois de cada ingestão, o site renova as páginas em cache)
 - **Variables:** `APP_URL`
 
 Os agendamentos já estão em `.github/workflows/`:
 - **Ingestão de dados:** todo dia às 06:17 (Brasília). Aos domingos, recarrega a legislatura inteira.
-- **Resumo mensal:** dia 1º às 10:07 (Brasília).
+- **Resumo mensal:** dia 1º às 10:07 (Brasília), em 4 partes paralelas.
+
+Para milhões de acessos, veja os limites de cada serviço em `docs/ESCALA.md` antes de divulgar.
 
 ## 7. Conferir
 - [ ] Abrir o site, buscar um parlamentar e ver as quatro abas.

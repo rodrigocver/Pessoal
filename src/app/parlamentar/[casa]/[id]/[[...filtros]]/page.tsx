@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { auth } from "@/auth";
 import {
   comparativo,
   gastos,
-  idsSeguidos,
   obterParlamentar,
   presenca,
   proposicoes,
@@ -22,6 +20,7 @@ import {
   type Parlamentar,
 } from "@/lib/consultas";
 import { periodosDisponiveis, resolverPeriodo, type Periodo } from "@/lib/periodo";
+import { caminhoComparar, caminhoPerfil, lerFiltrosPerfil } from "@/lib/caminhos";
 import {
   CASAS,
   urlPerfilOficial,
@@ -41,10 +40,12 @@ import { Comparacao, linhasComparacao } from "@/components/Comparacao";
 import { corVoto } from "@/lib/votos";
 import { AvisoMandato, HistoricoAfastamentos } from "@/components/Afastamentos";
 
-type Props = {
-  params: Promise<{ casa: string; id: string }>;
-  searchParams: Promise<{ aba?: string; periodo?: string; pagina?: string; tema?: string }>;
-};
+type Props = { params: Promise<{ casa: string; id: string; filtros?: string[] }> };
+
+// Cada combinação de aba e filtros (/parlamentar/camara/1/votacoes/2025) é gerada uma vez e servida da CDN.
+// A ingestão diária renova o cache (POST /api/revalidar); a hora é só uma rede de segurança.
+export const revalidate = 3600;
+export const generateStaticParams = () => [];
 
 const ABAS = {
   presenca: "Presença",
@@ -72,26 +73,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function Perfil({ params, searchParams }: Props) {
+export default async function Perfil({ params }: Props) {
   const { p, slug } = await carregar(params);
-  const sp = await searchParams;
-  const aba: Aba = sp.aba && sp.aba in ABAS ? (sp.aba as Aba) : "presenca";
+  const sp = lerFiltrosPerfil((await params).filtros);
+  // Endereços inválidos dão 404 em vez de virar mais uma página no cache.
+  if (
+    !sp ||
+    (sp.aba && !(sp.aba in ABAS)) ||
+    (sp.periodo && sp.periodo !== "legislatura" && !periodosDisponiveis().some((x) => x.valor === sp.periodo)) ||
+    (sp.pagina && !/^[1-9]\d{0,3}$/.test(sp.pagina)) ||
+    (sp.tema && (sp.aba !== "votacoes" || sp.tema.length > 80))
+  )
+    notFound();
+  const aba: Aba = (sp.aba as Aba | undefined) ?? "presenca";
   const periodo = resolverPeriodo(sp.periodo);
-  const pagina = Math.max(1, Number(sp.pagina) || 1);
-  const tema = aba === "votacoes" && sp.tema ? sp.tema : undefined;
-  const sessao = await auth();
-  const [seguidos, afastamentos, vagas] = await Promise.all([
-    idsSeguidos(sessao?.user?.id),
-    afastamentosDe(p),
-    vagasOcupadas(p),
-  ]);
-  const caminho = `/parlamentar/${slug}/${p.idExterno}`;
-  const link = (mudancas: Record<string, string | undefined>) => {
-    const params = Object.entries({ aba, periodo: periodo.valor, tema, ...mudancas }).filter(
-      (par): par is [string, string] => par[1] != null,
-    );
-    return `${caminho}?${new URLSearchParams(params)}`;
-  };
+  const pagina = Number(sp.pagina ?? 1);
+  const tema = sp.tema;
+  const [afastamentos, vagas] = await Promise.all([afastamentosDe(p), vagasOcupadas(p)]);
+  const link = (mudancas: { periodo?: string; pagina?: string; tema?: string }) =>
+    caminhoPerfil(p, { aba, periodo: periodo.valor, tema, ...mudancas }, periodo.valor);
 
   return (
     <div className="flex flex-col gap-5">
@@ -103,8 +103,8 @@ export default async function Perfil({ params, searchParams }: Props) {
           <Identificacao p={p} />
         </div>
         <div className="flex flex-col items-end gap-2">
-          <BotaoSeguir parlamentarId={p.id} seguindo={seguidos.has(p.id)} logado={!!sessao?.user} caminho={caminho} />
-          <Link href={`/comparar?a=${slug}/${p.idExterno}`} className="text-sm text-destaque">
+          <BotaoSeguir parlamentarId={p.id} />
+          <Link href={caminhoComparar(`${slug}/${p.idExterno}`)} className="text-sm text-destaque">
             Comparar com…
           </Link>
           <a href={urlPerfilOficial(p)} className="text-sm text-suave underline">
@@ -119,7 +119,7 @@ export default async function Perfil({ params, searchParams }: Props) {
         {(Object.keys(ABAS) as Aba[]).map((a) => (
           <Link
             key={a}
-            href={`${caminho}?${new URLSearchParams({ aba: a, periodo: periodo.valor })}`}
+            href={caminhoPerfil(p, { aba: a, periodo: periodo.valor })}
             aria-current={a === aba ? "page" : undefined}
             className={`shrink-0 rounded-full px-4 py-2 text-sm ${a === aba ? "bg-texto font-medium text-fundo" : "text-suave hover:bg-superficie"}`}
           >

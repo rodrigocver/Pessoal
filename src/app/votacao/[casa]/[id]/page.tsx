@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { auth } from "@/auth";
-import { detalhesVotacao, idsSeguidos, obterVotacao } from "@/lib/consultas";
+import { detalhesVotacao, obterVotacao } from "@/lib/consultas";
 import { CASAS, formatarData, urlParlamentar, type SlugCasa } from "@/lib/formato";
 import { corVoto } from "@/lib/votos";
 import { ComoCalculamos, Secao } from "@/components/ComoCalculamos";
+import { SeusNaVotacao } from "@/components/SeusNaVotacao";
 
 type Props = { params: Promise<{ casa: string; id: string }> };
+
+// Gerada uma vez por votação e servida da CDN; a ingestão diária renova o cache.
+export const revalidate = 3600;
+export const generateStaticParams = () => [];
 
 async function carregar(params: Props["params"]) {
   const { casa, id } = await params;
@@ -25,9 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PaginaVotacao({ params }: Props) {
   const { v, slug } = await carregar(params);
-  const [d, sessao] = await Promise.all([detalhesVotacao(v.id), auth()]);
-  const seguidos = await idsSeguidos(sessao?.user?.id);
-  const meus = d.lista.filter((x) => seguidos.has(x.id));
+  const d = await detalhesVotacao(v.id);
   const suplentes = d.lista.filter((x) => x.suplente);
   const governo = d.orientacoes.find((o) => o.bancada === "Governo");
   const porVoto = d.placar.map((p) => ({ ...p, nomes: d.lista.filter((x) => x.voto === p.voto) }));
@@ -84,11 +86,16 @@ export default async function PaginaVotacao({ params }: Props) {
         </section>
       )}
 
-      {meus.length > 0 && (
-        <Secao titulo="Seus parlamentares">
-          <ListaVotos itens={meus} />
-        </Secao>
-      )}
+      <SeusNaVotacao
+        votos={d.lista.map((x) => ({
+          id: x.id,
+          nome: x.nome,
+          rotulo: `${x.partido}-${x.uf}`,
+          url: urlParlamentar(x),
+          voto: x.voto,
+          suplente: !!x.suplente,
+        }))}
+      />
 
       {d.orientacoes.length > 0 && (
         <Secao titulo="Orientação das bancadas">

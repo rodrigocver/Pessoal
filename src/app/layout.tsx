@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
-import { auth } from "@/auth";
 import { ultimaAtualizacao } from "@/lib/consultas";
 import { formatarDataHora } from "@/lib/formato";
 import { RegistrarServiceWorker } from "@/components/RegistrarServiceWorker";
+import { MenuConta } from "@/components/MenuConta";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,7 +22,8 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const [sessao, atualizado] = await Promise.all([auth(), ultimaAtualizacao()]);
+  // Sem banco (build sem acesso, falha momentânea), a página sai sem a data em vez de quebrar.
+  const atualizado = await ultimaAtualizacao().catch(() => null);
   return (
     <html lang="pt-BR">
       <body className="min-h-dvh antialiased">
@@ -41,21 +42,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             <Link href="/buscar" className="text-suave hover:text-texto">
               Buscar
             </Link>
-            {sessao?.user && (
-              <Link href="/minha-lista" className="text-suave hover:text-texto">
-                Minha lista
-              </Link>
-            )}
-            <span className="ml-auto" />
-            {sessao?.user ? (
-              <Link href="/conta" className="text-suave hover:text-texto">
-                Conta
-              </Link>
-            ) : (
-              <Link href="/entrar" className="rounded-full bg-destaque px-3 py-1.5 font-medium text-fundo">
-                Entrar
-              </Link>
-            )}
+            <MenuConta />
           </nav>
         </header>
         <main id="conteudo" tabIndex={-1} className="mx-auto max-w-5xl px-4 py-6 outline-none">

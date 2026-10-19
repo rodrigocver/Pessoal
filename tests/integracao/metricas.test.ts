@@ -8,7 +8,7 @@ import {
   afastadosAgora,
   afastamentosDe,
   vagasOcupadas,
-  buscarParlamentares,
+  indiceBusca,
   detalhesVotacao,
   gastos,
   obterVotacao,
@@ -22,9 +22,12 @@ import {
 import { calcularEstatisticas } from "@/ingest/estatisticas";
 import sitemap from "@/app/sitemap";
 import { resolverPeriodo } from "@/lib/periodo";
+import { filtrarParlamentares, type FiltrosBusca } from "@/lib/busca";
 import { criarCenario, prepararBanco } from "./dados";
 
 const ano2025 = resolverPeriodo("2025");
+// A busca roda no navegador sobre o índice; aqui o índice vem do banco de teste.
+const buscarParlamentares = async (f: FiltrosBusca) => filtrarParlamentares(await indiceBusca(), f);
 let c: Awaited<ReturnType<typeof criarCenario>>;
 
 beforeAll(async () => {
@@ -104,6 +107,8 @@ describe("gastos e resumos", () => {
 describe("busca", () => {
   it("ignora acentos e, por padrão, quem está fora de exercício", async () => {
     expect((await buscarParlamentares({ q: "ana souza" })).map((p) => p.nome)).toEqual(["Ana Souza"]);
+    // Sem termo (página /buscar aberta direto): lista em ordem alfabética.
+    expect((await buscarParlamentares({})).map((p) => p.nome)).toEqual(["Ana Souza", "Carla Dias", "Davi Rocha"]);
     expect(await buscarParlamentares({ q: "beto" })).toEqual([]);
     expect((await buscarParlamentares({ q: "beto", todos: true })).map((p) => p.nome)).toEqual(["Beto Lima"]);
   });

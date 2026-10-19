@@ -1,36 +1,43 @@
-import Link from "next/link";
-import { seguir, deixarDeSeguir } from "@/app/acoes";
+"use client";
 
-export function BotaoSeguir({
-  parlamentarId,
-  seguindo,
-  logado,
-  caminho,
-}: {
-  parlamentarId: number;
-  seguindo: boolean;
-  logado: boolean;
-  caminho: string;
-}) {
+import Link from "next/link";
+import { useTransition } from "react";
+import { seguir, deixarDeSeguir } from "@/app/acoes";
+import { marcarSeguido, useConta } from "./conta";
+
+export function BotaoSeguir({ parlamentarId }: { parlamentarId: number }) {
+  const conta = useConta();
+  const [enviando, iniciar] = useTransition();
   const base = "rounded-full px-3 py-1.5 text-sm font-medium transition-colors";
-  if (!logado)
+  if (!conta?.logado)
     return (
       <Link href="/entrar" className={`${base} border border-destaque text-destaque`}>
         + Acompanhar
       </Link>
     );
-  const acao = seguindo ? deixarDeSeguir.bind(null, parlamentarId, caminho) : seguir.bind(null, parlamentarId, caminho);
+  const seguindo = conta.seguidos.has(parlamentarId);
+  const alternar = () =>
+    iniciar(async () => {
+      marcarSeguido(parlamentarId, !seguindo);
+      try {
+        await (seguindo ? deixarDeSeguir(parlamentarId) : seguir(parlamentarId));
+      } catch {
+        marcarSeguido(parlamentarId, seguindo);
+      }
+    });
   return (
-    <form action={acao}>
-      <button
-        className={
-          seguindo
-            ? `${base} bg-destaque-suave text-destaque`
-            : `${base} border border-destaque text-destaque hover:bg-destaque-suave`
-        }
-      >
-        {seguindo ? "✓ Acompanhando" : "+ Acompanhar"}
-      </button>
-    </form>
+    <button
+      type="button"
+      onClick={alternar}
+      disabled={enviando}
+      aria-pressed={seguindo}
+      className={
+        seguindo
+          ? `${base} bg-destaque-suave text-destaque`
+          : `${base} border border-destaque text-destaque hover:bg-destaque-suave`
+      }
+    >
+      {seguindo ? "✓ Acompanhando" : "+ Acompanhar"}
+    </button>
   );
 }

@@ -1,16 +1,16 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { Suspense } from "react";
+import { AvisoContaExcluida } from "@/components/AvisoContaExcluida";
 
-export default async function Inicio({ searchParams }: { searchParams: Promise<Record<string, string>> }) {
-  const sessao = await auth();
-  const params = await searchParams;
-  if (sessao?.user && !("conta-excluida" in params)) redirect("/minha-lista");
+// Página igual para todos, servida da CDN. Quem está logado é levado à própria lista pelo middleware.
+export const revalidate = 3600;
+
+export default function Inicio() {
   return (
     <div className="flex flex-col gap-10 py-6">
-      {"conta-excluida" in params && (
-        <p className="rounded-xl bg-destaque-suave px-4 py-3 text-sm">Sua conta e seus dados foram excluídos.</p>
-      )}
+      <Suspense>
+        <AvisoContaExcluida />
+      </Suspense>
       <section className="flex flex-col gap-4">
         <h1 className="text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
           Você votou. Agora acompanhe.

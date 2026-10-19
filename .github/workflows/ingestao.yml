@@ -37,3 +37,13 @@ jobs:
           else
             npm run ingest
           fi
+      # As páginas públicas ficam em cache na CDN; avisa o site para renová-las com os dados novos.
+      # Roda mesmo se alguma tarefa falhou (as demais trouxeram dados novos). Sem APP_URL/segredo, pula.
+      - name: Renovar cache do site
+        if: always()
+        env:
+          APP_URL: ${{ vars.APP_URL }}
+          REVALIDAR_SEGREDO: ${{ secrets.REVALIDAR_SEGREDO }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$REVALIDAR_SEGREDO" ]; then echo "APP_URL ou REVALIDAR_SEGREDO não configurados; pulando."; exit 0; fi
+          curl -fsS -X POST -H "Authorization: Bearer $REVALIDAR_SEGREDO" "$APP_URL/api/revalidar"

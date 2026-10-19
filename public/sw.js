@@ -1,11 +1,11 @@
 // Service worker do Fiscaliza: funcionamento offline básico.
 // Só guarda páginas PÚBLICAS (perfis, busca, início) e arquivos estáticos. Páginas pessoais
 // (minha lista, conta, login) nunca vão para o cache, para não aparecerem a outra pessoa no aparelho.
-// Páginas públicas abertas por quem está logado também não (cabeçalho x-fiscaliza-sessao, ver src/middleware.ts):
-// elas mostram quem o usuário acompanha.
-const VERSAO = "v5";
+// As páginas públicas são iguais para todos (o que é pessoal chega depois, de /api/eu, que não é guardado).
+const VERSAO = "v6";
 const CACHE = `fiscaliza-${VERSAO}`;
 const OFFLINE = "/offline";
+const INDICE = "/indice-busca.json";
 const PUBLICAS = [/^\/$/, /^\/buscar/, /^\/parlamentar\//, /^\/votacao\//, /^\/comparar/, /^\/status$/, /^\/metodologia$/, /^\/offline$/];
 
 // Salva a página offline e os scripts/estilos que ela usa: sem eles, ela quebra quando não há rede.
@@ -54,13 +54,30 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
+  // Índice da busca: rede primeiro, cópia para buscar sem conexão.
+  if (url.pathname === INDICE) {
+    e.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res.ok) {
+            const copia = res.clone();
+            caches.open(CACHE).then((c) => c.put(INDICE, copia));
+          }
+          return res;
+        })
+        .catch(async () => (await caches.match(INDICE)) || Response.error()),
+    );
+    return;
+  }
+
   // Navegação: rede primeiro; sem conexão, a última versão salva (se pública) ou a página offline.
   if (req.mode === "navigate") {
     const publica = PUBLICAS.some((re) => re.test(url.pathname));
     e.respondWith(
       fetch(req)
         .then((res) => {
-          if (publica && res.ok && !res.headers.has("x-fiscaliza-sessao")) {
+          // Redirecionada (ex.: início de quem está logado vai para a lista pessoal): não guarda.
+          if (publica && res.ok && !res.redirected) {
             const copia = res.clone();
             caches.open(CACHE).then((c) => c.put(req, copia));
           }

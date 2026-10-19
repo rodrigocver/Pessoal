@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import {
-  buscarParlamentares,
   candidaturasDe,
   parlamentarPorChave,
   resumos,
@@ -10,30 +11,32 @@ import {
   type Parlamentar,
 } from "@/lib/consultas";
 import { periodosDisponiveis, resolverPeriodo } from "@/lib/periodo";
+import { caminhoComparar, lerComparar } from "@/lib/caminhos";
 import { formatarData, formatarPct, formatarReais, slugDaCasa, urlParlamentar } from "@/lib/formato";
 import { corVoto } from "@/lib/votos";
 import { Foto } from "@/components/Foto";
 import { Identificacao } from "@/components/CartaoParlamentar";
+import { EscolherComparacao } from "@/components/Busca";
 import { ComoCalculamos, Secao } from "@/components/ComoCalculamos";
 
 export const metadata: Metadata = { title: "Comparar parlamentares" };
 
-type Params = { a?: string; b?: string; periodo?: string; q?: string };
-
 const chave = (p: Parlamentar) => `${slugDaCasa(p.casa)}/${p.idExterno}`;
 
-export default async function Comparar({ searchParams }: { searchParams: Promise<Params> }) {
-  const sp = await searchParams;
-  const [a, b] = await Promise.all([parlamentarPorChave(sp.a), parlamentarPorChave(sp.b)]);
-  const periodo = resolverPeriodo(sp.periodo);
-  const link = (m: Partial<Params>) =>
-    `/comparar?${new URLSearchParams(
-      Object.entries({ a: sp.a, b: sp.b, periodo: periodo.valor, ...m }).filter(
-        (par): par is [string, string] => par[1] != null,
-      ),
-    )}`;
+// Cada comparação (/comparar/camara/1/senado/3/2025) é gerada uma vez e servida da CDN.
+export const revalidate = 3600;
+export const generateStaticParams = () => [];
 
-  if (!a || !b) return <Escolher a={a} q={sp.q} link={link} />;
+export default async function Comparar({ params }: { params: Promise<{ sel?: string[] }> }) {
+  const sp = lerComparar((await params).sel);
+  if (!sp) notFound();
+  const [a, b] = await Promise.all([parlamentarPorChave(sp.a), parlamentarPorChave(sp.b)]);
+  // Endereços inventados não viram páginas em cache.
+  if ((sp.a && !a) || (sp.b && !b)) notFound();
+  if (sp.periodo && !periodosDisponiveis().some((p) => p.valor === sp.periodo)) notFound();
+  const periodo = resolverPeriodo(sp.periodo);
+
+  if (!a || !b) return <Escolher a={a} />;
 
   const mesmaCasa = a.casa === b.casa;
   const [r, comum, ca, cb] = await Promise.all([
@@ -78,7 +81,7 @@ export default async function Comparar({ searchParams }: { searchParams: Promise
               {p.nome}
             </Link>
             <Identificacao p={p} />
-            <Link href={link(i === 0 ? { a: sp.b, b: undefined } : { b: undefined })} className="text-xs text-destaque">
+            <Link href={i === 0 ? caminhoComparar(sp.b) : caminhoComparar(sp.a)} className="text-xs text-destaque">
               Trocar
             </Link>
           </div>
@@ -89,7 +92,7 @@ export default async function Comparar({ searchParams }: { searchParams: Promise
         {periodosDisponiveis().map((per) => (
           <Link
             key={per.valor}
-            href={link({ periodo: per.valor })}
+            href={caminhoComparar(sp.a, sp.b, per.valor)}
             aria-current={per.valor === periodo.valor ? "page" : undefined}
             className={`shrink-0 rounded-lg border px-3 py-1 ${per.valor === periodo.valor ? "border-destaque text-destaque" : "border-borda text-suave"}`}
           >
@@ -210,16 +213,7 @@ export default async function Comparar({ searchParams }: { searchParams: Promise
 const eleicao = (c: CandidaturaDetalhada) =>
   `${c.dataEleicao ? c.dataEleicao.slice(0, 4) : c.ano} · ${c.cargo.charAt(0)}${c.cargo.slice(1).toLowerCase()}`;
 
-async function Escolher({
-  a,
-  q,
-  link,
-}: {
-  a: Parlamentar | null;
-  q: string | undefined;
-  link: (m: Partial<Params>) => string;
-}) {
-  const resultados = q ? await buscarParlamentares({ q }) : [];
+function Escolher({ a }: { a: Parlamentar | null }) {
   return (
     <div className="flex flex-col gap-5">
       <h1 className="text-2xl font-semibold">Comparar parlamentares</h1>
@@ -232,34 +226,9 @@ async function Escolher({
           "Escolha o primeiro parlamentar."
         )}
       </p>
-      <form className="flex gap-2">
-        {a && <input type="hidden" name="a" value={chave(a)} />}
-        <input
-          name="q"
-          defaultValue={q}
-          placeholder="Nome do deputado ou senador"
-          className="min-w-0 flex-1 rounded-full border border-borda bg-superficie px-4 py-2 outline-none focus:border-destaque"
-        />
-        <button className="rounded-full bg-destaque px-4 font-medium text-fundo">Buscar</button>
-      </form>
-      <ul className="flex flex-col divide-y divide-borda">
-        {resultados
-          .filter((p) => !a || p.id !== a.id)
-          .map((p) => (
-            <li key={p.id}>
-              <Link
-                href={link(a ? { b: chave(p), q: undefined } : { a: chave(p), q: undefined })}
-                className="flex items-center gap-3 py-2"
-              >
-                <Foto url={p.fotoUrl} nome={p.nome} tamanho={40} />
-                <span className="min-w-0">
-                  <span className="block truncate font-medium">{p.nome}</span>
-                  <Identificacao p={p} />
-                </span>
-              </Link>
-            </li>
-          ))}
-      </ul>
+      <Suspense>
+        <EscolherComparacao a={a ? chave(a) : undefined} />
+      </Suspense>
     </div>
   );
 }

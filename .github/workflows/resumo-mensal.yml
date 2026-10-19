@@ -15,7 +15,13 @@ concurrency: resumo-mensal
 jobs:
   enviar:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # Partes em paralelo: cada usuário cai sempre na mesma parte (--parte k/n). Com milhões de usuários, o tempo
+    # é limitado pela taxa de envio do Resend; aumente as partes junto com o limite da conta.
+    strategy:
+      fail-fast: false
+      matrix:
+        parte: [1, 2, 3, 4]
+    timeout-minutes: 360
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       AUTH_RESEND_KEY: ${{ secrets.AUTH_RESEND_KEY }}
@@ -30,4 +36,5 @@ jobs:
       - run: npm ci
       - name: Enviar
         run: |
-          if [ -n "${{ inputs.mes }}" ]; then npm run resumo-mensal -- --mes "${{ inputs.mes }}"; else npm run resumo-mensal; fi
+          MES="${{ inputs.mes }}"
+          npm run resumo-mensal -- --parte "${{ matrix.parte }}/4" ${MES:+--mes "$MES"}

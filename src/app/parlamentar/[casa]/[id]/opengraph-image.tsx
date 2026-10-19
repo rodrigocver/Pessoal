@@ -6,6 +6,9 @@ import { CASAS, formatarPct, formatarReais, type SlugCasa } from "@/lib/formato"
 export const alt = "Resumo da atuação do parlamentar no Fiscaliza";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+// Gerada uma vez por parlamentar e servida da CDN (cada compartilhamento busca a imagem).
+export const revalidate = 3600;
+export const generateStaticParams = () => [];
 
 /** Baixa a foto oficial; se falhar, o cartão sai com a inicial do nome. */
 async function fotoComoDataUrl(url: string | null): Promise<string | null> {

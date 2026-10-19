@@ -21,8 +21,10 @@
 | Ingestões idempotentes (upsert, ou apagar e regravar o ano) | Podem rodar quantas vezes for preciso; as fontes corrigem dados retroativamente |
 | Tabela `estatistica` pré-calculada | Médias da casa e do partido sem varrer milhões de linhas por página |
 | Next.js App Router com Server Components | Páginas renderizadas no servidor, leves no celular, sem API intermediária |
+| Páginas públicas estáticas (ISR) com filtros no caminho; parte pessoal montada no navegador (`/api/eu`) | Milhões de acessos servidos pela CDN sem chegar ao banco ([ESCALA.md](ESCALA.md)) |
+| Busca no navegador sobre `/indice-busca.json` | Nenhuma busca chega ao servidor |
 | Auth.js + Drizzle | Login sem depender de um provedor específico; roda com qualquer Postgres |
-| Service worker próprio (`public/sw.js`), sem biblioteca | Offline básico para perfis já vistos; nunca guarda páginas pessoais nem as de quem está logado |
+| Service worker próprio (`public/sw.js`), sem biblioteca | Offline básico para perfis já vistos e para a busca; nunca guarda páginas pessoais |
 | Gráficos em CSS puro | Leve e legível no celular; sem dependência de biblioteca de gráficos |
 
 ## Pastas

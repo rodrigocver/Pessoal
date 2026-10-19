@@ -87,6 +87,10 @@ Tipos usados: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `perf`.
   migrações já publicadas.
 - **Consultas e métricas:** ficam em `src/lib/consultas.ts`. Se a métrica também aparece nas médias,
   atualize `src/ingest/estatisticas.ts` com a mesma definição.
+- **Escala:** páginas públicas são estáticas e servidas da CDN (milhões de acessos sem chegar ao banco). Nelas,
+  não use `auth()`, `cookies()`, `headers()` nem `searchParams`: filtros vão no caminho (`src/lib/caminhos.ts`) e o
+  que é pessoal é montado no navegador a partir de `/api/eu` (`src/components/conta.ts`). `npm run conferir:cache`,
+  depois do build, acusa uma página que virou dinâmica. Detalhes em [docs/ESCALA.md](docs/ESCALA.md).
 - **Interface:** mobile first, cores pelos tokens de `globals.css` (funciona no tema escuro),
   sem bibliotecas de gráficos pesadas.
 - **Acessibilidade:** gráficos têm alternativa em texto (`BarrasMensais` recebe `titulo` e gera tabela para

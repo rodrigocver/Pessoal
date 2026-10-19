@@ -2,11 +2,12 @@
 
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth, signIn, signOut, provedorEmail } from "@/auth";
 import { db, schema } from "@/db/client";
 import { LIMITES_LOGIN, dentroDoLimite, normalizarEmail } from "@/lib/limite";
+import { COOKIE_LOGADO } from "@/lib/cookies";
 
 async function usuarioAtual() {
   const sessao = await auth();
@@ -14,19 +15,19 @@ async function usuarioAtual() {
   return sessao.user.id;
 }
 
-export async function seguir(parlamentarId: number, caminho: string) {
+// As páginas públicas não mudam quando alguém segue um parlamentar (o estado pessoal vem de /api/eu), então
+// não há cache para invalidar; só a lista pessoal, que é dinâmica.
+export async function seguir(parlamentarId: number) {
   const usuarioId = await usuarioAtual();
   await db.insert(schema.seguindo).values({ usuarioId, parlamentarId }).onConflictDoNothing();
-  revalidatePath(caminho);
   revalidatePath("/minha-lista");
 }
 
-export async function deixarDeSeguir(parlamentarId: number, caminho: string) {
+export async function deixarDeSeguir(parlamentarId: number) {
   const usuarioId = await usuarioAtual();
   await db
     .delete(schema.seguindo)
     .where(and(eq(schema.seguindo.usuarioId, usuarioId), eq(schema.seguindo.parlamentarId, parlamentarId)));
-  revalidatePath(caminho);
   revalidatePath("/minha-lista");
 }
 
@@ -46,7 +47,9 @@ export async function entrarComGoogle() {
   await signIn("google", { redirectTo: "/minha-lista" });
 }
 
+// O cookie de aviso sai junto com a sessão, para o cabeçalho mudar já na página seguinte.
 export async function sair() {
+  (await cookies()).delete(COOKIE_LOGADO);
   await signOut({ redirectTo: "/" });
 }
 
@@ -60,5 +63,6 @@ export async function alternarResumoMensal(ativo: boolean) {
 export async function excluirConta() {
   const usuarioId = await usuarioAtual();
   await db.delete(schema.usuario).where(eq(schema.usuario.id, usuarioId));
+  (await cookies()).delete(COOKIE_LOGADO);
   await signOut({ redirectTo: "/?conta-excluida=1" });
 }

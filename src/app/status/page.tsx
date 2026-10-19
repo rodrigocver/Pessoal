@@ -4,6 +4,8 @@ import { formatarDataHora } from "@/lib/formato";
 import { Secao } from "@/components/ComoCalculamos";
 
 export const metadata: Metadata = { title: "Status das atualizações" };
+// Em cache por 5 minutos: mostra execuções em andamento sem consultar o banco a cada visita.
+export const revalidate = 300;
 
 // O que cada tarefa atualiza, em linguagem simples (nomes técnicos em docs/ARQUITETURA.md).
 const DESCRICOES: Record<string, string> = {

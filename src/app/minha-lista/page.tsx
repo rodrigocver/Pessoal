@@ -39,15 +39,7 @@ export default async function MinhaLista() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {lista.map((p) => (
-            <CartaoParlamentar
-              key={p.id}
-              p={p}
-              resumo={r.get(p.id)}
-              seguindo
-              logado
-              caminho="/minha-lista"
-              afastado={afastados.get(p.id)}
-            />
+            <CartaoParlamentar key={p.id} p={p} resumo={r.get(p.id)} afastado={afastados.get(p.id)} />
           ))}
         </div>
       )}

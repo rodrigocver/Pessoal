@@ -1,8 +1,9 @@
-import { and, asc, eq, or, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { db, schema } from "@/db/client";
 import type { Periodo } from "./periodo";
 import { reuniaoConta, sessaoConta } from "./exercicio";
 import { POSICOES } from "./votos";
+import type { ItemIndice } from "./busca";
 
 const { parlamentar } = schema;
 export type Parlamentar = typeof parlamentar.$inferSelect;
@@ -12,67 +13,35 @@ const num = (v: unknown) => Number(v ?? 0);
 
 // ---------- Busca ----------
 
-export async function buscarParlamentares(f: {
-  q?: string;
-  casa?: string;
-  uf?: string;
-  partido?: string;
-  todos?: boolean;
-}) {
-  const filtros = [];
-  const q = f.q?.trim();
-  // Busca sem acento e sem diferença de maiúsculas, no nome parlamentar e no nome completo.
-  const norm = (col: unknown) => sql`unaccent(lower(${col}))`;
-  const termo = q ? sql`unaccent(lower(${q}))` : null;
-  if (termo)
-    filtros.push(
-      or(
-        sql`${norm(parlamentar.nome)} like '%' || ${termo} || '%'`,
-        sql`${norm(parlamentar.nomeCompleto)} like '%' || ${termo} || '%'`,
-      ),
-    );
-  if (f.casa === "CD" || f.casa === "SF") filtros.push(eq(parlamentar.casa, f.casa));
-  if (f.uf) filtros.push(eq(parlamentar.uf, f.uf.toUpperCase()));
-  if (f.partido) filtros.push(eq(parlamentar.partido, f.partido.toUpperCase()));
-  // Por padrão: quem está em exercício e também os titulares afastados (o eleitor procura quem elegeu,
-  // mesmo que hoje um suplente ocupe a vaga).
-  if (!f.todos)
-    filtros.push(
-      or(
-        eq(parlamentar.emExercicio, true),
-        sql`exists (select 1 from afastamento a where a.parlamentar_id = ${parlamentar.id} and a.fim is null and not a.definitivo)`,
-      ),
-    );
-  // Relevância: nome que começa com o termo, depois alguma palavra do nome, depois o resto.
-  const relevancia = termo
-    ? sql`case
-        when ${norm(parlamentar.nome)} like ${termo} || '%' then 0
-        when ' ' || ${norm(parlamentar.nome)} like '% ' || ${termo} || '%' then 1
-        when ${norm(parlamentar.nome)} like '%' || ${termo} || '%' then 2
-        else 3 end`
-    : sql`0`;
-  return db
-    .select()
-    .from(parlamentar)
-    .where(and(...filtros))
-    .orderBy(relevancia, norm(parlamentar.nome))
-    .limit(60);
-}
-
-export async function opcoesFiltro() {
-  const [ufs, partidos] = await Promise.all([
-    db
-      .selectDistinct({ v: parlamentar.uf })
-      .from(parlamentar)
-      .where(eq(parlamentar.emExercicio, true))
-      .orderBy(parlamentar.uf),
-    db
-      .selectDistinct({ v: parlamentar.partido })
-      .from(parlamentar)
-      .where(eq(parlamentar.emExercicio, true))
-      .orderBy(parlamentar.partido),
-  ]);
-  return { ufs: ufs.map((u) => u.v!).filter(Boolean), partidos: partidos.map((p) => p.v!).filter(Boolean) };
+/** Índice para a busca feita no navegador (src/lib/busca.ts): todos os parlamentares, com o afastamento em curso. */
+export async function indiceBusca(): Promise<ItemIndice[]> {
+  const linhas = await db.execute(sql`
+    select p.id, p.casa, p.id_externo, p.nome, p.nome_completo, p.partido, p.uf, p.foto_url, p.em_exercicio,
+      a.inicio as afastado_desde, a.motivo as afastado_motivo, a.definitivo as afastado_definitivo
+    from parlamentar p
+    left join lateral (
+      select inicio, motivo, definitivo from afastamento
+      where parlamentar_id = p.id and fim is null order by inicio desc limit 1
+    ) a on true
+    order by p.id`);
+  return linhas.map((l) => ({
+    id: num(l.id),
+    casa: l.casa as Casa,
+    idExterno: String(l.id_externo),
+    nome: String(l.nome),
+    nomeCompleto: (l.nome_completo as string | null) ?? null,
+    partido: (l.partido as string | null) ?? null,
+    uf: (l.uf as string | null) ?? null,
+    fotoUrl: (l.foto_url as string | null) ?? null,
+    emExercicio: Boolean(l.em_exercicio),
+    afastado: l.afastado_desde
+      ? {
+          desde: new Date(String(l.afastado_desde)).toISOString(),
+          motivo: String(l.afastado_motivo),
+          definitivo: Boolean(l.afastado_definitivo),
+        }
+      : null,
+  }));
 }
 
 export async function obterParlamentar(casa: Casa, idExterno: string) {
@@ -352,6 +321,20 @@ export async function listaDoUsuario(usuarioId: string) {
     .where(eq(schema.seguindo.usuarioId, usuarioId))
     .orderBy(asc(parlamentar.nome))
     .then((r) => r.map((x) => x.p));
+}
+
+/** Listas de vários usuários numa consulta só (resumo mensal, que percorre milhares de usuários por vez). */
+export async function listasDosUsuarios(usuarioIds: string[]): Promise<Map<string, Parlamentar[]>> {
+  const listas = new Map<string, Parlamentar[]>();
+  if (usuarioIds.length === 0) return listas;
+  const linhas = await db
+    .select({ usuarioId: schema.seguindo.usuarioId, p: parlamentar })
+    .from(schema.seguindo)
+    .innerJoin(parlamentar, eq(parlamentar.id, schema.seguindo.parlamentarId))
+    .where(inArray(schema.seguindo.usuarioId, usuarioIds))
+    .orderBy(asc(parlamentar.nome));
+  for (const l of linhas) listas.set(l.usuarioId, [...(listas.get(l.usuarioId) ?? []), l.p]);
+  return listas;
 }
 
 // ---------- Página de uma votação ----------

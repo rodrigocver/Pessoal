@@ -4,7 +4,13 @@ import { CASAS, formatarData, formatarPct, formatarReais, slugDaCasa, urlParlame
 import { Foto } from "./Foto";
 import { BotaoSeguir } from "./BotaoSeguir";
 
-export function Identificacao({ p }: { p: Parlamentar }) {
+/** Campos usados pelos cartões; vale para o parlamentar do banco e para uma linha do índice da busca. */
+export type ParlamentarBasico = Pick<
+  Parlamentar,
+  "id" | "casa" | "idExterno" | "nome" | "partido" | "uf" | "fotoUrl" | "emExercicio"
+>;
+
+export function Identificacao({ p }: { p: Pick<ParlamentarBasico, "casa" | "partido" | "uf" | "emExercicio"> }) {
   return (
     <span className="text-sm text-suave">
       {CASAS[slugDaCasa(p.casa)].nome} · {p.partido ?? "sem partido"}-{p.uf}
@@ -16,17 +22,11 @@ export function Identificacao({ p }: { p: Parlamentar }) {
 export function CartaoParlamentar({
   p,
   resumo,
-  seguindo,
-  logado,
-  caminho,
   afastado,
 }: {
-  p: Parlamentar;
+  p: ParlamentarBasico;
   resumo?: { presenca: number | null; votos: number; gastos: number };
-  seguindo: boolean;
-  logado: boolean;
-  caminho: string;
-  afastado?: { desde: Date; motivo: string; definitivo: boolean };
+  afastado?: { desde: Date | string; motivo: string; definitivo: boolean } | null;
 }) {
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-borda bg-superficie p-4">
@@ -58,7 +58,7 @@ export function CartaoParlamentar({
         <Link href={urlParlamentar(p)} className="text-sm text-destaque hover:underline">
           Ver atuação →
         </Link>
-        <BotaoSeguir parlamentarId={p.id} seguindo={seguindo} logado={logado} caminho={caminho} />
+        <BotaoSeguir parlamentarId={p.id} />
       </div>
     </div>
   );
