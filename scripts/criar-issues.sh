@@ -28,6 +28,7 @@ rotulo "v2"                 "ededed" "Planejado para depois da v1"
 existentes="$(gh issue list --repo "$REPO" --state all --limit 500 --json title -q '.[].title')"
 
 for arq in "$DIR"/*.md; do
+  if grep -q '^status: feito$' "$arq"; then continue; fi
   titulo="$(sed -n 's/^titulo: "\(.*\)"$/\1/p' "$arq")"
   rotulos="$(sed -n 's/^rotulos: \[\(.*\)\]$/\1/p' "$arq" | tr -d '"' | sed 's/, /,/g')"
   corpo="$(awk 'BEGIN{n=0} /^---$/{n++; next} n>=2' "$arq")"

@@ -1,7 +1,7 @@
 import { sql as dsql } from "drizzle-orm";
 import { db, schema } from "@/db/client";
 import { getJson } from "./http";
-import { CAMARA_API, SENADO_API, LEGISLATURA_ATUAL } from "./fontes";
+import { CAMARA_API, SENADO_API, PRIMEIRA_LEGISLATURA, legislaturaEm, legislaturasComDados } from "./fontes";
 
 type NovoParlamentar = typeof schema.parlamentar.$inferInsert;
 
@@ -42,11 +42,13 @@ export function mapDeputado(d: DeputadoApi, emExercicio: boolean): NovoParlament
 }
 
 export async function buscarDeputados(): Promise<NovoParlamentar[]> {
-  // Todos que passaram pela legislatura (inclui suplentes que já saíram) + quem está em exercício hoje.
-  const [legislatura, atuais] = await Promise.all([
-    paginasCamara<DeputadoApi>(`/deputados?idLegislatura=${LEGISLATURA_ATUAL}`),
+  // Todos que passaram pelas legislaturas com dados (inclui suplentes que já saíram) + quem está em exercício hoje.
+  // Manter as legislaturas anteriores preserva o histórico de quem não foi reeleito.
+  const [atuais, ...porLegislatura] = await Promise.all([
     paginasCamara<DeputadoApi>(`/deputados`),
+    ...legislaturasComDados().map((n) => paginasCamara<DeputadoApi>(`/deputados?idLegislatura=${n}`)),
   ]);
+  const legislatura = porLegislatura.flat();
   const ativos = new Set(atuais.map((d) => d.id));
   const porId = new Map<number, DeputadoApi>();
   for (const d of legislatura) porId.set(d.id, d);
@@ -93,7 +95,7 @@ export async function buscarSenadores(): Promise<NovoParlamentar[]> {
       `${SENADO_API}/senador/lista/atual.json`,
     ),
     getJson<{ ListaParlamentarLegislatura: { Parlamentares: { Parlamentar: SenadorApi | SenadorApi[] } } }>(
-      `${SENADO_API}/senador/lista/legislatura/${LEGISLATURA_ATUAL}.json`,
+      `${SENADO_API}/senador/lista/legislatura/${PRIMEIRA_LEGISLATURA}/${legislaturaEm()}.json`,
     ),
   ]);
   const atuais = comoLista(atual.ListaParlamentarEmExercicio.Parlamentares.Parlamentar);

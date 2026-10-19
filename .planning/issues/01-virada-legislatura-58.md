@@ -1,6 +1,7 @@
 ---
 titulo: "Suportar a 58ª legislatura (posse em 1º/02/2027)"
 rotulos: ["prioridade alta", "ingestão", "câmara", "senado"]
+status: feito
 ---
 ## Contexto
 A legislatura está fixa como 57 em `src/ingest/fontes.ts` (`LEGISLATURA_ATUAL`, `INICIO_LEGISLATURA`).
@@ -21,3 +22,10 @@ incluir os novos parlamentares, justamente quando os eleitores querem acompanhar
 - Em 02/2027 a ingestão traz os 513 deputados e 81 senadores em exercício da 58ª.
 - O perfil de um deputado reeleito mostra as duas legislaturas no seletor de período.
 - Testes cobrindo a escolha de legislatura e os períodos.
+
+## Feito
+- A legislatura é calculada pela data (`legislaturaEm` em `src/ingest/fontes.ts`), sem constante.
+- Cadastro de deputados e senadores da 57ª até a atual; quem não for reeleito mantém o histórico.
+- Seletor de período com uma opção por legislatura (`leg57`, `leg58`); o valor antigo `legislatura` aponta para a atual.
+- Testes em `tests/periodo.test.ts`, incluindo a virada exata em 01/02/2027.
+- **Conferir em 02/2027:** rodar `npm run ingest -- deputados senadores` após a posse e verificar 513 + 81 em exercício.

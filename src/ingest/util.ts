@@ -67,3 +67,24 @@ export async function baixarCsv(url: string, { zip = false } = {}): Promise<Reco
   for await (const linha of parser) linhas.push(linha);
   return linhas;
 }
+
+/**
+ * Lê os argumentos do `npm run ingest`: nomes de tarefas e `--desde ANO` opcional.
+ * Sem `--desde`, só o ano corrente.
+ */
+export function lerArgumentosIngestao(args: string[], anoAtual = new Date().getFullYear()) {
+  const tarefas: string[] = [];
+  let desde = anoAtual;
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--desde") {
+      desde = Number(args[++i]);
+      if (!Number.isInteger(desde) || desde < 2000 || desde > anoAtual)
+        throw new Error(`--desde inválido: ${args[i]} (use um ano entre 2000 e ${anoAtual})`);
+    } else if (args[i].startsWith("--")) {
+      throw new Error(`Opção desconhecida: ${args[i]}`);
+    } else {
+      tarefas.push(args[i]);
+    }
+  }
+  return { tarefas, anos: anosDesde(desde, anoAtual) };
+}

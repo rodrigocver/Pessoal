@@ -7,13 +7,15 @@ no arquivo correspondente em [`issues/`](issues/). Para publicá-las no GitHub (
 scripts/criar-issues.sh dono/repositorio
 ```
 
+Tarefas marcadas com ✅ (`status: feito`) já foram concluídas e não viram issue.
+
 Depois de publicadas, o GitHub passa a ser a fonte da verdade: discussão e andamento ficam nas issues.
 
 ## Prioridade
 
 | # | Tarefa | Rótulos |
 |---|---|---|
-| 01 | [Suportar a 58ª legislatura (posse em 1º/02/2027)](issues/01-virada-legislatura-58.md) | prioridade alta, ingestão, câmara, senado |
+| 01 | ✅ [Suportar a 58ª legislatura (posse em 1º/02/2027)](issues/01-virada-legislatura-58.md) | prioridade alta, ingestão, câmara, senado |
 
 ## Próximas
 

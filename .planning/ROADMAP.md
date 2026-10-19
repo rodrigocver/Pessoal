@@ -73,5 +73,4 @@
 - **Pronto quando:** uma pessoa de fora clona, roda localmente seguindo o `CONTRIBUTING.md` e abre um pull request.
 
 ## Depois da v1
-Tarefas abertas para a comunidade em [BACKLOG.md](BACKLOG.md). **Prazo crítico:** a 58ª legislatura
-toma posse em 1º/02/2027 (backlog #01).
+Tarefas abertas para a comunidade em [BACKLOG.md](BACKLOG.md). A virada para a 58ª legislatura (posse em 1º/02/2027) já está implementada (backlog #01).

@@ -17,7 +17,7 @@
 - Alinhamento: partido na data do voto; orientação do partido > federação; blocos ignorados (nomes abreviados e cortados pela fonte). Tabela `estatistica` é recalculada pela tarefa `estatisticas` (última da ingestão, ~1 min).
 
 ## Pendências / riscos
-- **Prazo:** legislatura fixa em 57; a 58ª toma posse em 01/02/2027 (backlog #01, prioridade alta).
+- ✅ Virada para a 58ª legislatura implementada (backlog #01). Conferir a ingestão logo após a posse, em 01/02/2027.
 - Fontes e armadilhas documentadas em `docs/FONTES.md`; métricas em `docs/METRICAS.md`.
 - Presença no Senado: resolvida via comparecimento às votações nominais (cobre só sessões com votação nominal, ~36/ano).
 - API de despesas da Câmara deu timeout — usar arquivos CSV anuais.

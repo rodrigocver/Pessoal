@@ -8,12 +8,9 @@ import { buscarDeputados, buscarSenadores, salvarParlamentares } from "@/ingest/
 import { ingerirDespesas, ingerirPresencas, ingerirProposicoes, ingerirVotacoes } from "@/ingest/camara";
 import { ingerirDespesasSenado, ingerirProposicoesSenado, ingerirVotacoesSenado } from "@/ingest/senado";
 import { calcularEstatisticas } from "@/ingest/estatisticas";
-import { anosDesde } from "@/ingest/util";
+import { lerArgumentosIngestao } from "@/ingest/util";
 
-const args = process.argv.slice(2);
-const iDesde = args.indexOf("--desde");
-const anos = iDesde >= 0 ? anosDesde(Number(args[iDesde + 1])) : anosDesde(new Date().getFullYear());
-const pedidas = args.filter((a, i) => !a.startsWith("--") && i !== iDesde + 1);
+const { tarefas: pedidas, anos } = lerArgumentosIngestao(process.argv.slice(2));
 
 const porAno = (fn: (ano: number) => Promise<number>) => async () => {
   let total = 0;

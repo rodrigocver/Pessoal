@@ -1,17 +1,22 @@
-import { INICIO_LEGISLATURA } from "@/ingest/fontes";
+import { PRIMEIRA_LEGISLATURA, fimLegislatura, inicioLegislatura, legislaturasComDados } from "@/ingest/fontes";
 
 export interface Periodo {
   rotulo: string;
-  valor: string; // como aparece na URL: "2025" ou "legislatura"
+  valor: string; // como aparece na URL: "2025" ou "leg57"
   inicio: Date;
   fim: Date;
 }
 
-const ANO_INICIO = Number(INICIO_LEGISLATURA.slice(0, 4));
+export function periodoDaLegislatura(n: number): Periodo {
+  const inicio = inicioLegislatura(n);
+  const fim = fimLegislatura(n);
+  return { rotulo: `Legislatura ${inicio.getFullYear()}–${fim.getFullYear()}`, valor: `leg${n}`, inicio, fim };
+}
 
+/** Anos (do atual para trás) e depois as legislaturas (da atual para trás). */
 export function periodosDisponiveis(hoje = new Date()): Periodo[] {
   const anos: Periodo[] = [];
-  for (let ano = hoje.getFullYear(); ano >= ANO_INICIO; ano--) {
+  for (let ano = hoje.getFullYear(); ano >= inicioLegislatura(PRIMEIRA_LEGISLATURA).getFullYear(); ano--) {
     anos.push({
       rotulo: String(ano),
       valor: String(ano),
@@ -19,20 +24,15 @@ export function periodosDisponiveis(hoje = new Date()): Periodo[] {
       fim: new Date(`${ano + 1}-01-01T00:00:00-03:00`),
     });
   }
-  return [
-    ...anos,
-    {
-      rotulo: "Legislatura inteira",
-      valor: "legislatura",
-      inicio: new Date(`${INICIO_LEGISLATURA}T00:00:00-03:00`),
-      fim: new Date(`${hoje.getFullYear() + 1}-01-01T00:00:00-03:00`),
-    },
-  ];
+  const legislaturas = legislaturasComDados(hoje).reverse().map(periodoDaLegislatura);
+  return [...anos, ...legislaturas];
 }
 
 export function resolverPeriodo(valor: string | undefined, hoje = new Date()): Periodo {
   const lista = periodosDisponiveis(hoje);
-  return lista.find((p) => p.valor === valor) ?? lista[0];
+  // "legislatura" era o valor antigo (uma só legislatura); links compartilhados apontam para a atual.
+  const alvo = valor === "legislatura" ? `leg${legislaturasComDados(hoje).at(-1)}` : valor;
+  return lista.find((p) => p.valor === alvo) ?? lista[0];
 }
 
 /** Um mês ("2026-09") como período, para o resumo mensal. */
