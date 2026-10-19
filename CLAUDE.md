@@ -13,4 +13,4 @@ Este repositório aceita contribuições feitas com ajuda de assistentes de cód
   Antes de depender de um campo novo da fonte, baixe uma amostra real e confira o formato —
   `docs/FONTES.md` lista armadilhas já encontradas.
 - **Banco:** altere `src/db/schema.ts` e rode `npm run db:generate`; nunca edite migrações existentes.
-- **Antes de abrir o PR:** `npm run format && npm run lint && npm run typecheck && npm test && npm run test:integracao && npm run build`.
+- **Antes de abrir o PR:** `npm run format && npm run verificar && npm run build` (`verificar` = lint, tipos, testes de unidade e de integração; para na primeira falha).

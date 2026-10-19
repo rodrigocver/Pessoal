@@ -48,7 +48,7 @@ O link de login aparece no terminal do `npm run dev`, e o resumo mensal (`npm ru
 | `npm run ingest -- [tarefa...] [--desde ANO]` | Ingestão das fontes oficiais (registrada em `ingestao_log`) |
 | `npm run resumo-mensal -- [--mes AAAA-MM] [--para email]` | Envia o resumo mensal |
 | `npm run db:up` / `db:migrate` / `db:generate` | Sobe o Postgres local / aplica / gera migrações |
-| `npm run format` / `lint` / `typecheck` / `test` | Verificações (as mesmas do CI) |
+| `npm run verificar` | Lint, tipos, testes de unidade e de integração (as mesmas checagens do CI) |
 
 ## Documentação
 

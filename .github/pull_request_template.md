@@ -10,7 +10,7 @@ Resolve #
 
 ## Checklist
 
-- [ ] `npm run lint`, `npm run typecheck`, `npm test` e `npm run build` passam
+- [ ] `npm run verificar` e `npm run build` passam
 - [ ] Testes novos ou atualizados para a mudança
 - [ ] Mudança no banco feita em `src/db/schema.ts` com migração gerada (`npm run db:generate`)
 - [ ] Métrica nova ou alterada: atualizei o "Como calculamos" e o `docs/METRICAS.md`

@@ -15,7 +15,8 @@
     "format": "prettier --write src scripts tests",
     "resumo-mensal": "tsx scripts/resumo-mensal.ts",
     "db:up": "docker compose up -d",
-    "test:integracao": "vitest run --config vitest.integracao.config.mts"
+    "test:integracao": "vitest run --config vitest.integracao.config.mts",
+    "verificar": "npm run lint && npm run typecheck && npm test && npm run test:integracao"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",

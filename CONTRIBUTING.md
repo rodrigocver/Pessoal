@@ -56,7 +56,7 @@ npm run dev                     # http://localhost:3000
 2. Faça a mudança com testes (veja abaixo).
 3. Rode as verificações (o CI roda as mesmas):
    ```bash
-   npm run format && npm run lint && npm run typecheck && npm test && npm run test:integracao && npm run build
+   npm run format && npm run verificar && npm run build
    ```
 4. Abra o pull request preenchendo o modelo. Se mexeu na tela, inclua um print no celular.
 5. Um mantenedor revisa. Pedidos de ajuste são normais; responda nos comentários.
