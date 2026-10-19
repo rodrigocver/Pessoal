@@ -1,7 +1,7 @@
 # Estado do projeto
 
-- **Fase atual:** 4 — Ingestão Senado
-- **Concluídas:** 1 (Fundação), 2 (Ingestão Câmara), 3 (Site)
+- **Fase atual:** 5 — Métricas comparativas
+- **Concluídas:** 1 (Fundação), 2 (Ingestão Câmara), 3 (Site), 4 (Ingestão Senado)
 - **Última atualização:** 19/10/2026
 
 ## Decisões
@@ -16,7 +16,7 @@
 - Carga histórica completa da Câmara (2023–2026) leva ~6 min localmente.
 
 ## Pendências / riscos
-- Presença no Senado: não há endpoint direto — pesquisar na Fase 4.
+- Presença no Senado: resolvida via comparecimento às votações nominais (cobre só sessões com votação nominal, ~36/ano).
 - API de despesas da Câmara deu timeout — usar arquivos CSV anuais.
 - Serviço antigo de votações do Senado foi desativado (02/2026) — usar `/votacao`.
 - Push para o GitHub bloqueado: instalar o app Claude no repositório (Fase 7 ou antes).

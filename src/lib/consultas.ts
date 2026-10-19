@@ -74,7 +74,14 @@ export async function presenca(p: Parlamentar, periodo: Periodo) {
       select to_char(inicio at time zone 'America/Sao_Paulo', 'YYYY-MM') as mes,
              count(*) as total, count(*) filter (where presente) as presentes
       from sessoes group by 1 order by 1`),
-    db.execute(sql`${base} select id, inicio, descricao from sessoes where not presente order by inicio desc limit 100`),
+    // No Senado, o voto registrado na sessão explica a ausência (licença, missão, atividade parlamentar).
+    db.execute(sql`${base}
+      select s.id, s.inicio, s.descricao, (
+        select string_agg(distinct vo.voto, ', ') from voto vo join votacao v on v.id = vo.votacao_id
+        where vo.parlamentar_id = ${p.id} and v.casa = 'SF' and ${p.casa} = 'SF'
+          and (v.data at time zone 'America/Sao_Paulo')::date = (s.inicio at time zone 'America/Sao_Paulo')::date
+      ) as motivo
+      from sessoes s where not presente order by inicio desc limit 100`),
   ]);
   const total = num(resumo[0]?.total);
   const presentes = num(resumo[0]?.presentes);
@@ -83,7 +90,11 @@ export async function presenca(p: Parlamentar, periodo: Periodo) {
     presentes,
     percentual: total ? presentes / total : null,
     mensal: mensal.map((m) => ({ mes: String(m.mes), total: num(m.total), presentes: num(m.presentes) })),
-    ausencias: ausencias.map((a) => ({ inicio: new Date(String(a.inicio)), descricao: a.descricao as string | null })),
+    ausencias: ausencias.map((a) => ({
+      inicio: new Date(String(a.inicio)),
+      descricao: a.descricao as string | null,
+      motivo: a.motivo as string | null,
+    })),
   };
 }
 
@@ -166,6 +177,9 @@ export async function gastos(p: Parlamentar, periodo: Periodo) {
 
 // ---------- Resumo para os cartões da lista ----------
 
+/** Votos em que o parlamentar de fato votou (exclui ausências e presença sem voto). */
+export const VOTOS_EFETIVOS = ["Sim", "Não", "Abstenção", "Obstrução", "Votou (secreto)"];
+
 export async function resumos(ids: number[], periodo: Periodo) {
   if (ids.length === 0) return new Map<number, { presenca: number | null; votos: number; gastos: number }>();
   const ps = await db.select().from(parlamentar).where(sql`${parlamentar.id} in ${ids}`);
@@ -174,7 +188,7 @@ export async function resumos(ids: number[], periodo: Periodo) {
       const [pr, vt, gs] = await Promise.all([
         presenca(p, periodo),
         db.execute(sql`select count(*) as n from voto vo join votacao v on v.id = vo.votacao_id
-          where vo.parlamentar_id = ${p.id} and v.data >= ${periodo.inicio.toISOString()} and v.data < ${periodo.fim.toISOString()}`),
+          where vo.parlamentar_id = ${p.id} and vo.voto in ${VOTOS_EFETIVOS} and v.data >= ${periodo.inicio.toISOString()} and v.data < ${periodo.fim.toISOString()}`),
         db.execute(sql`select coalesce(sum(valor),0) as t from despesa where parlamentar_id = ${p.id} and ano = ${periodo.inicio.getFullYear()}`),
       ]);
       return [p.id, { presenca: pr.percentual, votos: num(vt[0]?.n), gastos: num(gs[0]?.t) }] as const;

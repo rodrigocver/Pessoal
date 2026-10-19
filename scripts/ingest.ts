@@ -6,6 +6,7 @@ import { sql } from "@/db/client";
 import { comLog } from "@/ingest/log";
 import { buscarDeputados, buscarSenadores, salvarParlamentares } from "@/ingest/parlamentares";
 import { ingerirDespesas, ingerirPresencas, ingerirProposicoes, ingerirVotacoes } from "@/ingest/camara";
+import { ingerirDespesasSenado, ingerirProposicoesSenado, ingerirVotacoesSenado } from "@/ingest/senado";
 import { anosDesde } from "@/ingest/util";
 
 const args = process.argv.slice(2);
@@ -27,6 +28,9 @@ const tarefas: Record<string, () => Promise<number>> = {
   "camara:votacoes": porAno(ingerirVotacoes),
   "camara:proposicoes": porAno(ingerirProposicoes),
   "camara:despesas": porAno(ingerirDespesas),
+  "senado:votacoes": porAno(ingerirVotacoesSenado), // inclui o comparecimento
+  "senado:proposicoes": porAno(ingerirProposicoesSenado),
+  "senado:despesas": porAno(ingerirDespesasSenado),
 };
 
 async function main() {

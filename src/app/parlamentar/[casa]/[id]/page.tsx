@@ -104,7 +104,7 @@ async function AbaPresenca({ p, periodo }: { p: Parlamentar; periodo: Periodo })
       <Secao titulo="Presença em plenário">
         <Destaque
           valor={formatarPct(d.percentual)}
-          legenda={`${d.presentes} de ${d.total} sessões deliberativas em ${periodo.rotulo.toLowerCase()}`}
+          legenda={`${d.presentes} de ${d.total} sessões ${p.casa === "SF" ? "com votação nominal" : "deliberativas"} em ${periodo.rotulo.toLowerCase()}`}
         />
         <BarrasMensais
           maximo={1}
@@ -116,10 +116,18 @@ async function AbaPresenca({ p, periodo }: { p: Parlamentar; periodo: Periodo })
           }))}
         />
         <ComoCalculamos>
-          <p>
-            Presença = sessões deliberativas do plenário em que o parlamentar registrou presença ÷ sessões deliberativas
-            realizadas enquanto ele estava em exercício. Sessões solenes e reuniões de comissão não entram.
-          </p>
+          {p.casa === "CD" ? (
+            <p>
+              Presença = sessões deliberativas do plenário em que o parlamentar registrou presença ÷ sessões deliberativas
+              realizadas enquanto ele estava em exercício. Sessões solenes e reuniões de comissão não entram.
+            </p>
+          ) : (
+            <p>
+              O Senado não publica lista de presença. Usamos o comparecimento às sessões que tiveram votação nominal:
+              conta como presente quem votou, se absteve, presidiu ou registrou presença sem votar em ao menos uma votação
+              da sessão. Licenças, missões e &quot;atividade parlamentar&quot; aparecem como motivo da ausência.
+            </p>
+          )}
           <p>
             A fonte não informa licenças. Por isso consideramos o período entre a primeira e a última atividade registrada
             (presença ou voto) — ou até hoje, se ele segue em exercício. Faltas justificadas contam como ausência.
@@ -133,6 +141,7 @@ async function AbaPresenca({ p, periodo }: { p: Parlamentar; periodo: Periodo })
               <li key={i} className="py-2">
                 <span className="font-medium tabular-nums">{formatarData(a.inicio)}</span>
                 {a.descricao && <span className="text-suave"> — {a.descricao}</span>}
+                {a.motivo && <div className="text-xs text-alerta">{a.motivo}</div>}
               </li>
             ))}
           </ul>
@@ -143,6 +152,7 @@ async function AbaPresenca({ p, periodo }: { p: Parlamentar; periodo: Periodo })
 }
 
 const COR_VOTO: Record<string, string> = { Sim: "text-bom", Não: "text-ruim", Obstrução: "text-alerta", Abstenção: "text-alerta" };
+const corVoto = (v: string) => COR_VOTO[v] ?? (v.startsWith("Ausente") || v === "Não compareceu" ? "text-suave line-through" : "text-suave");
 
 async function AbaVotacoes({
   p,
@@ -163,14 +173,14 @@ async function AbaVotacoes({
       <div className="flex flex-wrap gap-2 text-sm">
         {d.porTipo.map((t) => (
           <span key={t.voto} className="rounded-full bg-fundo px-3 py-1">
-            <span className={COR_VOTO[t.voto] ?? ""}>{t.voto}</span> <span className="tabular-nums text-suave">{t.n}</span>
+            <span className={corVoto(t.voto)}>{t.voto}</span> <span className="tabular-nums text-suave">{t.n}</span>
           </span>
         ))}
       </div>
       <ul className="flex flex-col divide-y divide-borda">
         {d.lista.map((v) => (
           <li key={v.id} className="flex gap-3 py-3 text-sm">
-            <span className={`w-20 shrink-0 font-semibold ${COR_VOTO[v.voto] ?? "text-suave"}`}>{v.voto}</span>
+            <span className={`w-24 shrink-0 font-semibold ${corVoto(v.voto)}`}>{v.voto}</span>
             <div className="min-w-0">
               <div className="text-suave">
                 {formatarData(v.data)}
@@ -201,7 +211,11 @@ async function AbaVotacoes({
           Só entram votações nominais do plenário, em que o voto de cada parlamentar fica registrado no painel. A maioria
           das votações é simbólica e não diz como cada um votou.
         </p>
-        <p>&quot;Artigo 17&quot; é o voto do presidente da sessão, que pelo regimento não vota.</p>
+        {p.casa === "CD" ? (
+          <p>&quot;Artigo 17&quot; é o voto do presidente da sessão, que pelo regimento não vota.</p>
+        ) : (
+          <p>Em votações secretas (como indicações de autoridades) só se sabe que o senador votou, não como.</p>
+        )}
       </ComoCalculamos>
     </Secao>
   );
@@ -235,8 +249,9 @@ async function AbaProposicoes({ p, periodo }: { p: Parlamentar; periodo: Periodo
       </ul>
       <ComoCalculamos>
         <p>
-          Proposições em que o parlamentar é autor ou coautor: PEC, PLP, PL, PDL, PRC, requerimentos de informação (RIC) e
-          indicações (INC). Requerimentos de tramitação e emendas ficam de fora.
+          {p.casa === "CD"
+            ? "Proposições em que o parlamentar é autor ou coautor: PEC, PLP, PL, PDL, PRC, requerimentos de informação (RIC) e indicações (INC). Requerimentos de tramitação e emendas ficam de fora."
+            : "Proposições em que o senador é autor ou coautor: PEC, PL, PLP, PDL e PRS. Requerimentos ficam de fora."}
         </p>
       </ComoCalculamos>
     </Secao>
@@ -255,8 +270,8 @@ async function AbaGastos({ p, periodo }: { p: Parlamentar; periodo: Periodo }) {
         />
         <ComoCalculamos>
           <p>
-            Valor líquido reembolsado pela cota para o exercício da atividade parlamentar (CEAP), conforme publicado pela
-            casa. Não inclui salário, verba de gabinete nem auxílio-moradia pago em dinheiro.
+            Valor reembolsado pela cota para o exercício da atividade parlamentar ({p.casa === "CD" ? "CEAP, Câmara" : "CEAPS, Senado"}),
+            conforme publicado pela casa. Não inclui salário, verba de gabinete nem auxílio-moradia pago em dinheiro.
           </p>
         </ComoCalculamos>
       </Secao>

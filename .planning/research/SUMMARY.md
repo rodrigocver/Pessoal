@@ -29,3 +29,13 @@
 3. Normalizar Câmara e Senado num modelo comum (`parlamentar`, `sessao`, `presenca`, `votacao`, `voto`, `proposicao`, `despesa`) com coluna `casa` (`CD` / `SF`).
 4. Métricas precisam de definição explícita e exibida ao usuário (ex.: "presença = sessões deliberativas com registro de presença ÷ sessões deliberativas do período").
 5. Atenção a suplentes/licenças: um parlamentar pode ficar fora do exercício parte do período — calcular sobre os dias em exercício.
+
+## Atualização — Fase 4 (Senado)
+- **Presença:** não há lista de presença. Cada voto nominal em `/votacao` traz o código de comparecimento
+  (`Sim`, `Não`, `Abstenção`, `Votou` (secreto), `P-NRV` presente sem voto, `Presidente (art. 51 RISF)`,
+  `AP` atividade parlamentar, `MIS` missão, `LS`/`LP` licenças, `NCom` não compareceu). Presença = sessões com
+  votação nominal em que o senador teve código de presente. Cobre ~36 sessões/ano (o Senado vota muito em modo simbólico).
+- **Votações:** `/votacao?dataInicio&dataFim` em janelas mensais; respostas grandes às vezes vêm cortadas — retentar.
+- **Orientação de bancada:** `/plenario/votacao/orientacaoBancada/{AAAAMMDD}/{AAAAMMDD}.json`, ligada por `sequencialVotacao`. Raramente preenchida.
+- **Proposições:** `/processo?codigoParlamentarAutor=X&dataInicioApresentacao&dataFimApresentacao` (máx. 1 ano por consulta).
+- **CEAPS:** JSON anual com `id` único por lançamento.
