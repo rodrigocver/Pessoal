@@ -90,6 +90,7 @@ export const votacao = pgTable(
     data: timestamp("data", { withTimezone: true }).notNull(),
     descricao: text("descricao"),
     proposicao: text("proposicao"), // rótulo legível, ex.: "PL 2552/2019"
+    proposicaoRef: text("proposicao_ref"), // id oficial da matéria votada (Câmara: proposição; Senado: processo)
     ementa: text("ementa"), // ementa da matéria votada
     aprovada: boolean("aprovada"),
     ...origem,
@@ -140,6 +141,28 @@ export const proposicao = pgTable(
     ...origem,
   },
   (t) => [uniqueIndex("proposicao_casa_id_externo").on(t.casa, t.idExterno)],
+);
+
+/** Temas oficiais das matérias votadas (cada casa tem sua própria classificação). */
+export const temaProposicao = pgTable(
+  "tema_proposicao",
+  {
+    casa: casaEnum("casa").notNull(),
+    proposicaoRef: text("proposicao_ref").notNull(),
+    tema: text("tema").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.casa, t.proposicaoRef, t.tema] })],
+);
+
+/** Matérias cujos temas já foram consultados (inclusive as sem tema), para não consultar de novo. */
+export const temaConsultado = pgTable(
+  "tema_consultado",
+  {
+    casa: casaEnum("casa").notNull(),
+    proposicaoRef: text("proposicao_ref").notNull(),
+    consultadoEm: timestamp("consultado_em", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.casa, t.proposicaoRef] })],
 );
 
 export const autoria = pgTable(

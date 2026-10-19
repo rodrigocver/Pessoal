@@ -9,6 +9,7 @@ import {
   obterParlamentar,
   presenca,
   proposicoes,
+  temasDasVotacoes,
   votos,
   type Parlamentar,
 } from "@/lib/consultas";
@@ -23,7 +24,7 @@ import { Comparacao, linhasComparacao } from "@/components/Comparacao";
 
 type Props = {
   params: Promise<{ casa: string; id: string }>;
-  searchParams: Promise<{ aba?: string; periodo?: string; pagina?: string }>;
+  searchParams: Promise<{ aba?: string; periodo?: string; pagina?: string; tema?: string }>;
 };
 
 const ABAS = {
@@ -56,11 +57,16 @@ export default async function Perfil({ params, searchParams }: Props) {
   const aba: Aba = sp.aba && sp.aba in ABAS ? (sp.aba as Aba) : "presenca";
   const periodo = resolverPeriodo(sp.periodo);
   const pagina = Math.max(1, Number(sp.pagina) || 1);
+  const tema = aba === "votacoes" && sp.tema ? sp.tema : undefined;
   const sessao = await auth();
   const seguidos = await idsSeguidos(sessao?.user?.id);
   const caminho = `/parlamentar/${slug}/${p.idExterno}`;
-  const link = (mudancas: Record<string, string>) =>
-    `${caminho}?${new URLSearchParams({ aba, periodo: periodo.valor, ...mudancas })}`;
+  const link = (mudancas: Record<string, string | undefined>) => {
+    const params = Object.entries({ aba, periodo: periodo.valor, tema, ...mudancas }).filter(
+      (par): par is [string, string] => par[1] != null,
+    );
+    return `${caminho}?${new URLSearchParams(params)}`;
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -99,7 +105,7 @@ export default async function Perfil({ params, searchParams }: Props) {
       </div>
 
       {aba === "presenca" && <AbaPresenca p={p} periodo={periodo} />}
-      {aba === "votacoes" && <AbaVotacoes p={p} periodo={periodo} pagina={pagina} link={link} />}
+      {aba === "votacoes" && <AbaVotacoes p={p} periodo={periodo} pagina={pagina} tema={tema} link={link} />}
       {aba === "proposicoes" && <AbaProposicoes p={p} periodo={periodo} />}
       {aba === "gastos" && <AbaGastos p={p} periodo={periodo} />}
     </div>
@@ -197,15 +203,21 @@ async function AbaVotacoes({
   p,
   periodo,
   pagina,
+  tema,
   link,
 }: {
   p: Parlamentar;
   periodo: Periodo;
   pagina: number;
-  link: (m: Record<string, string>) => string;
+  tema: string | undefined;
+  link: (m: Record<string, string | undefined>) => string;
 }) {
   const POR_PAGINA = 30;
-  const [d, comp] = await Promise.all([votos(p, periodo, pagina, POR_PAGINA), comparativo(p, periodo)]);
+  const [d, comp, temas] = await Promise.all([
+    votos(p, periodo, pagina, POR_PAGINA, tema),
+    comparativo(p, periodo),
+    temasDasVotacoes(p, periodo),
+  ]);
   const paginas = Math.ceil(d.total / POR_PAGINA);
   return (
     <>
@@ -243,6 +255,22 @@ async function AbaVotacoes({
         </ComoCalculamos>
       </Secao>
       <Secao titulo={`Votações nominais (${d.total})`}>
+        {temas.length > 0 && (
+          <nav className="-mx-4 flex gap-1 overflow-x-auto px-4 text-sm" aria-label="Filtrar por tema">
+            {[{ tema: undefined, n: null }, ...temas].map((t) => (
+              <Link
+                key={t.tema ?? ""}
+                href={link({ tema: t.tema, pagina: undefined })}
+                aria-current={t.tema === tema ? "true" : undefined}
+                className={`shrink-0 rounded-lg border px-3 py-1 ${t.tema === tema ? "border-destaque text-destaque" : "border-borda text-suave"}`}
+              >
+                {t.tema ?? "Todos os temas"}
+                {t.n != null && <span className="tabular-nums"> {t.n}</span>}
+              </Link>
+            ))}
+          </nav>
+        )}
+        {d.total === 0 && tema && <p className="text-sm text-suave">Nenhuma votação com este tema no período.</p>}
         <div className="flex flex-wrap gap-2 text-sm">
           {d.porTipo.map((t) => (
             <span key={t.voto} className="rounded-full bg-fundo px-3 py-1">

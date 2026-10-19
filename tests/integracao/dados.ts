@@ -9,7 +9,7 @@ const fonteUrl = "teste";
 export async function prepararBanco() {
   await migrate(db, { migrationsFolder: "drizzle" });
   await db.execute(sql`
-    truncate parlamentar, sessao, votacao, proposicao, despesa, estatistica, ingestao_log, tentativa_login, "user" restart identity cascade`);
+    truncate parlamentar, sessao, votacao, proposicao, despesa, estatistica, ingestao_log, tentativa_login, tema_proposicao, tema_consultado, "user" restart identity cascade`);
 }
 
 /**
@@ -77,8 +77,22 @@ export async function criarCenario() {
   const [v1, v2] = await db
     .insert(schema.votacao)
     .values([
-      { casa: "CD", idExterno: "v1", data: t("2025-04-08T16:00:00"), proposicao: "PL 1/2025", fonteUrl },
-      { casa: "CD", idExterno: "v2", data: t("2025-05-20T16:00:00"), proposicao: "PEC 2/2025", fonteUrl },
+      {
+        casa: "CD",
+        idExterno: "v1",
+        data: t("2025-04-08T16:00:00"),
+        proposicao: "PL 1/2025",
+        proposicaoRef: "p1",
+        fonteUrl,
+      },
+      {
+        casa: "CD",
+        idExterno: "v2",
+        data: t("2025-05-20T16:00:00"),
+        proposicao: "PEC 2/2025",
+        proposicaoRef: "p2",
+        fonteUrl,
+      },
     ])
     .returning();
   await db.insert(schema.voto).values([
@@ -93,6 +107,12 @@ export async function criarCenario() {
     { votacaoId: v1.id, bancada: "Governo", orientacao: "Sim" },
     { votacaoId: v2.id, bancada: "Fdr PT-PCdoB-PV", orientacao: "Sim" },
     { votacaoId: v2.id, bancada: "Governo", orientacao: "Liberado" },
+  ]);
+
+  await db.insert(schema.temaProposicao).values([
+    { casa: "CD", proposicaoRef: "p1", tema: "Saúde" },
+    { casa: "CD", proposicaoRef: "p1", tema: "Economia" },
+    { casa: "CD", proposicaoRef: "p2", tema: "Economia" },
   ]);
 
   await db.insert(schema.despesa).values([

@@ -22,7 +22,7 @@ Status: ✅ feito · 🟡 parcial (issue no backlog) · ⬜ pendente
 ## Perfil do parlamentar
 - ✅ **PROF-01** Página pública de cada parlamentar (compartilhável, sem login).
 - ✅ **PROF-02** Presença: percentual no período, evolução mês a mês e lista de ausências.
-- 🟡 **PROF-03** Votações: lista de votos com descrição da matéria e filtro por tema/período. *Falta o filtro por tema (backlog #05).*
+- ✅ **PROF-03** Votações: lista de votos com descrição da matéria e filtro por tema/período.
 - ✅ **PROF-04** Alinhamento: % de votos iguais à orientação do próprio partido e à do governo (quando a orientação existir na fonte).
 - ✅ **PROF-05** Proposições: lista de projetos de autoria com situação.
 - ✅ **PROF-06** Gastos: total no ano, por categoria, por mês e principais fornecedores.

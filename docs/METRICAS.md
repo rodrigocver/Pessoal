@@ -43,6 +43,11 @@ Presente = teve em alguma votação da sessão um destes códigos: `Sim`, `Não`
 Só **votações nominais de plenário** (o voto de cada parlamentar fica registrado). Na Câmara: órgão
 `PLEN` com total de votos > 0. Votações simbólicas não entram, porque não dizem como cada um votou.
 
+**Temas:** classificação oficial da matéria votada, de cada casa: Câmara, os temas da proposição
+(`/proposicoes/{id}/temas`, 32 temas); Senado, o nível mais alto das classificações do processo
+(`/processo/{id}`). As classificações das duas casas são diferentes e não são convertidas uma na outra.
+Matérias sem classificação (ex.: indicações de autoridades no Senado) aparecem só em "Todos os temas".
+
 **Votos efetivos** (cartões e médias): `Sim`, `Não`, `Abstenção`, `Obstrução`, `Votou (secreto)`.
 
 ## Alinhamento

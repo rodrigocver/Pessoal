@@ -55,6 +55,7 @@
 | `senado:votacoes` | Votações nominais, votos, orientações e comparecimento |
 | `senado:proposicoes` | Proposições de autoria de senadores |
 | `senado:despesas` | Cota parlamentar (CEAPS) |
+| `temas` | Temas oficiais das matérias votadas (incremental) |
 | `estatisticas` | Recalcula a visão `janela_exercicio` e a tabela `estatistica` (sempre por último) |
 
 Cada execução é registrada em `ingestao_log`; o rodapé do site mostra a última atualização bem-sucedida.

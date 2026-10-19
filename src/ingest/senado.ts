@@ -33,6 +33,7 @@ export interface VotacaoSenadoApi {
   codigoSessao: number;
   codigoSessaoVotacao: number;
   sequencialVotacao: number;
+  idProcesso: number | null;
   numeroSessao: number;
   dataSessao: string;
   descricaoVotacao: string;
@@ -125,6 +126,7 @@ export async function ingerirVotacoesSenado(ano: number): Promise<number> {
             data: data(v),
             descricao: v.descricaoVotacao + (v.votacaoSecreta === "S" ? " (votação secreta)" : ""),
             proposicao: v.identificacao,
+            proposicaoRef: v.idProcesso ? String(v.idProcesso) : null,
             ementa: v.ementa,
             aprovada: v.resultadoVotacao === "A" ? true : v.resultadoVotacao === "R" ? false : null,
             fonteUrl: `${SENADO_API}/votacao?codigoSessao=${v.codigoSessao}`,
@@ -135,6 +137,7 @@ export async function ingerirVotacoesSenado(ano: number): Promise<number> {
           set: {
             descricao: dsql`excluded.descricao`,
             proposicao: dsql`excluded.proposicao`,
+            proposicaoRef: dsql`excluded.proposicao_ref`,
             ementa: dsql`excluded.ementa`,
             aprovada: dsql`excluded.aprovada`,
             atualizadoEm: dsql`now()`,

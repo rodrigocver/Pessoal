@@ -64,6 +64,13 @@
       "when": 1792401729216,
       "tag": "0008_short_ricochet",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792402069530,
+      "tag": "0009_solid_silver_sable",
+      "breakpoints": true
     }
   ]
 }

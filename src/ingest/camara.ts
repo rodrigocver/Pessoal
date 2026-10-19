@@ -147,6 +147,7 @@ export async function ingerirVotacoes(ano: number): Promise<number> {
               data: new Date(`${v.dataHoraRegistro}-03:00`),
               descricao: v.descricao,
               proposicao: obj ? rotuloProposicao(obj) : null,
+              proposicaoRef: obj ? String(obj.id) : null,
               ementa: obj?.ementa ?? null,
               aprovada: v.aprovacao == null ? null : v.aprovacao === 1,
               fonteUrl: `${CAMARA_API}/votacoes/${v.id}`,
@@ -158,6 +159,7 @@ export async function ingerirVotacoes(ano: number): Promise<number> {
           set: {
             descricao: dsql`excluded.descricao`,
             proposicao: dsql`excluded.proposicao`,
+            proposicaoRef: dsql`excluded.proposicao_ref`,
             ementa: dsql`excluded.ementa`,
             aprovada: dsql`excluded.aprovada`,
             atualizadoEm: dsql`now()`,

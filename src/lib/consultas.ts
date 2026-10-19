@@ -111,8 +111,15 @@ export async function presenca(p: Parlamentar, periodo: Periodo) {
 
 // ---------- Votações ----------
 
-export async function votos(p: Parlamentar, periodo: Periodo, pagina = 1, porPagina = 30) {
-  const filtro = sql`vo.parlamentar_id = ${p.id} and v.data >= ${periodo.inicio.toISOString()} and v.data < ${periodo.fim.toISOString()}`;
+/** Filtra votações pela matéria ter o tema oficial informado. */
+const comTema = (tema: string | undefined) =>
+  tema
+    ? sql`and exists (
+        select 1 from tema_proposicao t where t.casa = v.casa and t.proposicao_ref = v.proposicao_ref and t.tema = ${tema})`
+    : sql``;
+
+export async function votos(p: Parlamentar, periodo: Periodo, pagina = 1, porPagina = 30, tema?: string) {
+  const filtro = sql`vo.parlamentar_id = ${p.id} and v.data >= ${periodo.inicio.toISOString()} and v.data < ${periodo.fim.toISOString()} ${comTema(tema)}`;
   const [lista, contagem] = await Promise.all([
     db.execute(sql`
       select v.id, v.data, v.descricao, v.proposicao, v.ementa, v.aprovada, v.fonte_url, vo.voto
@@ -137,6 +144,17 @@ export async function votos(p: Parlamentar, periodo: Periodo, pagina = 1, porPag
     porTipo: contagem.map((c) => ({ voto: String(c.voto), n: num(c.n) })),
     total: contagem.reduce((s, c) => s + num(c.n), 0),
   };
+}
+
+/** Temas das matérias que o parlamentar votou no período, com o número de votações de cada um. */
+export async function temasDasVotacoes(p: Parlamentar, periodo: Periodo) {
+  const r = await db.execute(sql`
+    select t.tema, count(distinct v.id) as n
+    from voto vo join votacao v on v.id = vo.votacao_id
+    join tema_proposicao t on t.casa = v.casa and t.proposicao_ref = v.proposicao_ref
+    where vo.parlamentar_id = ${p.id} and v.data >= ${periodo.inicio.toISOString()} and v.data < ${periodo.fim.toISOString()}
+    group by 1 order by 2 desc, 1`);
+  return r.map((x) => ({ tema: String(x.tema), n: num(x.n) }));
 }
 
 // ---------- Proposições ----------

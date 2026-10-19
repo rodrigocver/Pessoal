@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { and, eq } from "drizzle-orm";
 import { db, schema, sql } from "@/db/client";
-import { buscarParlamentares, gastos, presenca, resumos } from "@/lib/consultas";
+import { buscarParlamentares, gastos, presenca, resumos, temasDasVotacoes, votos } from "@/lib/consultas";
 import { calcularEstatisticas } from "@/ingest/estatisticas";
 import { resolverPeriodo } from "@/lib/periodo";
 import { criarCenario, prepararBanco } from "./dados";
@@ -88,5 +88,18 @@ describe("busca", () => {
     expect((await buscarParlamentares({ q: "ana souza" })).map((p) => p.nome)).toEqual(["Ana Souza"]);
     expect(await buscarParlamentares({ q: "beto" })).toEqual([]);
     expect((await buscarParlamentares({ q: "beto", todos: true })).map((p) => p.nome)).toEqual(["Beto Lima"]);
+  });
+});
+
+describe("temas", () => {
+  it("lista os temas votados e filtra as votações", async () => {
+    expect(await temasDasVotacoes(c.ana, ano2025)).toEqual([
+      { tema: "Economia", n: 2 },
+      { tema: "Saúde", n: 1 },
+    ]);
+    const saude = await votos(c.ana, ano2025, 1, 30, "Saúde");
+    expect(saude.lista.map((v) => v.proposicao)).toEqual(["PL 1/2025"]);
+    expect(saude.total).toBe(1);
+    expect((await votos(c.ana, ano2025)).total).toBe(2);
   });
 });
