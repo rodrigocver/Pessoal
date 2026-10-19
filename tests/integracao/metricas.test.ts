@@ -178,3 +178,35 @@ describe("suplentes na página de votação", () => {
     expect(ana.suplente).toBeNull();
   });
 });
+
+describe("busca: acentos e relevância", () => {
+  it("encontra pelo nome completo sem acento", async () => {
+    // Beto Lima tem nome completo "José Roberto Lima".
+    expect((await buscarParlamentares({ q: "jose", todos: true })).map((p) => p.nome)).toEqual(["Beto Lima"]);
+    expect((await buscarParlamentares({ q: "JOSÉ ROBERTO", todos: true })).map((p) => p.nome)).toEqual(["Beto Lima"]);
+  });
+
+  it("quem começa com o termo vem primeiro, depois quem tem uma palavra começando com ele", async () => {
+    const [lia] = await db
+      .insert(schema.parlamentar)
+      .values({
+        casa: "CD",
+        idExterno: "99",
+        nome: "Lia Dias",
+        partido: "PSB",
+        uf: "BA",
+        emExercicio: true,
+        fonteUrl: "teste",
+      })
+      .returning();
+    try {
+      // Em ordem alfabética seria Beto Lima antes de Lia Dias.
+      expect((await buscarParlamentares({ q: "li", todos: true })).map((p) => p.nome)).toEqual([
+        "Lia Dias",
+        "Beto Lima",
+      ]);
+    } finally {
+      await db.delete(schema.parlamentar).where(eq(schema.parlamentar.id, lia.id));
+    }
+  });
+});

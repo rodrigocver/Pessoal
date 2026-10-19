@@ -1,4 +1,4 @@
-import { and, asc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, eq, or, sql } from "drizzle-orm";
 import { db, schema } from "@/db/client";
 import type { Periodo } from "./periodo";
 import { sessaoConta } from "./exercicio";
@@ -20,12 +20,17 @@ export async function buscarParlamentares(f: {
   todos?: boolean;
 }) {
   const filtros = [];
-  if (f.q?.trim()) {
-    const termo = `%${f.q.trim()}%`;
+  const q = f.q?.trim();
+  // Busca sem acento e sem diferença de maiúsculas, no nome parlamentar e no nome completo.
+  const norm = (col: unknown) => sql`unaccent(lower(${col}))`;
+  const termo = q ? sql`unaccent(lower(${q}))` : null;
+  if (termo)
     filtros.push(
-      or(sql`unaccent(${parlamentar.nome}) ilike unaccent(${termo})`, ilike(parlamentar.nomeCompleto, termo)),
+      or(
+        sql`${norm(parlamentar.nome)} like '%' || ${termo} || '%'`,
+        sql`${norm(parlamentar.nomeCompleto)} like '%' || ${termo} || '%'`,
+      ),
     );
-  }
   if (f.casa === "CD" || f.casa === "SF") filtros.push(eq(parlamentar.casa, f.casa));
   if (f.uf) filtros.push(eq(parlamentar.uf, f.uf.toUpperCase()));
   if (f.partido) filtros.push(eq(parlamentar.partido, f.partido.toUpperCase()));
@@ -38,11 +43,19 @@ export async function buscarParlamentares(f: {
         sql`exists (select 1 from afastamento a where a.parlamentar_id = ${parlamentar.id} and a.fim is null and not a.definitivo)`,
       ),
     );
+  // Relevância: nome que começa com o termo, depois alguma palavra do nome, depois o resto.
+  const relevancia = termo
+    ? sql`case
+        when ${norm(parlamentar.nome)} like ${termo} || '%' then 0
+        when ' ' || ${norm(parlamentar.nome)} like '% ' || ${termo} || '%' then 1
+        when ${norm(parlamentar.nome)} like '%' || ${termo} || '%' then 2
+        else 3 end`
+    : sql`0`;
   return db
     .select()
     .from(parlamentar)
     .where(and(...filtros))
-    .orderBy(asc(parlamentar.nome))
+    .orderBy(relevancia, norm(parlamentar.nome))
     .limit(60);
 }
 
