@@ -20,6 +20,9 @@ export default async function Conta() {
         <p className="text-sm text-suave">
           No início de cada mês, um e-mail com presença, votos, projetos e gastos dos parlamentares que você acompanha.
         </p>
+        <a href="/conta/resumo" className="text-sm text-destaque underline">
+          Ver como fica o resumo do último mês
+        </a>
         <form action={alternarResumoMensal.bind(null, !u.resumoMensal)}>
           <button className="rounded-full border border-destaque px-4 py-2 text-sm font-medium text-destaque">
             {u.resumoMensal ? "Desativar resumo mensal" : "Ativar resumo mensal"}

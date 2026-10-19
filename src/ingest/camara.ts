@@ -108,6 +108,9 @@ export function proposicaoPrincipal(v: Pick<VotacaoApi, "id">, proposicoes: Prop
 export const rotuloProposicao = (p: { siglaTipo: string; numero: number; ano: number | null }) =>
   p.ano ? `${p.siglaTipo} ${p.numero}/${p.ano}` : `${p.siglaTipo} ${p.numero}`;
 
+/** Em votações secretas (escolha de autoridades) a Câmara lista o deputado com voto vazio. */
+export const rotuloVotoCamara = (voto: string) => voto || "Votou (secreto)";
+
 export async function ingerirVotacoes(ano: number): Promise<number> {
   const deputados = await mapaDeputados();
   const [{ dados: votacoes }, { dados: votadas }, { dados: votos }, { dados: orientacoes }] = await Promise.all([
@@ -169,7 +172,7 @@ export async function ingerirVotacoes(ano: number): Promise<number> {
       const votacaoId = votacaoPorExt.get(v.idVotacao);
       const parlamentarId = deputados.get(String(v.deputado_.id));
       return votacaoId && parlamentarId
-        ? [{ votacaoId, parlamentarId, voto: v.voto || "Não informado", partido: v.deputado_.siglaPartido || null }]
+        ? [{ votacaoId, parlamentarId, voto: rotuloVotoCamara(v.voto), partido: v.deputado_.siglaPartido || null }]
         : [];
     });
     const linhasOrientacao = orientacoes.flatMap((o) => {

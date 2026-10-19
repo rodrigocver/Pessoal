@@ -1,8 +1,14 @@
 import { describe, it, expect, vi } from "vitest";
 
 vi.mock("@/db/client", () => ({ db: {}, schema: {} }));
-const { ehSessaoDeliberativa, ehNominalDePlenario, proposicaoPrincipal, rotuloProposicao, mapDespesas } =
-  await import("@/ingest/camara");
+const {
+  ehSessaoDeliberativa,
+  ehNominalDePlenario,
+  proposicaoPrincipal,
+  rotuloProposicao,
+  rotuloVotoCamara,
+  mapDespesas,
+} = await import("@/ingest/camara");
 
 const evento = (descricaoTipo: string, situacao = "Encerrada") => ({
   id: 1,
@@ -91,5 +97,12 @@ describe("mapDespesas", () => {
       valor: "1467.50",
       categoria: "COMBUSTÍVEIS E LUBRIFICANTES",
     });
+  });
+});
+
+describe("rotuloVotoCamara", () => {
+  it("voto vazio é votação secreta", () => {
+    expect(rotuloVotoCamara("")).toBe("Votou (secreto)");
+    expect(rotuloVotoCamara("Sim")).toBe("Sim");
   });
 });

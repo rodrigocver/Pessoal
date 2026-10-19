@@ -1,7 +1,7 @@
 # Estado do projeto
 
-- **Fase atual:** 6 — Resumo mensal por e-mail
-- **Concluídas:** 1 (Fundação), 2 (Ingestão Câmara), 3 (Site), 4 (Ingestão Senado), 5 (Métricas comparativas)
+- **Fase atual:** 7 — Contas e publicação (preparada; falta criar as contas)
+- **Concluídas:** 1 (Fundação), 2 (Ingestão Câmara), 3 (Site), 4 (Ingestão Senado), 5 (Métricas comparativas), 6 (Resumo mensal)
 - **Última atualização:** 19/10/2026
 
 ## Decisões

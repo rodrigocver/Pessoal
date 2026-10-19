@@ -298,7 +298,10 @@ async function AbaVotacoes({
             maioria das votações é simbólica e não diz como cada um votou.
           </p>
           {p.casa === "CD" ? (
-            <p>&quot;Artigo 17&quot; é o voto do presidente da sessão, que pelo regimento não vota.</p>
+            <p>
+              &quot;Artigo 17&quot; é o voto do presidente da sessão, que pelo regimento não vota. Em votações secretas
+              (escolha de autoridades) só se sabe que o deputado votou, não como.
+            </p>
           ) : (
             <p>Em votações secretas (como indicações de autoridades) só se sabe que o senador votou, não como.</p>
           )}

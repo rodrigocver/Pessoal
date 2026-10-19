@@ -272,3 +272,16 @@ export const seguindo = pgTable(
   },
   (t) => [primaryKey({ columns: [t.usuarioId, t.parlamentarId] })],
 );
+
+/** Resumos mensais já enviados — impede envio duplicado se o job rodar de novo. */
+export const envioResumo = pgTable(
+  "envio_resumo",
+  {
+    usuarioId: text("usuario_id")
+      .notNull()
+      .references(() => usuario.id, { onDelete: "cascade" }),
+    mes: text("mes").notNull(), // "2026-09"
+    enviadoEm: timestamp("enviado_em", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.usuarioId, t.mes] })],
+);

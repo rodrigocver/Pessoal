@@ -36,6 +36,13 @@
       "when": 1792385399771,
       "tag": "0004_worried_karma",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792385733837,
+      "tag": "0005_careless_gambit",
+      "breakpoints": true
     }
   ]
 }
