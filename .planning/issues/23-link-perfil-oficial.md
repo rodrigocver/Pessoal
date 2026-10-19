@@ -1,6 +1,7 @@
 ---
 titulo: "Link para o perfil oficial do parlamentar na Câmara ou no Senado"
 rotulos: ["boa primeira issue", "interface"]
+status: feito
 ---
 ## Contexto
 O Fiscaliza só usa dados oficiais, mas o perfil não leva à página oficial do parlamentar. Quem quiser conferir um
@@ -16,3 +17,7 @@ número precisa procurar sozinho.
 ## Pronto quando
 - O link abre a página certa para um deputado e um senador.
 - Texto neutro ("Perfil oficial na Câmara"), sem ícone de saída enganoso.
+
+## Feito
+- `urlPerfilOficial` em `src/lib/formato.ts`, com teste; link "Perfil oficial na Câmara/no Senado" no cabeçalho.
+- O rodapé passou a citar também o TSE entre as fontes.

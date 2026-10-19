@@ -21,10 +21,10 @@ Depois de publicadas, o GitHub passa a ser a fonte da verdade: discussão e anda
 
 | # | Tarefa | Rótulos |
 |---|---|---|
-| 22 | [Acessibilidade: indicar a aba ativa e link “Pular para o conteúdo”](issues/22-acessibilidade-abas-pular-conteudo.md) | boa primeira issue, interface |
-| 23 | [Link para o perfil oficial do parlamentar na Câmara ou no Senado](issues/23-link-perfil-oficial.md) | boa primeira issue, interface |
-| 24 | [sitemap.xml e robots.txt](issues/24-sitemap-robots.md) | boa primeira issue, infra |
-| 29 | [Comparação: patrimônio declarado e receitas de campanha da última eleição](issues/29-comparar-patrimonio.md) | boa primeira issue, interface |
+| 22 | ✅ [Acessibilidade: indicar a aba ativa e link “Pular para o conteúdo”](issues/22-acessibilidade-abas-pular-conteudo.md) | boa primeira issue, interface |
+| 23 | ✅ [Link para o perfil oficial do parlamentar na Câmara ou no Senado](issues/23-link-perfil-oficial.md) | boa primeira issue, interface |
+| 24 | ✅ [sitemap.xml e robots.txt](issues/24-sitemap-robots.md) | boa primeira issue, infra |
+| 29 | ✅ [Comparação: patrimônio declarado e receitas de campanha da última eleição](issues/29-comparar-patrimonio.md) | boa primeira issue, interface |
 | 25 | [Aba Votações do perfil: marcar votos dados como suplente](issues/25-votos-como-suplente-no-perfil.md) | funcionalidade, interface, ajuda bem-vinda |
 | 26 | [Resumo mensal: incluir presença em comissões (Câmara) e relatorias (Senado)](issues/26-resumo-mensal-comissoes.md) | funcionalidade, métricas |
 | 27 | [Baixar os dados do perfil em CSV](issues/27-baixar-csv.md) | funcionalidade, interface, ajuda bem-vinda |

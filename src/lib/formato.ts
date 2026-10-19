@@ -41,6 +41,11 @@ export type SlugCasa = keyof typeof CASAS;
 export const slugDaCasa = (casa: "CD" | "SF"): SlugCasa => (casa === "CD" ? "camara" : "senado");
 export const urlParlamentar = (p: { casa: "CD" | "SF"; idExterno: string }) =>
   `/parlamentar/${slugDaCasa(p.casa)}/${p.idExterno}`;
+/** Página do parlamentar no site oficial da casa. */
+export const urlPerfilOficial = (p: { casa: "CD" | "SF"; idExterno: string }) =>
+  p.casa === "CD"
+    ? `https://www.camara.leg.br/deputados/${p.idExterno}`
+    : `https://www25.senado.leg.br/web/senadores/senador/-/perfil/${p.idExterno}`;
 
 const DIA_MS = 86_400_000;
 

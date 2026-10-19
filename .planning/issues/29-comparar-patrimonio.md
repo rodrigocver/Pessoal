@@ -1,6 +1,7 @@
 ---
 titulo: "Comparação: patrimônio declarado e receitas de campanha da última eleição"
 rotulos: ["boa primeira issue", "interface"]
+status: feito
 ---
 ## Contexto
 A página `/comparar` mostra presença, votos, alinhamento e gastos lado a lado. Os dados do TSE (aba "Eleições")
@@ -14,3 +15,7 @@ ainda não aparecem lá.
 
 ## Pronto quando
 - Comparar dois parlamentares com eleições em anos diferentes deixa claro o ano de cada valor.
+
+## Feito
+- Seção "Última eleição" em `/comparar`, separada dos números do período: eleição (ano e cargo), patrimônio
+  declarado e receitas de campanha da candidatura mais recente de cada um; "—" quando não há.

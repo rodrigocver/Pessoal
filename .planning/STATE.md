@@ -3,7 +3,7 @@
 - **Fase atual:** 7 (contas e publicação) e 8 (abrir o repositório) — código pronto; faltam passos do dono no GitHub e nos provedores
 - **Concluídas:** 1 (Fundação), 2 (Ingestão Câmara), 3 (Site), 4 (Ingestão Senado), 5 (Métricas comparativas), 6 (Resumo mensal)
 - **Última atualização:** 19/10/2026
-- **Backlog:** #01–#19 e #21 concluídas. Novas para a comunidade: #22–#31 (boas primeiras issues: #22, #23, #24, #29; discussão: #30).
+- **Backlog:** #01–#24, #29 e #21 concluídas. Abertas para a comunidade: #25–#28, #31 (ajuda bem-vinda) e #30 (discussão). Boas primeiras issues: todas feitas; criar novas quando surgirem.
 
 ## Decisões
 - Web responsivo/PWA; login com Google + link mágico; dados v1 = presença, votações, proposições, gastos; **resumo mensal** por e-mail.

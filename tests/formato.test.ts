@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatarData, formatarReais } from "@/lib/formato";
+import { formatarData, formatarReais, urlPerfilOficial } from "@/lib/formato";
 
 describe("formatarData", () => {
   it("data pura não muda de dia pelo fuso", () => {
@@ -15,5 +15,14 @@ describe("formatarReais", () => {
   it("compacto só a partir de mil", () => {
     expect(formatarReais(7.7, true).replace(/\s/g, " ")).toBe("R$ 7,70");
     expect(formatarReais(1500, true).replace(/\s/g, " ")).toBe("R$ 1,5 mil");
+  });
+});
+
+describe("urlPerfilOficial", () => {
+  it("Câmara e Senado", () => {
+    expect(urlPerfilOficial({ casa: "CD", idExterno: "204534" })).toBe("https://www.camara.leg.br/deputados/204534");
+    expect(urlPerfilOficial({ casa: "SF", idExterno: "6295" })).toBe(
+      "https://www25.senado.leg.br/web/senadores/senador/-/perfil/6295",
+    );
   });
 });

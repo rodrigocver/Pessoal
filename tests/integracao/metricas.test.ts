@@ -20,6 +20,7 @@ import {
   votosEmComum,
 } from "@/lib/consultas";
 import { calcularEstatisticas } from "@/ingest/estatisticas";
+import sitemap from "@/app/sitemap";
 import { resolverPeriodo } from "@/lib/periodo";
 import { criarCenario, prepararBanco } from "./dados";
 
@@ -301,5 +302,15 @@ describe("eleições", () => {
     ]);
     expect(r.doadoresInstitucionais.map((d) => d.doador)).toEqual(["DIREÇÃO NACIONAL"]);
     expect(await candidaturasDe(c.beto)).toEqual([]);
+  });
+});
+
+describe("sitemap", () => {
+  it("páginas fixas e um perfil por parlamentar, lidos do banco", async () => {
+    const urls = (await sitemap()).map((u) => u.url.replace(/^https?:\/\/[^/]+/, ""));
+    expect(urls).toContain("/metodologia");
+    expect(urls).toContain("/parlamentar/camara/1");
+    expect(urls).toContain("/parlamentar/senado/3");
+    expect(urls.filter((u) => u.startsWith("/parlamentar/"))).toHaveLength(4);
   });
 });

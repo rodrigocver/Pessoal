@@ -27,6 +27,12 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     <html lang="pt-BR">
       <body className="min-h-dvh antialiased">
         <RegistrarServiceWorker />
+        <a
+          href="#conteudo"
+          className="sr-only z-20 rounded-lg bg-destaque px-3 py-2 text-sm font-medium text-fundo focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:px-3 focus:py-2"
+        >
+          Pular para o conteúdo
+        </a>
         <header className="sticky top-0 z-10 border-b border-borda bg-fundo/90 backdrop-blur">
           <nav className="mx-auto flex max-w-5xl items-center gap-4 px-4 py-3 text-sm">
             <Link href="/" className="text-base font-semibold tracking-tight">
@@ -52,15 +58,21 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             )}
           </nav>
         </header>
-        <main className="mx-auto max-w-5xl px-4 py-6">{children}</main>
+        <main id="conteudo" tabIndex={-1} className="mx-auto max-w-5xl px-4 py-6 outline-none">
+          {children}
+        </main>
         <footer className="mx-auto max-w-5xl px-4 pb-10 pt-4 text-xs text-suave">
           Dados públicos da{" "}
           <a className="underline" href="https://dadosabertos.camara.leg.br">
             Câmara dos Deputados
-          </a>{" "}
-          e do{" "}
+          </a>
+          , do{" "}
           <a className="underline" href="https://legis.senado.leg.br/dadosabertos">
             Senado Federal
+          </a>{" "}
+          e do{" "}
+          <a className="underline" href="https://dadosabertos.tse.jus.br">
+            TSE
           </a>
           .{atualizado && <> Atualizado em {formatarDataHora(atualizado)}.</>}{" "}
           <Link href="/metodologia" className="underline">

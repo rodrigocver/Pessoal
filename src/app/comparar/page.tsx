@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { buscarParlamentares, parlamentarPorChave, resumos, votosEmComum, type Parlamentar } from "@/lib/consultas";
+import {
+  buscarParlamentares,
+  candidaturasDe,
+  parlamentarPorChave,
+  resumos,
+  votosEmComum,
+  type CandidaturaDetalhada,
+  type Parlamentar,
+} from "@/lib/consultas";
 import { periodosDisponiveis, resolverPeriodo } from "@/lib/periodo";
 import { formatarData, formatarPct, formatarReais, slugDaCasa, urlParlamentar } from "@/lib/formato";
 import { corVoto } from "@/lib/votos";
@@ -28,10 +36,14 @@ export default async function Comparar({ searchParams }: { searchParams: Promise
   if (!a || !b) return <Escolher a={a} q={sp.q} link={link} />;
 
   const mesmaCasa = a.casa === b.casa;
-  const [r, comum] = await Promise.all([
+  const [r, comum, ca, cb] = await Promise.all([
     resumos([a.id, b.id], periodo),
     mesmaCasa ? votosEmComum(a, b, periodo) : Promise.resolve(null),
+    candidaturasDe(a),
+    candidaturasDe(b),
   ]);
+  // Candidatura mais recente de cada um (candidaturasDe já vem da mais nova para a mais antiga).
+  const [ea, eb] = [ca[0], cb[0]];
   const ra = r.get(a.id);
   const rb = r.get(b.id);
   const linhas: { rotulo: string; a: string; b: string }[] = [
@@ -78,6 +90,7 @@ export default async function Comparar({ searchParams }: { searchParams: Promise
           <Link
             key={per.valor}
             href={link({ periodo: per.valor })}
+            aria-current={per.valor === periodo.valor ? "page" : undefined}
             className={`shrink-0 rounded-lg border px-3 py-1 ${per.valor === periodo.valor ? "border-destaque text-destaque" : "border-borda text-suave"}`}
           >
             {per.rotulo}
@@ -117,6 +130,44 @@ export default async function Comparar({ searchParams }: { searchParams: Promise
         </ComoCalculamos>
       </Secao>
 
+      {(ea || eb) && (
+        <Secao titulo="Última eleição">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-xs text-suave">
+                <th>
+                  <span className="sr-only">Dado</span>
+                </th>
+                <th className="pl-3 text-right font-medium">{a.nome}</th>
+                <th className="pl-3 text-right font-medium">{b.nome}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-borda">
+              {[
+                { rotulo: "Eleição", f: eleicao },
+                { rotulo: "Patrimônio declarado", f: (c: CandidaturaDetalhada) => formatarReais(c.patrimonio, true) },
+                { rotulo: "Receitas de campanha", f: (c: CandidaturaDetalhada) => formatarReais(c.receitaTotal, true) },
+              ].map((l) => (
+                <tr key={l.rotulo}>
+                  <th scope="row" className="py-2 text-left font-normal text-suave">
+                    {l.rotulo}
+                  </th>
+                  <td className="py-2 pl-3 text-right font-medium tabular-nums">{ea ? l.f(ea) : "—"}</td>
+                  <td className="py-2 pl-3 text-right font-medium tabular-nums">{eb ? l.f(eb) : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <ComoCalculamos>
+            <p>
+              Candidatura mais recente de cada um nos dados do TSE, que pode ser de anos diferentes. Valores declarados
+              à Justiça Eleitoral, sem correção pela inflação. Detalhes e eleições anteriores na aba
+              &quot;Eleições&quot; de cada perfil.
+            </p>
+          </ComoCalculamos>
+        </Secao>
+      )}
+
       {comum && (
         <Secao titulo="Quando votaram na mesma votação">
           <p className="text-sm">
@@ -155,6 +206,9 @@ export default async function Comparar({ searchParams }: { searchParams: Promise
     </div>
   );
 }
+
+const eleicao = (c: CandidaturaDetalhada) =>
+  `${c.dataEleicao ? c.dataEleicao.slice(0, 4) : c.ano} · ${c.cargo.charAt(0)}${c.cargo.slice(1).toLowerCase()}`;
 
 async function Escolher({
   a,

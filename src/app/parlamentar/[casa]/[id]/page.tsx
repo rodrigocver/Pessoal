@@ -22,7 +22,16 @@ import {
   type Parlamentar,
 } from "@/lib/consultas";
 import { periodosDisponiveis, resolverPeriodo, type Periodo } from "@/lib/periodo";
-import { CASAS, formatarData, formatarPct, formatarReais, rotuloMes, slugDaCasa, type SlugCasa } from "@/lib/formato";
+import {
+  CASAS,
+  urlPerfilOficial,
+  formatarData,
+  formatarPct,
+  formatarReais,
+  rotuloMes,
+  slugDaCasa,
+  type SlugCasa,
+} from "@/lib/formato";
 import { Foto } from "@/components/Foto";
 import { BotaoSeguir } from "@/components/BotaoSeguir";
 import { Identificacao } from "@/components/CartaoParlamentar";
@@ -98,6 +107,9 @@ export default async function Perfil({ params, searchParams }: Props) {
           <Link href={`/comparar?a=${slug}/${p.idExterno}`} className="text-sm text-destaque">
             Comparar com…
           </Link>
+          <a href={urlPerfilOficial(p)} className="text-sm text-suave underline">
+            Perfil oficial {slug === "camara" ? "na Câmara" : "no Senado"}
+          </a>
         </div>
       </div>
 
@@ -108,6 +120,7 @@ export default async function Perfil({ params, searchParams }: Props) {
           <Link
             key={a}
             href={`${caminho}?${new URLSearchParams({ aba: a, periodo: periodo.valor })}`}
+            aria-current={a === aba ? "page" : undefined}
             className={`shrink-0 rounded-full px-4 py-2 text-sm ${a === aba ? "bg-texto font-medium text-fundo" : "text-suave hover:bg-superficie"}`}
           >
             {ABAS[a]}
@@ -116,17 +129,18 @@ export default async function Perfil({ params, searchParams }: Props) {
       </nav>
 
       {aba !== "eleicoes" && (
-        <div className="-mx-4 flex gap-1 overflow-x-auto px-4 text-sm" aria-label="Período">
+        <nav className="-mx-4 flex gap-1 overflow-x-auto px-4 text-sm" aria-label="Período">
           {periodosDisponiveis().map((per) => (
             <Link
               key={per.valor}
               href={link({ periodo: per.valor })}
+              aria-current={per.valor === periodo.valor ? "page" : undefined}
               className={`shrink-0 rounded-lg border px-3 py-1 ${per.valor === periodo.valor ? "border-destaque text-destaque" : "border-borda text-suave"}`}
             >
               {per.rotulo}
             </Link>
           ))}
-        </div>
+        </nav>
       )}
 
       {aba === "presenca" && <AbaPresenca p={p} periodo={periodo} afastamentos={afastamentos} vagas={vagas} />}
