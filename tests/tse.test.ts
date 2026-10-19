@@ -1,8 +1,16 @@
 import { describe, it, expect, vi } from "vitest";
 
 vi.mock("@/db/client", () => ({ db: {}, schema: {} }));
-const { casarCandidaturas, receitasPorCandidato, bensPorCandidato, valorTse, lerCsvTse, eleicoesComDados } =
-  await import("@/ingest/tse");
+const {
+  casarCandidaturas,
+  receitasPorCandidato,
+  bensPorCandidato,
+  valorTse,
+  lerCsvTse,
+  eleicoesComDados,
+  arquivoReceitas,
+  normalizarCandidato,
+} = await import("@/ingest/tse");
 
 // Campos reais de consulta_cand_2022 (Tabata Amaral); CPF igual ao publicado pela API da Câmara.
 const cand = (over: Record<string, string> = {}) => ({
@@ -164,6 +172,84 @@ describe("receitas e bens", () => {
     ]);
     const csv = Buffer.from('"SQ_CANDIDATO";"NM_CANDIDATO"\n"1";"JOÃO"\n', "latin1");
     expect(lerCsvTse(csv)).toEqual([{ SQ_CANDIDATO: "1", NM_CANDIDATO: "JOÃO" }]);
-    expect(eleicoesComDados(new Date("2026-10-19"))).toEqual([2018, 2022, 2026]);
+    expect(eleicoesComDados(new Date("2026-10-19"))).toEqual([2010, 2014, 2018, 2022, 2026]);
+  });
+});
+
+describe("eleições de 2014 e 2010 (formatos antigos)", () => {
+  it("2010: cargo de suplente e eleito por média com os nomes atuais", () => {
+    expect(normalizarCandidato({ DS_CARGO: "1º SUPLENTE SENADOR", DS_SIT_TOT_TURNO: "SUPLENTE" }).DS_CARGO).toBe(
+      "1º SUPLENTE",
+    );
+    expect(normalizarCandidato({ DS_CARGO: "DEPUTADO FEDERAL", DS_SIT_TOT_TURNO: "MÉDIA" }).DS_SIT_TOT_TURNO).toBe(
+      "ELEITO POR MÉDIA",
+    );
+    // Eleito por média pesa como eleito na escolha do registro.
+    const r = casarCandidaturas(
+      2010,
+      [
+        cand({ SQ_CANDIDATO: "a", DS_SIT_TOT_TURNO: "#NULO" }),
+        cand({ SQ_CANDIDATO: "b", DS_SIT_TOT_TURNO: "SUPLENTE" }),
+        cand({ SQ_CANDIDATO: "c", DS_SIT_TOT_TURNO: "MÉDIA" }),
+      ],
+      [{ id: 7, cpf: "38848319840" }],
+      [],
+    );
+    expect(r.map((c) => [c.sqCandidato, c.situacao])).toEqual([["c", "ELEITO POR MÉDIA"]]);
+  });
+
+  it("receitas de 2010: cabeçalho por extenso, tipo em maiúsculas, valor sem centavos (linhas reais, AC)", () => {
+    const csv = Buffer.from(
+      [
+        '"Data e hora";"Sequencial Candidato";"UF";"Sigla Partido";"Número candidato";"Cargo";"Nome candidato";"CPF do candidato";"Entrega em conjunto?";"Número Recibo Eleitoral";"Número do documento";"CPF/CNPJ do doador";"Nome do doador";"Data da receita";"Valor receita";"Tipo receita";"Fonte recurso";"Espécie recurso";"Descrição da receita"      ',
+        '"13/11/201701:00:07";"10000000008";"AC";"PMDB";"15120";"Deputado Estadual";"FRANCISCO DAS CHAGAS ROMAO";"00969060220";"Nao";"15000209721";"01";"00969060220";"FRANCISCO DAS CHAGAS ROMAO";"19/07/2010";"30000";"Recursos próprios";"Nao especificado";"Transferência eletrônica";""',
+        '"13/11/201701:00:07";"10000000008";"AC";"PMDB";"15120";"Deputado Estadual";"FRANCISCO DAS CHAGAS ROMAO";"00969060220";"Nao";"1";"2";"11111111000111";"DIRETORIO ESTADUAL";"10/09/2010";"657,72";"RECURSOS DE PARTIDO POLÍTICO";"Nao especificado";"Transferência eletrônica";""',
+      ].join("\n"),
+      "latin1",
+    );
+    const r = receitasPorCandidato(lerCsvTse(csv), new Set(["10000000008"])).get("10000000008")!;
+    expect(r).toEqual([
+      { origem: "Recursos próprios", doador: "", total: 30000, doacoes: 1, doadores: 1 },
+      { origem: "Recursos de partido político", doador: "DIRETORIO ESTADUAL", total: 657.72, doacoes: 1, doadores: 1 },
+    ]);
+  });
+
+  it("receitas de 2014: empresas e comitês aparecem pelo nome (Receita Federal); pessoas físicas não", () => {
+    const linha = (tipo: string, nome: string, rfb: string, cpf: string, valor: string) =>
+      ({
+        "Sequencial Candidato": "10000000120",
+        "Tipo receita": tipo,
+        "Nome do doador": nome,
+        "Nome do doador (Receita Federal)": rfb,
+        "CPF/CNPJ do doador": cpf,
+        "Valor receita": valor,
+      }) as Record<string, string>;
+    const r = receitasPorCandidato(
+      [
+        linha(
+          "Recursos de outros candidatos/comitês",
+          "Direção Estadual/Distrital",
+          "COMITE FINANCEIRO AC",
+          "2",
+          "5010",
+        ),
+        linha("Recursos de pessoas jurídicas", "CONSTRUTORA X", "CONSTRUTORA X LTDA", "3", "1000"),
+        linha("Recursos de pessoas físicas", "FULANO", "FULANO DE TAL", "4", "50"),
+      ],
+      new Set(["10000000120"]),
+    ).get("10000000120")!;
+    expect(r.map((x) => [x.origem, x.doador, x.total])).toEqual([
+      ["Recursos de outros candidatos/comitês", "COMITE FINANCEIRO AC", 5010],
+      ["Recursos de pessoas jurídicas", "CONSTRUTORA X LTDA", 1000],
+      ["Recursos de pessoas físicas", "", 50],
+    ]);
+  });
+
+  it("arquivo de receitas de cada eleição", () => {
+    expect(arquivoReceitas(2010).doEstado("candidato/SP/ReceitasCandidatos.txt", "SP")).toBe(true);
+    expect(arquivoReceitas(2014).url).toMatch(/prestacao_final_2014\.zip$/);
+    expect(arquivoReceitas(2014).doEstado("receitas_candidatos_2014_SP.txt", "SP")).toBe(true);
+    expect(arquivoReceitas(2022).doEstado("receitas_candidatos_2022_SP.csv", "SP")).toBe(true);
+    expect(arquivoReceitas(2022).doEstado("receitas_candidatos_2022_RJ.csv", "SP")).toBe(false);
   });
 });

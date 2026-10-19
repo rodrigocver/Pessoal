@@ -12,8 +12,14 @@ const TSE = "https://cdn.tse.jus.br/estatistica/sead/odsele";
 /** Cargos das eleições gerais que levam ao Congresso. */
 export const CARGOS_CONGRESSO = new Set(["DEPUTADO FEDERAL", "SENADOR", "1º SUPLENTE", "2º SUPLENTE"]);
 
-/** Origens de doadores institucionais, que aparecem pelo nome. Pessoas físicas ficam agregadas. */
-const ORIGENS_INSTITUCIONAIS = new Set(["Recursos de partido político", "Recursos de outros candidatos"]);
+/** Origens de doadores institucionais, que aparecem pelo nome. Pessoas físicas ficam agregadas. Empresas podiam
+ *  doar até 2014 (pessoas jurídicas, não cidadãos); comitês financeiros existiam até 2014. */
+const ORIGENS_INSTITUCIONAIS = new Set([
+  "Recursos de partido político",
+  "Recursos de outros candidatos",
+  "Recursos de outros candidatos/comitês",
+  "Recursos de pessoas jurídicas",
+]);
 
 type Linha = Record<string, string>;
 
@@ -21,10 +27,35 @@ type Linha = Record<string, string>;
 export const lerCsvTse = (buf: Buffer | Uint8Array): Linha[] =>
   parse(Buffer.from(buf).toString("latin1"), {
     delimiter: ";",
-    columns: true,
+    // Arquivos de 2010 trazem espaços sobrando no fim do cabeçalho.
+    columns: (cab: string[]) => cab.map((c) => c.trim()),
     relax_quotes: true,
+    relax_column_count: true,
     skip_empty_lines: true,
   });
+
+/** Até 2010 o TSE gravava "1º SUPLENTE SENADOR" e "MÉDIA" (eleito por média); converte para os nomes atuais. */
+export function normalizarCandidato(l: Linha): Linha {
+  const cargo = l.DS_CARGO?.replace(/^(\d)º SUPLENTE SENADOR$/, "$1º SUPLENTE");
+  const sit = l.DS_SIT_TOT_TURNO === "MÉDIA" ? "ELEITO POR MÉDIA" : l.DS_SIT_TOT_TURNO;
+  return cargo === l.DS_CARGO && sit === l.DS_SIT_TOT_TURNO ? l : { ...l, DS_CARGO: cargo, DS_SIT_TOT_TURNO: sit };
+}
+
+/** "RECURSOS DE PARTIDO POLÍTICO" (2010) -> "Recursos de partido político". */
+const frase = (s: string) => (s === s.toUpperCase() ? s.charAt(0) + s.slice(1).toLowerCase() : s);
+
+/** Receitas de 2014 e 2010 têm cabeçalhos por extenso ("Sequencial Candidato"); converte para os nomes atuais. */
+export function normalizarReceita(l: Linha): Linha {
+  if (l.SQ_CANDIDATO) return l;
+  return {
+    SQ_CANDIDATO: l["Sequencial Candidato"],
+    DS_ORIGEM_RECEITA: frase(l["Tipo receita"] ?? ""),
+    NM_DOADOR: l["Nome do doador"],
+    NM_DOADOR_RFB: l["Nome do doador (Receita Federal)"] ?? "",
+    NR_CPF_CNPJ_DOADOR: l["CPF/CNPJ do doador"],
+    VR_RECEITA: l["Valor receita"],
+  };
+}
 
 /** "20000,00" -> 20000. Campos nulos do TSE ("#NULO", "-1") viram 0. */
 export const valorTse = (v: string | undefined) => {
@@ -66,7 +97,7 @@ export function casarCandidaturas(
   deputados: { id: number; cpf: string }[],
   senadores: { id: number; nomeCompleto: string; uf: string }[],
 ): Candidatura[] {
-  const doCongresso = candidatos.filter((c) => CARGOS_CONGRESSO.has(c.DS_CARGO));
+  const doCongresso = candidatos.map(normalizarCandidato).filter((c) => CARGOS_CONGRESSO.has(c.DS_CARGO));
   const porCpf = new Map(deputados.filter((d) => d.cpf).map((d) => [d.cpf, d.id]));
   const porNome = new Map<string, Linha[]>();
   for (const c of doCongresso) {
@@ -121,7 +152,7 @@ export function bensPorCandidato(linhas: Linha[], sqs: Set<string>) {
     if (!sqs.has(l.SQ_CANDIDATO)) continue;
     const lista = r.get(l.SQ_CANDIDATO) ?? [];
     lista.push({
-      ordem: Number(l.NR_ORDEM_BEM_CANDIDATO) || lista.length + 1,
+      ordem: Number(l.NR_ORDEM_BEM_CANDIDATO ?? l.NR_ORDEM_CANDIDATO) || lista.length + 1, // 2010: NR_ORDEM_CANDIDATO
       tipo: l.DS_TIPO_BEM_CANDIDATO || "Outros",
       valor: valorTse(l.VR_BEM_CANDIDATO),
     });
@@ -136,7 +167,8 @@ export function receitasPorCandidato(linhas: Linha[], sqs: Set<string>) {
     string,
     Map<string, { origem: string; doador: string; total: number; doacoes: number; ids: Set<string> }>
   >();
-  for (const l of linhas) {
+  for (const bruta of linhas) {
+    const l = normalizarReceita(bruta);
     if (!sqs.has(l.SQ_CANDIDATO)) continue;
     const origem =
       !l.DS_ORIGEM_RECEITA || l.DS_ORIGEM_RECEITA === "#NULO" ? "Origem não informada" : l.DS_ORIGEM_RECEITA;
@@ -162,11 +194,27 @@ export function receitasPorCandidato(linhas: Linha[], sqs: Set<string>) {
   );
 }
 
-/** Eleições gerais de 2018 em diante (os senadores eleitos em 2018 cumprem mandato até 2027). */
+/** Eleições gerais de 2010 em diante (evolução do patrimônio de quem tem carreira longa). */
 export function eleicoesComDados(hoje = new Date()): number[] {
   const r: number[] = [];
-  for (let ano = 2018; ano <= hoje.getFullYear(); ano += 4) r.push(ano);
+  for (let ano = 2010; ano <= hoje.getFullYear(); ano += 4) r.push(ano);
   return r;
+}
+
+/** Onde estão as receitas de cada eleição: o arquivo e o nome do formato mudaram ao longo dos anos. */
+export function arquivoReceitas(ano: number): { url: string; doEstado: (nome: string, uf: string) => boolean } {
+  const base = `${TSE}/prestacao_contas`;
+  if (ano === 2010)
+    return {
+      url: `${base}/prestacao_contas_2010.zip`,
+      doEstado: (n, uf) => n === `candidato/${uf}/ReceitasCandidatos.txt`,
+    };
+  if (ano === 2014)
+    return { url: `${base}/prestacao_final_2014.zip`, doEstado: (n, uf) => n === `receitas_candidatos_2014_${uf}.txt` };
+  return {
+    url: `${base}/prestacao_de_contas_eleitorais_candidatos_${ano}.zip`,
+    doEstado: (n, uf) => n === `receitas_candidatos_${ano}_${uf}.csv`,
+  };
 }
 
 async function lerZipInteiro(url: string, prefixo: string): Promise<Linha[]> {
@@ -214,12 +262,16 @@ export async function ingerirTse(): Promise<number> {
     );
 
     // Receitas: só os arquivos dos estados que interessam, lidos de dentro do zip remoto.
-    const urlContas = `${TSE}/prestacao_contas/prestacao_de_contas_eleitorais_candidatos_${ano}.zip`;
-    const entradas = await listarZip(urlContas);
+    const contas = arquivoReceitas(ano);
+    const entradas = await listarZip(contas.url);
     const ufs = new Set(candidaturas.map((c) => c.uf));
     const linhasReceita: Linha[] = [];
-    for (const e of entradas.filter((e) => [...ufs].some((uf) => e.nome === `receitas_candidatos_${ano}_${uf}.csv`)))
-      linhasReceita.push(...lerCsvTse(await lerEntradaZip(urlContas, e)).filter((l) => sqs.has(l.SQ_CANDIDATO)));
+    for (const e of entradas.filter((e) => [...ufs].some((uf) => contas.doEstado(e.nome, uf))))
+      linhasReceita.push(
+        ...lerCsvTse(await lerEntradaZip(contas.url, e))
+          .map(normalizarReceita)
+          .filter((l) => sqs.has(l.SQ_CANDIDATO)),
+      );
     const receitas = receitasPorCandidato(linhasReceita, sqs);
 
     await db.transaction(async (tx) => {

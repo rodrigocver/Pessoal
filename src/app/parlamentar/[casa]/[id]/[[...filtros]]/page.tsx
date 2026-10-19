@@ -570,7 +570,7 @@ async function AbaEleicoes({ p }: { p: Parlamentar }) {
   if (candidaturas.length === 0)
     return (
       <Secao titulo="Eleições">
-        <p className="text-sm text-suave">Nenhuma candidatura encontrada nos dados do TSE desde 2018.</p>
+        <p className="text-sm text-suave">Nenhuma candidatura ao Congresso encontrada nos dados do TSE desde 2010.</p>
       </Secao>
     );
   const comPatrimonio = [...candidaturas].reverse().filter((c) => c.patrimonio > 0);
@@ -589,7 +589,7 @@ async function AbaEleicoes({ p }: { p: Parlamentar }) {
         </Secao>
       )}
       {candidaturas.map((c) => {
-        const suplementar = c.eleicao && !/Eleições Gerais/i.test(c.eleicao);
+        const suplementar = c.eleicao && /suplementar/i.test(c.eleicao);
         return (
           <Secao
             key={`${c.ano}-${c.cargo}`}
@@ -644,7 +644,9 @@ async function AbaEleicoes({ p }: { p: Parlamentar }) {
             </div>
             {c.doadoresInstitucionais.length > 0 && (
               <details className="text-sm">
-                <summary className="cursor-pointer text-suave">Partidos e candidatos que doaram</summary>
+                <summary className="cursor-pointer text-suave">
+                  Partidos, candidatos, comitês e empresas que doaram
+                </summary>
                 <ul className="mt-2 flex flex-col gap-1">
                   {c.doadoresInstitucionais.map((d) => (
                     <li key={`${d.doador}-${d.origem}`} className="flex justify-between gap-3">
@@ -660,9 +662,10 @@ async function AbaEleicoes({ p }: { p: Parlamentar }) {
       })}
       <ComoCalculamos>
         <p>
-          Dados abertos do Tribunal Superior Eleitoral (TSE): candidaturas, bens declarados e prestação de contas, das
-          eleições de 2018 em diante. Deputados são identificados pelo CPF publicado pela Câmara; senadores, pelo nome
-          completo e estado. O CPF serve só para essa ligação e não é guardado.
+          Dados abertos do Tribunal Superior Eleitoral (TSE): candidaturas ao Congresso, bens declarados e prestação de
+          contas, das eleições de 2010 em diante. Até 2014, empresas podiam doar a campanhas. Deputados são
+          identificados pelo CPF publicado pela Câmara; senadores, pelo nome completo e estado. O CPF serve só para essa
+          ligação e não é guardado.
         </p>
         <p>
           Por privacidade, mostramos o tipo e o valor dos bens, sem a descrição (que pode trazer endereços), e o total

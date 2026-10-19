@@ -85,11 +85,20 @@ Base: `https://cdn.tse.jus.br/estatistica/sead/odsele`. Arquivos zip com CSV em 
 |---|---|---|
 | Candidaturas | `consulta_cand/consulta_cand_{ano}.zip` | Um registro por candidatura; pode haver registro anulado (`#NULO#`) e refeito da mesma pessoa |
 | Bens declarados | `bem_candidato/bem_candidato_{ano}.zip` | `DS_BEM_CANDIDATO` pode trazer endereço; não é guardado |
-| Receitas | `prestacao_contas/prestacao_de_contas_eleitorais_candidatos_{ano}.zip` | ~1 GB; lemos só `receitas_candidatos_{ano}_{UF}.csv` por requisições de intervalo (`src/ingest/zipRemoto.ts`) |
+| Receitas (2018+) | `prestacao_contas/prestacao_de_contas_eleitorais_candidatos_{ano}.zip` | ~1 GB; lemos só `receitas_candidatos_{ano}_{UF}.csv` por requisições de intervalo (`src/ingest/zipRemoto.ts`) |
+| Receitas (2014) | `prestacao_contas/prestacao_final_2014.zip` | `receitas_candidatos_2014_{UF}.txt`; cabeçalho por extenso ("Sequencial Candidato", "Valor receita", "Tipo receita") |
+| Receitas (2010) | `prestacao_contas/prestacao_contas_2010.zip` | `candidato/{UF}/ReceitasCandidatos.txt`; mesmo cabeçalho por extenso, com espaços sobrando no fim |
 
 Armadilhas:
 - O CPF aparece mascarado ("-4") em registros anulados; ignorado na verificação de homônimos.
 - O arquivo de 2018 traz a **eleição suplementar de senador de MT em 2020** (`DS_ELEICAO`, `DT_ELEICAO`).
 - O mesmo político pode ter registro anulado como 1º suplente e válido como senador no mesmo ano.
 - Tipos de bem às vezes em maiúsculas ("OUTROS BENS E DIREITOS"), às vezes não.
-- Cobertura em 19/10/2026: 513 de 513 deputados e 81 de 81 senadores com ao menos uma candidatura.
+- Até 2010: cargos "1º SUPLENTE SENADOR"/"2º SUPLENTE SENADOR", situação "MÉDIA" (eleito por média) e "#NULO" (sem
+  o # final); nos bens, `NR_ORDEM_CANDIDATO` em vez de `NR_ORDEM_BEM_CANDIDATO`. Tipos de receita em maiúsculas.
+- Até 2014 havia doação de empresas ("Recursos de pessoas jurídicas") e comitês financeiros ("Recursos de outros
+  candidatos/comitês").
+- Os arquivos de 2010 e 2014 repetem cada candidato em mais de uma linha; a escolha do registro preferido resolve.
+- Valores de receita sem centavos aparecem como inteiro ("30000"); com centavos, com vírgula ("657,72").
+- Cobertura em 19/10/2026: 513 de 513 deputados e 81 de 81 senadores com ao menos uma candidatura; 251 dos 594
+  parlamentares em exercício com candidatura ao Congresso em 2010 ou 2014 (187 candidaturas em 2010, 248 em 2014).

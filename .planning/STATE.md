@@ -3,7 +3,8 @@
 - **Fase atual:** 7 (contas e publicação) e 8 (abrir o repositório) — código pronto; faltam passos do dono no GitHub e nos provedores
 - **Concluídas:** 1 (Fundação), 2 (Ingestão Câmara), 3 (Site), 4 (Ingestão Senado), 5 (Métricas comparativas), 6 (Resumo mensal)
 - **Última atualização:** 19/10/2026
-- **Backlog:** #01–#24, #29 e #21 concluídas. Abertas para a comunidade: #25–#28, #31 (ajuda bem-vinda) e #30 (discussão). Boas primeiras issues: todas feitas; criar novas quando surgirem.
+- **Backlog:** todas as tarefas concluídas, exceto #30 (nomes de doadores pessoas físicas), que é uma decisão do dono do projeto.
+- **Escala:** páginas públicas estáticas na CDN, busca no navegador, resumo mensal em lote (docs/ESCALA.md).
 
 ## Decisões
 - Web responsivo/PWA; login com Google + link mágico; dados v1 = presença, votações, proposições, gastos; **resumo mensal** por e-mail.

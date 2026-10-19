@@ -129,7 +129,7 @@ de competência. Não inclui salário, verba de gabinete nem auxílio-moradia pa
 
 ## Eleições (TSE)
 
-Candidaturas a deputado federal, senador e suplente de senador nas eleições gerais de 2018 em diante (inclusive
+Candidaturas a deputado federal, senador e suplente de senador nas eleições gerais de 2010 em diante (inclusive
 eleições suplementares que constam no arquivo do ano), com dados abertos do Tribunal Superior Eleitoral.
 
 - **Quem é quem:** deputados pelo CPF publicado pela Câmara (`GET /deputados/{id}`); senadores pelo nome completo e
@@ -141,8 +141,8 @@ eleições suplementares que constam no arquivo do ano), com dados abertos do Tr
 - **Patrimônio declarado:** soma dos bens declarados pelo candidato no registro da candidatura. Mostramos tipo e
   valor; a descrição não aparece, porque pode trazer endereços. Valores nominais, sem correção pela inflação.
 - **Receitas de campanha:** soma das receitas da prestação de contas do candidato, por origem. Doações de pessoas
-  físicas aparecem só como total e número de doadores distintos, sem nomes; partidos e outros candidatos aparecem
-  pelo nome.
+  físicas aparecem só como total e número de doadores distintos, sem nomes; partidos, outros candidatos, comitês
+  financeiros (até 2014) e empresas (pessoas jurídicas, que podiam doar até 2014) aparecem pelo nome.
 
 ## Baixar os dados
 
