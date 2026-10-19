@@ -70,7 +70,8 @@ Presente = teve em alguma votação da sessão um destes códigos: `Sim`, `Não`
 deliberativa (não sessões) e separa **ausências justificadas** das não justificadas. As justificativas não são
 publicadas nos dados abertos, e o portal parece considerar sessões que não aparecem neles. Por isso os números
 não coincidem (ex.: Tabata Amaral em 2025 — portal: 117 dias presente e 4 ausências justificadas; Fiscaliza:
-115 de 127 sessões). Há uma issue para alinhar.
+115 de 127 sessões). **Decisão do projeto:** manter a contagem por sessão, com a diferença explicada. Ela usa só
+o que é publicado nos dados abertos, pode ser conferida por qualquer pessoa e vale igual para as duas casas.
 
 ## Comissões
 
