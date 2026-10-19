@@ -1,6 +1,6 @@
 # Estado do projeto
 
-- **Fase atual:** 7 — Contas e publicação (preparada; falta criar as contas)
+- **Fase atual:** 7 (contas e publicação) e 8 (abrir o repositório) — código pronto; faltam passos do dono no GitHub e nos provedores
 - **Concluídas:** 1 (Fundação), 2 (Ingestão Câmara), 3 (Site), 4 (Ingestão Senado), 5 (Métricas comparativas), 6 (Resumo mensal)
 - **Última atualização:** 19/10/2026
 
@@ -17,6 +17,8 @@
 - Alinhamento: partido na data do voto; orientação do partido > federação; blocos ignorados (nomes abreviados e cortados pela fonte). Tabela `estatistica` é recalculada pela tarefa `estatisticas` (última da ingestão, ~1 min).
 
 ## Pendências / riscos
+- **Prazo:** legislatura fixa em 57; a 58ª toma posse em 01/02/2027 (backlog #01, prioridade alta).
+- Fontes e armadilhas documentadas em `docs/FONTES.md`; métricas em `docs/METRICAS.md`.
 - Presença no Senado: resolvida via comparecimento às votações nominais (cobre só sessões com votação nominal, ~36/ano).
 - API de despesas da Câmara deu timeout — usar arquivos CSV anuais.
 - Serviço antigo de votações do Senado foi desativado (02/2026) — usar `/votacao`.

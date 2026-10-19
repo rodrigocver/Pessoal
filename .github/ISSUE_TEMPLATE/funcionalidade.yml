@@ -1,0 +1,29 @@
+name: Sugestão de funcionalidade
+description: Uma ideia para o Fiscaliza (nova métrica, nova tela, nova fonte de dados).
+title: "[ideia] "
+labels: ["funcionalidade", "discussão"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Lembre dos [princípios do projeto](../blob/main/CONTRIBUTING.md#princípios-do-projeto):
+        só dados públicos oficiais, neutralidade e métricas explicadas.
+  - type: textarea
+    id: problema
+    attributes:
+      label: Que pergunta do eleitor isso responde?
+      placeholder: "Quero saber se meu deputado participa das comissões de que é membro."
+    validations:
+      required: true
+  - type: textarea
+    id: proposta
+    attributes:
+      label: Proposta
+      description: Como você imagina a solução.
+    validations:
+      required: true
+  - type: textarea
+    id: fonte
+    attributes:
+      label: Fonte de dados
+      description: De onde viriam os dados? Link para a API ou arquivo oficial, se souber.

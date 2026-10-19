@@ -1,0 +1,109 @@
+# Como contribuir
+
+Obrigado por ajudar! O Fiscaliza existe para que qualquer eleitor acompanhe, com dados oficiais,
+o que fazem os parlamentares que elegeu. Toda contribuição conta: código, correção de dados,
+texto, design, testes ou um relato de número que não bate com a fonte.
+
+## Princípios do projeto
+
+Valem para qualquer mudança. Pull requests que os contrariem não serão aceitos.
+
+1. **Só dados públicos oficiais.** Toda informação vem da Câmara, do Senado ou de outro órgão público,
+   e o site mostra a fonte e a data de atualização.
+2. **Neutralidade.** Mostramos fatos e métricas, nunca adjetivos, rankings de "melhores/piores" ou
+   juízo de valor. O mesmo cálculo vale para todos os parlamentares, de qualquer partido.
+3. **Toda métrica explica como é calculada.** Número novo na tela vem com o bloco "Como calculamos"
+   e com a definição em [docs/METRICAS.md](docs/METRICAS.md).
+4. **O site não consulta APIs do governo em tempo real.** Os dados são copiados para o nosso banco
+   pelas tarefas de ingestão; as páginas leem só do banco.
+5. **Privacidade (LGPD).** Do usuário guardamos só o e-mail e a lista que ele acompanha. Nada de
+   rastreamento de terceiros.
+
+## Por onde começar
+
+- Veja as issues com o rótulo **`boa primeira issue`**: são tarefas pequenas e bem delimitadas.
+- A lista completa de tarefas planejadas, com escopo e critério de pronto, está em
+  [.planning/BACKLOG.md](.planning/BACKLOG.md).
+- Achou um número diferente do portal oficial? Abra uma issue **"Dado divergente"**. É uma das
+  contribuições mais úteis.
+- Para mudanças grandes (nova fonte de dados, nova métrica, mudança de banco), abra uma issue para
+  discutir **antes** de escrever o código.
+
+## Ambiente local
+
+Pré-requisitos: Node 22+ e Docker (ou um Postgres 16 instalado). Nenhuma conta externa é necessária.
+
+```bash
+git clone <seu-fork>
+cd <pasta>
+npm install
+docker compose up -d            # Postgres local
+cp .env.example .env            # e gere AUTH_SECRET: npx auth secret
+npm run db:migrate
+npm run ingest                  # dados do ano corrente (~3 min)
+npm run dev                     # http://localhost:3000
+```
+
+- Para a legislatura inteira: `npm run ingest -- --desde 2023` (~10 min).
+- **Login local:** o link de acesso aparece no terminal do `npm run dev`.
+- **E-mails locais:** `npm run resumo-mensal` grava os e-mails em `.emails/` em vez de enviar.
+- A Câmara regenera os arquivos em lote de madrugada; se a ingestão falhar com JSON inválido
+  nesse horário, rode de novo mais tarde.
+
+## Fluxo de trabalho
+
+1. Faça um fork e crie uma branch a partir de `main`: `git checkout -b corrige-presenca-suplentes`.
+2. Faça a mudança com testes (veja abaixo).
+3. Rode as verificações (o CI roda as mesmas):
+   ```bash
+   npm run format && npm run lint && npm run typecheck && npm test && npm run build
+   ```
+4. Abra o pull request preenchendo o modelo. Se mexeu na tela, inclua um print no celular.
+5. Um mantenedor revisa. Pedidos de ajuste são normais; responda nos comentários.
+
+### Mensagens de commit
+
+Seguimos [Conventional Commits](https://www.conventionalcommits.org/pt-br/), em português:
+
+```
+feat: filtro por tema na aba de votações
+fix: presença de suplentes considera período de exercício
+docs: explica cálculo do alinhamento no Senado
+```
+
+Tipos usados: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `perf`.
+
+## Convenções de código
+
+- **Nomes em português** (variáveis, funções, tabelas), como no restante do código. Termos técnicos
+  consagrados podem ficar em inglês (`schema`, `handler`).
+- **TypeScript estrito**, formatação pelo Prettier (`npm run format`, 120 colunas).
+- **Ingestão:** separe a conversão dos dados (funções puras, ex.: `mapDespesas`) da gravação no
+  banco, e teste as funções puras com exemplos reais da fonte. Ingestões precisam poder rodar
+  várias vezes sem duplicar dados.
+- **Banco:** mude `src/db/schema.ts` e gere a migração com `npm run db:generate`. Nunca edite
+  migrações já publicadas.
+- **Consultas e métricas:** ficam em `src/lib/consultas.ts`. Se a métrica também aparece nas médias,
+  atualize `src/ingest/estatisticas.ts` com a mesma definição.
+- **Interface:** mobile first, cores pelos tokens de `globals.css` (funciona no tema escuro),
+  sem bibliotecas de gráficos pesadas.
+
+## Testes
+
+- `npm test` roda os testes unitários (Vitest), em `tests/`.
+- Toda função de conversão de dados novos precisa de teste com um exemplo real da fonte.
+- Correção de bug: inclua um teste que falhava antes da correção.
+
+## Estrutura e arquitetura
+
+Visão geral em [docs/ARQUITETURA.md](docs/ARQUITETURA.md). Fontes de dados e suas peculiaridades
+em [docs/FONTES.md](docs/FONTES.md). Definição de cada métrica em [docs/METRICAS.md](docs/METRICAS.md).
+
+## Conduta
+
+Este projeto segue o [Código de Conduta](CODE_OF_CONDUCT.md). Discussões sobre política partidária
+ficam fora das issues e pull requests: aqui discutimos dados, código e método.
+
+## Licença
+
+Ao contribuir, você concorda que sua contribuição será licenciada sob a [licença MIT](LICENSE).

@@ -13,7 +13,8 @@
     "db:migrate": "drizzle-kit migrate",
     "ingest": "tsx scripts/ingest.ts",
     "format": "prettier --write src scripts tests",
-    "resumo-mensal": "tsx scripts/resumo-mensal.ts"
+    "resumo-mensal": "tsx scripts/resumo-mensal.ts",
+    "db:up": "docker compose up -d"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",
@@ -42,5 +43,7 @@
     "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^5.0.5"
-  }
+  },
+  "license": "MIT",
+  "description": "Acompanhe presença, votações, projetos e gastos de deputados federais e senadores com dados públicos oficiais."
 }

@@ -1,0 +1,38 @@
+name: Dado divergente
+description: Um número no Fiscaliza não bate com o portal oficial da Câmara ou do Senado.
+title: "[dado] "
+labels: ["dado divergente"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado! Este é um dos relatos mais úteis. Antes, confira em **Como calculamos** se a diferença
+        não vem da definição da métrica (ex.: sessões solenes não contam como presença).
+  - type: input
+    id: pagina
+    attributes:
+      label: Página do Fiscaliza
+      description: Link da página com o número divergente (inclua o período e a aba).
+      placeholder: https://.../parlamentar/camara/204534?aba=gastos&periodo=2025
+    validations:
+      required: true
+  - type: textarea
+    id: divergencia
+    attributes:
+      label: O que está diferente
+      description: Qual número o Fiscaliza mostra e qual a fonte oficial mostra.
+      placeholder: "Fiscaliza: presença 91% (115 de 127). Portal da Câmara: 118 presenças."
+    validations:
+      required: true
+  - type: input
+    id: fonte
+    attributes:
+      label: Link da fonte oficial
+      description: Página ou arquivo oficial onde você viu o número correto.
+    validations:
+      required: true
+  - type: textarea
+    id: mais
+    attributes:
+      label: Mais detalhes
+      description: Prints, datas específicas, sessões ou votações envolvidas.

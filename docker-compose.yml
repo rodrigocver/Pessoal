@@ -1,0 +1,14 @@
+# Postgres local para desenvolvimento: docker compose up -d
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: fiscaliza
+      POSTGRES_PASSWORD: fiscaliza
+      POSTGRES_DB: fiscaliza
+    ports:
+      - "5432:5432"
+    volumes:
+      - dados:/var/lib/postgresql/data
+volumes:
+  dados:

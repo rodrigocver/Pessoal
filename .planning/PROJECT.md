@@ -36,7 +36,7 @@ votando e gastando de forma coerente — e recebe isso todo mês sem precisar pr
 - **Postgres + Drizzle ORM** — qualquer Postgres serve (local no desenvolvimento; Supabase ou Neon em produção).
 - **Auth.js** — login com Google e link mágico por e-mail; não prende o projeto a um provedor.
 - **Ingestão**: jobs agendados (GitHub Actions cron) que baixam os dados das fontes oficiais e gravam no Postgres.
-  O site **nunca** consulta as APIs do governo em tempo real (são lentas e instáveis — ver research).
+  O site **nunca** consulta as APIs do governo em tempo real (são lentas e instáveis — ver `docs/FONTES.md`).
 - **Resend** (ou similar) para o e-mail mensal.
 - **Hospedagem**: Vercel (site) + Supabase/Neon (banco). Planos gratuitos bastam para o MVP. Contas criadas na Fase 7.
 
@@ -46,6 +46,15 @@ votando e gastando de forma coerente — e recebe isso todo mês sem precisar pr
 - Neutralidade: apresentar fatos e métricas, sem juízo de valor ou ranking "bom/ruim" editorial.
 - LGPD: guardar apenas e-mail e a lista de parlamentares seguidos; permitir excluir a conta.
 - Custo de infraestrutura próximo de zero no MVP.
+
+## Projeto aberto
+
+- **Licença MIT.** Qualquer pessoa pode usar, modificar e contribuir.
+- **Idioma:** português em código, documentação, issues e revisões.
+- **Governança:** mantenedores em `MAINTAINERS.md` revisam e aprovam pull requests; decisões grandes
+  (nova fonte, nova métrica, mudança de stack) são discutidas em issue antes do código.
+- **Entrada de contribuidores:** `CONTRIBUTING.md` (princípios, ambiente local, fluxo),
+  `docs/` (arquitetura, fontes, métricas) e `.planning/BACKLOG.md` (tarefas prontas).
 
 ## Fora de escopo (v1)
 
