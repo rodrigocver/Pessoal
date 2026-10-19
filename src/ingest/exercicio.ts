@@ -17,6 +17,7 @@ import {
 export interface Periodo {
   inicio: Date;
   fim: Date | null;
+  comoSuplente: boolean; // exerceu o mandato no lugar de um titular afastado
 }
 
 // ---------- Câmara: GET /deputados/{id}/historico ----------
@@ -26,6 +27,7 @@ export interface EventoHistoricoApi {
   dataHora: string;
   situacao: string | null;
   descricaoStatus: string | null;
+  condicaoEleitoral?: string | null; // "Titular" ou "Suplente"
 }
 
 /**
@@ -42,7 +44,8 @@ export function periodosExercicioCamara(eventos: EventoHistoricoApi[]): Periodo[
   for (const e of ordenados) {
     const quando = new Date(`${e.dataHora}-03:00`);
     if (/(^|\/\s*)Entrada\b/.test(e.descricaoStatus!) && !aberto) {
-      aberto = { inicio: quando, fim: null };
+      const comoSuplente = e.condicaoEleitoral === "Suplente" || /Posse de Suplente/.test(e.descricaoStatus!);
+      aberto = { inicio: quando, fim: null, comoSuplente };
       periodos.push(aberto);
     } else if (/^Saída\b/.test(e.descricaoStatus!) && aberto) {
       aberto.fim = quando;
@@ -59,6 +62,7 @@ interface ExercicioApi {
   DataFim?: string;
 }
 export interface MandatoApi {
+  DescricaoParticipacao?: string; // "Titular", "1º Suplente", "2º Suplente"
   Exercicios?: { Exercicio?: ExercicioApi | ExercicioApi[] };
 }
 
@@ -66,15 +70,41 @@ export interface MandatoApi {
 export function periodosExercicioSenado(mandatos: MandatoApi[]): Periodo[] {
   const corte = inicioLegislatura(PRIMEIRA_LEGISLATURA);
   return mandatos
-    .flatMap((m) => comoLista(m.Exercicios?.Exercicio))
+    .flatMap((m) =>
+      comoLista(m.Exercicios?.Exercicio).map((e) => ({
+        ...e,
+        comoSuplente: /Suplente/.test(m.DescricaoParticipacao ?? ""),
+      })),
+    )
     .filter((e) => e.DataInicio)
     .map((e) => ({
+      comoSuplente: e.comoSuplente,
       inicio: new Date(`${e.DataInicio}T00:00:00-03:00`),
       // DataFim é o último dia em exercício: o período vai até o fim desse dia.
       fim: e.DataFim ? new Date(new Date(`${e.DataFim}T00:00:00-03:00`).getTime() + 24 * 3600 * 1000) : null,
     }))
     .filter((p) => p.fim == null || p.fim > corte)
     .sort((a, b) => a.inicio.getTime() - b.inicio.getTime());
+}
+
+/**
+ * Vagas que o senador ocupou como suplente, pelo campo "Titular" do próprio mandato de suplente.
+ * Cobre o que os afastamentos do titular não cobrem: suplentes efetivados antes de 2023 (titular
+ * falecido ou que renunciou) e titulares cujo histórico não foi carregado.
+ */
+export function vagasDoSuplenteSenado(
+  mandatos: (MandatoApi & { Titular?: { CodigoParlamentar: string; NomeParlamentar: string } })[],
+) {
+  return mandatos
+    .filter((m) => /Suplente/.test(m.DescricaoParticipacao ?? "") && m.Titular)
+    .flatMap((m) =>
+      periodosExercicioSenado([m]).map((p) => ({
+        titularRef: m.Titular!.CodigoParlamentar,
+        titularNome: m.Titular!.NomeParlamentar,
+        inicio: p.inicio,
+        fim: p.fim,
+      })),
+    );
 }
 
 // ---------- Gravação ----------
@@ -94,7 +124,15 @@ async function salvar(parlamentarId: number, periodos: Periodo[], fonteUrl: stri
     if (periodos.length)
       await tx
         .insert(schema.exercicio)
-        .values(periodos.map((p) => ({ parlamentarId, inicio: p.inicio, fim: p.fim, fonteUrl })))
+        .values(
+          periodos.map((p) => ({
+            parlamentarId,
+            inicio: p.inicio,
+            fim: p.fim,
+            comoSuplente: p.comoSuplente,
+            fonteUrl,
+          })),
+        )
         .onConflictDoNothing();
   });
 }
@@ -137,6 +175,7 @@ export async function ingerirExercicioCamara(): Promise<number> {
 
 export async function ingerirExercicioSenado(): Promise<number> {
   const senadores = await parlamentaresDaCasa("SF");
+  const nomes = new Map(senadores.map((x) => [x.ext, x.nome]));
   const mandatosPorSenador = new Map<string, MandatoApi[]>();
   let total = 0;
   await paraCada(senadores, 4, async ({ id, ext }) => {
@@ -160,7 +199,26 @@ export async function ingerirExercicioSenado(): Promise<number> {
       substituicoes: substituicoesSenado(a, exerciciosPorSuplente),
     })),
   );
-  await salvarAfastamentos("SF", afastamentos, (ext) => `${SENADO_API}/senador/${ext}/mandatos.json`);
+  // Complemento: exercícios de suplente ainda sem vaga identificada usam o "Titular" do mandato do suplente.
+  const cobertos = new Set(
+    afastamentos.flatMap((a) => a.substituicoes.map((s) => `${s.suplenteRef}@${s.inicio.getTime()}`)),
+  );
+  const complementares = [...mandatosPorSenador].flatMap(([ext, m]) =>
+    vagasDoSuplenteSenado(m)
+      .filter((v) => !cobertos.has(`${ext}@${v.inicio.getTime()}`))
+      .map((v) => ({
+        titularRef: v.titularRef,
+        afastamentoInicio: v.inicio,
+        substituicao: {
+          suplenteRef: ext,
+          suplenteNome: nomes.get(ext) ?? ext,
+          inicio: v.inicio,
+          fim: v.fim,
+          certeza: "oficial" as const,
+        },
+      })),
+  );
+  await salvarAfastamentos("SF", afastamentos, (ext) => `${SENADO_API}/senador/${ext}/mandatos.json`, complementares);
   return total;
 }
 
@@ -169,6 +227,8 @@ async function salvarAfastamentos(
   casa: "CD" | "SF",
   lista: (Afastamento & { titularRef: string; substituicoes: Substituicao[] })[],
   fonte: (ext: string) => string,
+  // Substituições sem afastamento correspondente (ver vagasDoSuplenteSenado).
+  complementares: { titularRef: string; afastamentoInicio: Date; substituicao: Substituicao }[] = [],
 ) {
   const ids = new Map((await parlamentaresDaCasa(casa)).map((p) => [p.ext, p.id]));
   await db.transaction(async (tx) => {
@@ -204,7 +264,23 @@ async function salvarAfastamentos(
         certeza: s.certeza,
       }));
     });
-    for (const lote of lotes(subs, 1000)) await tx.insert(schema.substituicao).values(lote);
+    const extras = complementares.flatMap((c) => {
+      const titularId = ids.get(c.titularRef);
+      return titularId
+        ? [
+            {
+              titularId,
+              afastamentoInicio: c.afastamentoInicio,
+              suplenteId: ids.get(c.substituicao.suplenteRef) ?? null,
+              suplenteNome: c.substituicao.suplenteNome,
+              inicio: c.substituicao.inicio,
+              fim: c.substituicao.fim,
+              certeza: c.substituicao.certeza,
+            },
+          ]
+        : [];
+    });
+    for (const lote of lotes([...subs, ...extras], 1000)) await tx.insert(schema.substituicao).values(lote);
   });
 }
 

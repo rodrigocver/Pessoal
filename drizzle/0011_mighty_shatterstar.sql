@@ -1,0 +1,1 @@
+ALTER TABLE "exercicio" ADD COLUMN "como_suplente" boolean DEFAULT false NOT NULL;

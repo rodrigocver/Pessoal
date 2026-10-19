@@ -48,7 +48,13 @@ export async function criarCenario() {
 
   await db.insert(schema.exercicio).values([
     { parlamentarId: ana.id, inicio: t("2023-02-01T12:00:00"), fim: null, fonteUrl },
-    { parlamentarId: beto.id, inicio: t("2025-03-01T00:00:00"), fim: t("2025-06-01T00:00:00"), fonteUrl },
+    {
+      parlamentarId: beto.id,
+      inicio: t("2025-03-01T00:00:00"),
+      fim: t("2025-06-01T00:00:00"),
+      comoSuplente: true,
+      fonteUrl,
+    },
   ]);
 
   const sessoes = await db
@@ -148,14 +154,14 @@ export async function criarCenario() {
     },
   ]);
 
-  // Davi: titular afastado (ministro) desde 01/06/2025; a vaga ficou com Beto.
+  // Davi: titular afastado (ministro) desde 28/02/2025; a vaga ficou com Beto, que votou em v1 como suplente.
   const [davi] = await db
     .insert(schema.parlamentar)
     .values({ casa: "CD", idExterno: "4", nome: "Davi Rocha", partido: "PL", uf: "RJ", emExercicio: false, fonteUrl })
     .returning();
   await db.insert(schema.afastamento).values({
     parlamentarId: davi.id,
-    inicio: t("2025-06-01T10:00:00"),
+    inicio: t("2025-02-28T10:00:00"),
     fim: null,
     motivo: "Ministro de Estado",
     definitivo: false,
@@ -163,10 +169,10 @@ export async function criarCenario() {
   });
   await db.insert(schema.substituicao).values({
     titularId: davi.id,
-    afastamentoInicio: t("2025-06-01T10:00:00"),
+    afastamentoInicio: t("2025-02-28T10:00:00"),
     suplenteId: beto.id,
     suplenteNome: "Beto Lima",
-    inicio: t("2025-06-02T10:00:00"),
+    inicio: t("2025-03-01T00:00:00"),
     fim: null,
     certeza: "datas",
   });

@@ -319,11 +319,45 @@ export async function obterVotacao(casa: Casa, idExterno: string) {
   return v ?? null;
 }
 
+interface VagaNaVotacao {
+  nome: string;
+  casa: Casa;
+  idExterno: string;
+  certeza: "oficial" | "datas" | "possivel";
+}
+
+/**
+ * Situação de quem votou como suplente: de quem era a vaga (certa), candidatos possíveis, ou só que era
+ * suplente (vaga não identificada). Nulo se votou como titular.
+ */
+export function suplenteNaVotacao(comoSuplente: boolean, vagas: VagaNaVotacao[] | null) {
+  const todas = vagas ?? [];
+  const certas = todas.filter((v) => v.certeza !== "possivel");
+  if (!comoSuplente && todas.length === 0) return null;
+  const titulares = (certas.length ? certas : todas).map(({ nome, casa, idExterno }) => ({ nome, casa, idExterno }));
+  return { titulares, certo: certas.length > 0 };
+}
+
 export async function detalhesVotacao(votacaoId: number) {
   const [votos, orientacoes] = await Promise.all([
     db.execute(sql`
-      select p.id, p.casa, p.id_externo, p.nome, p.uf, coalesce(vo.partido, p.partido) as partido, vo.voto
-      from voto vo join parlamentar p on p.id = vo.parlamentar_id
+      select p.id, p.casa, p.id_externo, p.nome, p.uf, coalesce(vo.partido, p.partido) as partido, vo.voto,
+        -- Na data da votação, exercia o mandato como suplente?
+        exists (
+          select 1 from exercicio e
+          where e.parlamentar_id = p.id and e.como_suplente
+            and v.data >= e.inicio and v.data < coalesce(e.fim, 'infinity')
+        ) as como_suplente,
+        -- De quem era a vaga (pode haver candidatos "possíveis" na Câmara).
+        (
+          select json_agg(json_build_object(
+            'nome', t.nome, 'casa', t.casa, 'idExterno', t.id_externo, 'certeza', s.certeza) order by t.nome)
+          from substituicao s join parlamentar t on t.id = s.titular_id
+          where s.suplente_id = p.id and v.data >= s.inicio and v.data < coalesce(s.fim, 'infinity')
+        ) as vagas
+      from voto vo
+      join parlamentar p on p.id = vo.parlamentar_id
+      join votacao v on v.id = vo.votacao_id
       where vo.votacao_id = ${votacaoId}
       order by p.nome`),
     db.execute(sql`select bancada, orientacao from orientacao where votacao_id = ${votacaoId} order by bancada`),
@@ -336,6 +370,7 @@ export async function detalhesVotacao(votacaoId: number) {
     uf: x.uf as string | null,
     partido: (x.partido as string | null) ?? "sem partido",
     voto: String(x.voto),
+    suplente: suplenteNaVotacao(x.como_suplente as boolean, x.vagas as VagaNaVotacao[] | null),
   }));
 
   const placar = new Map<string, number>();
@@ -472,7 +507,7 @@ export async function afastamentosDe(p: Parlamentar): Promise<AfastamentoDetalha
 export interface VagaOcupada {
   inicio: Date;
   fim: Date | null;
-  motivo: string;
+  motivo: string | null; // nulo: vaga assumida antes da primeira legislatura com dados
   certeza: "oficial" | "datas" | "possivel";
   titular: { nome: string; casa: Casa; idExterno: string; partido: string | null; uf: string | null };
 }
@@ -482,14 +517,15 @@ export async function vagasOcupadas(p: Parlamentar): Promise<VagaOcupada[]> {
   const linhas = await db.execute(sql`
     select s.inicio, s.fim, s.certeza, a.motivo, t.nome, t.casa, t.id_externo, t.partido, t.uf
     from substituicao s
-    join afastamento a on a.parlamentar_id = s.titular_id and a.inicio = s.afastamento_inicio
+    -- Pode não haver afastamento: suplentes efetivados antes da primeira legislatura com dados.
+    left join afastamento a on a.parlamentar_id = s.titular_id and a.inicio = s.afastamento_inicio
     join parlamentar t on t.id = s.titular_id
     where s.suplente_id = ${p.id} and s.certeza <> 'possivel'
     order by s.inicio desc`);
   return linhas.map((l) => ({
     inicio: new Date(String(l.inicio)),
     fim: l.fim ? new Date(String(l.fim)) : null,
-    motivo: String(l.motivo),
+    motivo: (l.motivo as string | null) ?? null,
     certeza: l.certeza as VagaOcupada["certeza"],
     titular: {
       nome: String(l.nome),

@@ -49,6 +49,7 @@ export const exercicio = pgTable(
       .references(() => parlamentar.id, { onDelete: "cascade" }),
     inicio: timestamp("inicio", { withTimezone: true }).notNull(),
     fim: timestamp("fim", { withTimezone: true }),
+    comoSuplente: boolean("como_suplente").notNull().default(false),
     ...origem,
   },
   (t) => [primaryKey({ columns: [t.parlamentarId, t.inicio] })],

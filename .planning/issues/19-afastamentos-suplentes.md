@@ -12,7 +12,8 @@ Pedido do dono do projeto: o eleitor precisa saber quando a pessoa em quem votou
 - Aviso em destaque no perfil, selo nos cartões e na busca, histórico com retornos curtos, perfil do suplente com a
   vaga que ocupa, frases no resumo mensal.
 - Titulares afastados passaram a aparecer na busca padrão.
+- Página de votação: selo "suplente" em cada voto, "na vaga de [titular]", contagem no resultado e seção
+  "Votaram como suplentes".
 
 ## Melhorias possíveis (boas issues novas)
 - Resolver os casos "possíveis" da Câmara com a ordem oficial de suplência do TSE (resultado da eleição).
-- Na página de votação, marcar quem votou como suplente e de quem é a vaga.

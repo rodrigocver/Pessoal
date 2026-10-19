@@ -41,6 +41,10 @@ e no resumo mensal.
     ou federação, com posse até 15 dias depois da saída do titular (45 para saídas definitivas) e saída até 2 dias
     da volta dele. Uma posse preenche uma vaga só. Se sobrar mais de um candidato, vale o suplente já identificado
     em outro afastamento do mesmo titular; se nem assim, todos aparecem como **possíveis**.
+- **Votou como suplente** (página de votação): na data da votação, o parlamentar estava num período de exercício
+  como suplente (Câmara: condição "Suplente" no histórico; Senado: mandato de 1º/2º suplente). A vaga vem das
+  substituições acima; no Senado, se o afastamento do titular for anterior a 2023 (suplente efetivado após
+  falecimento ou renúncia), usamos o campo "Titular" do mandato do suplente.
 - Implementação: `src/ingest/afastamentos.ts` (regras, testadas com casos reais em `tests/fixtures/`),
   tabelas `afastamento` e `substituicao`, preenchidas pelas tarefas `camara:exercicio` e `senado:exercicio`.
 

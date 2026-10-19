@@ -93,7 +93,7 @@ export function AvisoMandato({ afastamentos, vagas }: { afastamentos: Afastament
             {vagaAtual.titular.nome}
           </Link>
         </p>
-        <p className="mt-1 text-suave">Motivo do afastamento do titular: {vagaAtual.motivo}.</p>
+        {vagaAtual.motivo && <p className="mt-1 text-suave">Motivo do afastamento do titular: {vagaAtual.motivo}.</p>}
       </div>
     );
   const anteriores = afastamentos.filter((a) => a.fim != null);
@@ -168,7 +168,7 @@ export function HistoricoAfastamentos({
                 <Link href={urlParlamentar(v.titular)} className="underline">
                   {v.titular.nome}
                 </Link>{" "}
-                <span className="text-suave">({v.motivo})</span>
+                {v.motivo && <span className="text-suave">({v.motivo})</span>}
               </li>
             ))}
           </ul>

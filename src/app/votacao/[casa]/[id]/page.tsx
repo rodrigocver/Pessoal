@@ -28,6 +28,7 @@ export default async function PaginaVotacao({ params }: Props) {
   const [d, sessao] = await Promise.all([detalhesVotacao(v.id), auth()]);
   const seguidos = await idsSeguidos(sessao?.user?.id);
   const meus = d.lista.filter((x) => seguidos.has(x.id));
+  const suplentes = d.lista.filter((x) => x.suplente);
   const governo = d.orientacoes.find((o) => o.bancada === "Governo");
   const porVoto = d.placar.map((p) => ({ ...p, nomes: d.lista.filter((x) => x.voto === p.voto) }));
 
@@ -51,10 +52,37 @@ export default async function PaginaVotacao({ params }: Props) {
           ))}
         </div>
         {v.descricao && <p className="text-sm">{v.descricao}</p>}
+        {suplentes.length > 0 && (
+          <p className="text-sm">
+            <a href="#suplentes" className="underline">
+              {suplentes.length} {suplentes.length === 1 ? "voto foi" : "votos foram"} de suplentes
+            </a>{" "}
+            no lugar de titulares afastados.
+          </p>
+        )}
         <a href={v.fonteUrl} className="text-xs text-suave underline">
           Fonte oficial
         </a>
       </Secao>
+
+      {suplentes.length > 0 && (
+        <section id="suplentes" className="scroll-mt-20">
+          <Secao titulo={`Votaram como suplentes (${suplentes.length})`}>
+            <p className="text-sm text-suave">
+              Na data desta votação, estes parlamentares exerciam o mandato como suplentes, no lugar de um titular
+              afastado.
+            </p>
+            <ListaVotos itens={suplentes} />
+            <ComoCalculamos>
+              <p>
+                Suplente é quem, na data da votação, exercia o mandato no lugar de um titular afastado, segundo o
+                histórico oficial da casa. No Senado, a fonte informa de quem era a vaga. Na Câmara, identificamos pelo
+                estado, partido ou federação e datas; quando há mais de um candidato, mostramos todos.
+              </p>
+            </ComoCalculamos>
+          </Secao>
+        </section>
+      )}
 
       {meus.length > 0 && (
         <Secao titulo="Seus parlamentares">
@@ -118,23 +146,48 @@ export default async function PaginaVotacao({ params }: Props) {
   );
 }
 
-function ListaVotos({
-  itens,
-  semVoto = false,
-}: {
-  itens: Awaited<ReturnType<typeof detalhesVotacao>>["lista"];
-  semVoto?: boolean;
-}) {
+type ItemVoto = Awaited<ReturnType<typeof detalhesVotacao>>["lista"][number];
+
+/** Selo "suplente" e, quando se sabe, de quem era a vaga. */
+function SeloSuplente({ x }: { x: ItemVoto }) {
+  if (!x.suplente) return null;
+  const { titulares, certo } = x.suplente;
+  return (
+    <span className="block text-xs text-suave">
+      <span className="mr-1 rounded bg-alerta/15 px-1.5 py-0.5 font-medium text-texto">suplente</span>
+      {titulares.length === 0 ? (
+        "vaga não identificada"
+      ) : (
+        <>
+          {certo ? "na vaga de " : titulares.length === 1 ? "provavelmente na vaga de " : "na vaga de um destes: "}
+          {titulares.map((t, i) => (
+            <span key={t.idExterno}>
+              {i > 0 && ", "}
+              <Link href={urlParlamentar(t)} className="underline">
+                {t.nome}
+              </Link>
+            </span>
+          ))}
+        </>
+      )}
+    </span>
+  );
+}
+
+function ListaVotos({ itens, semVoto = false }: { itens: ItemVoto[]; semVoto?: boolean }) {
   return (
     <ul className="grid gap-x-4 gap-y-1 py-1 text-sm sm:grid-cols-2">
       {itens.map((x) => (
         <li key={x.id} className="flex justify-between gap-2">
-          <Link href={urlParlamentar(x)} className="truncate hover:underline">
-            {x.nome}{" "}
-            <span className="text-suave">
-              {x.partido}-{x.uf}
-            </span>
-          </Link>
+          <span className="min-w-0">
+            <Link href={urlParlamentar(x)} className="block truncate hover:underline">
+              {x.nome}{" "}
+              <span className="text-suave">
+                {x.partido}-{x.uf}
+              </span>
+            </Link>
+            <SeloSuplente x={x} />
+          </span>
           {!semVoto && <span className={`shrink-0 font-medium ${corVoto(x.voto)}`}>{x.voto}</span>}
         </li>
       ))}

@@ -167,3 +167,14 @@ describe("afastamentos e suplentes", () => {
     expect([...af.keys()]).toEqual([c.davi.id]);
   });
 });
+
+describe("suplentes na página de votação", () => {
+  it("marca quem votou como suplente e de quem era a vaga", async () => {
+    const v = await obterVotacao("CD", "v1");
+    const d = await detalhesVotacao(v!.id);
+    const beto = d.lista.find((x) => x.nome === "Beto Lima")!;
+    const ana = d.lista.find((x) => x.nome === "Ana Souza")!;
+    expect(beto.suplente).toEqual({ titulares: [{ nome: "Davi Rocha", casa: "CD", idExterno: "4" }], certo: true });
+    expect(ana.suplente).toBeNull();
+  });
+});
