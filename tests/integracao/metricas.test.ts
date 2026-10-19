@@ -6,10 +6,12 @@ import {
   detalhesVotacao,
   gastos,
   obterVotacao,
+  parlamentarPorChave,
   presenca,
   resumos,
   temasDasVotacoes,
   votos,
+  votosEmComum,
 } from "@/lib/consultas";
 import { calcularEstatisticas } from "@/ingest/estatisticas";
 import { resolverPeriodo } from "@/lib/periodo";
@@ -127,5 +129,21 @@ describe("página de votação", () => {
     ]);
     expect(d.orientacoes.find((o) => o.bancada === "Governo")?.orientacao).toBe("Sim");
     expect(await obterVotacao("CD", "inexistente")).toBeNull();
+  });
+});
+
+describe("comparação", () => {
+  it("votações em comum e onde divergiram", async () => {
+    const r = await votosEmComum(c.ana, c.beto, ano2025);
+    // Só v1 tem voto dos dois: Ana Sim, Beto Não.
+    expect({ total: r.total, iguais: r.iguais }).toEqual({ total: 1, iguais: 0 });
+    expect(r.diferentes.map((d) => [d.proposicao, d.votoA, d.votoB])).toEqual([["PL 1/2025", "Sim", "Não"]]);
+  });
+
+  it("lê a chave casa/id da URL", async () => {
+    expect((await parlamentarPorChave("camara/1"))?.nome).toBe("Ana Souza");
+    expect((await parlamentarPorChave("senado/3"))?.nome).toBe("Carla Dias");
+    expect(await parlamentarPorChave("outra/1")).toBeNull();
+    expect(await parlamentarPorChave(undefined)).toBeNull();
   });
 });

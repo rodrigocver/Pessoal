@@ -2,6 +2,7 @@ import { and, asc, eq, ilike, or, sql } from "drizzle-orm";
 import { db, schema } from "@/db/client";
 import type { Periodo } from "./periodo";
 import { sessaoConta } from "./exercicio";
+import { POSICOES } from "./votos";
 
 const { parlamentar } = schema;
 export type Parlamentar = typeof parlamentar.$inferSelect;
@@ -355,5 +356,45 @@ export async function detalhesVotacao(votacaoId: number) {
       }))
       .sort((a, b) => b.total - a.total || a.partido.localeCompare(b.partido)),
     orientacoes: orientacoes.map((o) => ({ bancada: String(o.bancada), orientacao: String(o.orientacao) })),
+  };
+}
+
+// ---------- Comparação entre dois parlamentares ----------
+
+/** Parlamentar a partir de "camara/204534" ou "senado/5672". */
+export async function parlamentarPorChave(chave: string | undefined) {
+  const [slug, id] = (chave ?? "").split("/");
+  if (!id || (slug !== "camara" && slug !== "senado")) return null;
+  return obterParlamentar(slug === "camara" ? "CD" : "SF", id);
+}
+
+/**
+ * Votações em que os dois votaram (Sim, Não, Abstenção ou Obstrução) no período: quantas iguais e
+ * a lista das diferentes, mais recentes primeiro. Só faz sentido para parlamentares da mesma casa.
+ */
+export async function votosEmComum(a: Parlamentar, b: Parlamentar, periodo: Periodo) {
+  const base = sql`
+    from voto va join voto vb on vb.votacao_id = va.votacao_id
+    join votacao v on v.id = va.votacao_id
+    where va.parlamentar_id = ${a.id} and vb.parlamentar_id = ${b.id}
+      and va.voto in ${POSICOES} and vb.voto in ${POSICOES}
+      and v.data >= ${periodo.inicio.toISOString()} and v.data < ${periodo.fim.toISOString()}`;
+  const [contagem, diferentes] = await Promise.all([
+    db.execute(sql`select count(*) as total, count(*) filter (where va.voto = vb.voto) as iguais ${base}`),
+    db.execute(sql`
+      select v.id_externo, v.data, v.proposicao, v.ementa, va.voto as voto_a, vb.voto as voto_b
+      ${base} and va.voto <> vb.voto order by v.data desc limit 50`),
+  ]);
+  return {
+    total: num(contagem[0]?.total),
+    iguais: num(contagem[0]?.iguais),
+    diferentes: diferentes.map((d) => ({
+      idExterno: String(d.id_externo),
+      data: new Date(String(d.data)),
+      proposicao: d.proposicao as string | null,
+      ementa: d.ementa as string | null,
+      votoA: String(d.voto_a),
+      votoB: String(d.voto_b),
+    })),
   };
 }

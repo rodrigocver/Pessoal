@@ -1,3 +1,6 @@
+/** Posições comparáveis entre votos e orientações (alinhamento, comparação). */
+export const POSICOES = ["Sim", "Não", "Abstenção", "Obstrução"];
+
 /** Votos em que o parlamentar de fato votou (exclui ausências e presença sem voto). */
 export const VOTOS_EFETIVOS = ["Sim", "Não", "Abstenção", "Obstrução", "Votou (secreto)"];
 

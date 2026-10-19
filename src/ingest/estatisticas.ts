@@ -1,12 +1,9 @@
 import { sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { periodosDisponiveis } from "@/lib/periodo";
-import { VOTOS_EFETIVOS } from "@/lib/votos";
+import { POSICOES, VOTOS_EFETIVOS } from "@/lib/votos";
 import { sessaoConta } from "@/lib/exercicio";
 import { BANCADA_GOVERNO, federacoesDasBancadas, prioridadeOrientacao } from "./alinhamento";
-
-/** Votos/orientações comparáveis no alinhamento ("Liberado" e ausências ficam de fora). */
-const POSICOES = ["Sim", "Não", "Abstenção", "Obstrução"];
 
 /**
  * Recalcula a tabela `estatistica` para todos os parlamentares e períodos.

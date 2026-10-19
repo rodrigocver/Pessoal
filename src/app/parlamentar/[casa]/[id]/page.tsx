@@ -78,7 +78,12 @@ export default async function Perfil({ params, searchParams }: Props) {
           <p className="text-sm text-suave">{CASAS[slug].cargo}</p>
           <Identificacao p={p} />
         </div>
-        <BotaoSeguir parlamentarId={p.id} seguindo={seguidos.has(p.id)} logado={!!sessao?.user} caminho={caminho} />
+        <div className="flex flex-col items-end gap-2">
+          <BotaoSeguir parlamentarId={p.id} seguindo={seguidos.has(p.id)} logado={!!sessao?.user} caminho={caminho} />
+          <Link href={`/comparar?a=${slug}/${p.idExterno}`} className="text-sm text-destaque">
+            Comparar com…
+          </Link>
+        </div>
       </div>
 
       <nav className="-mx-4 flex gap-1 overflow-x-auto px-4" aria-label="Seções">

@@ -1,9 +1,9 @@
 import { defineConfig } from "vitest/config";
-import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 // Testes que usam um Postgres real: npm run test:integracao (veja tests/integracao/preparar.ts).
 export default defineConfig({
-  resolve: { alias: { "@": path.resolve(__dirname, "src") } },
+  resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
   test: {
     include: ["tests/integracao/**/*.test.ts"],
     setupFiles: ["tests/integracao/preparar.ts"],
