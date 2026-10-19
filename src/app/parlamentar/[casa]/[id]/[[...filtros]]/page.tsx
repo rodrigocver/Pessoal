@@ -20,7 +20,8 @@ import {
   type Parlamentar,
 } from "@/lib/consultas";
 import { periodosDisponiveis, resolverPeriodo, type Periodo } from "@/lib/periodo";
-import { caminhoComparar, caminhoPerfil, lerFiltrosPerfil } from "@/lib/caminhos";
+import { caminhoComparar, caminhoCsv, caminhoPerfil, lerFiltrosPerfil } from "@/lib/caminhos";
+import { ABAS_CSV } from "@/lib/exportar";
 import {
   CASAS,
   urlPerfilOficial,
@@ -39,6 +40,7 @@ import { ComoCalculamos, Secao } from "@/components/ComoCalculamos";
 import { Comparacao, linhasComparacao } from "@/components/Comparacao";
 import { corVoto } from "@/lib/votos";
 import { AvisoMandato, HistoricoAfastamentos } from "@/components/Afastamentos";
+import { SeloSuplente } from "@/components/SeloSuplente";
 
 type Props = { params: Promise<{ casa: string; id: string; filtros?: string[] }> };
 
@@ -149,6 +151,13 @@ export default async function Perfil({ params }: Props) {
       {aba === "comissoes" && <AbaComissoes p={p} periodo={periodo} />}
       {aba === "gastos" && <AbaGastos p={p} periodo={periodo} />}
       {aba === "eleicoes" && <AbaEleicoes p={p} />}
+      {(ABAS_CSV as readonly string[]).includes(aba) && (
+        <p className="text-right text-sm">
+          <a href={caminhoCsv(p, aba, periodo.valor)} download className="text-suave underline">
+            Baixar os dados desta aba ({periodo.rotulo}) em CSV
+          </a>
+        </p>
+      )}
     </div>
   );
 }
@@ -350,6 +359,7 @@ async function AbaVotacoes({
                   {v.aprovada != null && <> · {v.aprovada ? "aprovada" : "rejeitada"}</>}
                 </div>
                 {v.ementa && <p className="mt-1 line-clamp-2">{v.ementa}</p>}
+                <SeloSuplente suplente={v.suplente} />
                 <Link
                   href={`/votacao/${slug}/${encodeURIComponent(v.idExterno)}`}
                   className="mt-1 inline-block text-xs text-destaque"
@@ -385,6 +395,10 @@ async function AbaVotacoes({
           <p>
             Só entram votações nominais do plenário, em que o voto de cada parlamentar fica registrado no painel. A
             maioria das votações é simbólica e não diz como cada um votou.
+          </p>
+          <p>
+            O selo &quot;suplente&quot; marca os votos dados quando o parlamentar exercia o mandato no lugar de um
+            titular afastado, com o nome do titular quando ele é conhecido (mesma regra da página de cada votação).
           </p>
           {p.casa === "CD" ? (
             <p>

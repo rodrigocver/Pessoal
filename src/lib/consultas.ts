@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, sql, type SQL } from "drizzle-orm";
 import { db, schema } from "@/db/client";
 import type { Periodo } from "./periodo";
 import { reuniaoConta, sessaoConta } from "./exercicio";
@@ -68,6 +68,17 @@ function sessoesSql(p: Parlamentar, periodo: Periodo) {
     )`;
 }
 
+/** Todas as sessões que contam na presença do período, com presente/ausente (download em CSV). Mesma base da métrica. */
+export async function sessoesDoPeriodo(p: Parlamentar, periodo: Periodo) {
+  const linhas = await db.execute(sql`${sessoesSql(p, periodo)}
+    select inicio, descricao, presente from sessoes order by inicio`);
+  return linhas.map((l) => ({
+    inicio: new Date(String(l.inicio)),
+    descricao: l.descricao as string | null,
+    presente: Boolean(l.presente),
+  }));
+}
+
 export async function presenca(p: Parlamentar, periodo: Periodo) {
   const base = sessoesSql(p, periodo);
   const [resumo, mensal, ausencias] = await Promise.all([
@@ -113,7 +124,9 @@ export async function votos(p: Parlamentar, periodo: Periodo, pagina = 1, porPag
   const filtro = sql`vo.parlamentar_id = ${p.id} and v.data >= ${periodo.inicio.toISOString()} and v.data < ${periodo.fim.toISOString()} ${comTema(tema)}`;
   const [lista, contagem] = await Promise.all([
     db.execute(sql`
-      select v.id, v.id_externo, v.data, v.descricao, v.proposicao, v.ementa, v.aprovada, v.fonte_url, vo.voto
+      select v.id, v.id_externo, v.data, v.descricao, v.proposicao, v.ementa, v.aprovada, v.fonte_url, vo.voto,
+        ${sqlComoSuplente(sql`vo.parlamentar_id`, sql`v.data`)} as como_suplente,
+        ${sqlVagas(sql`vo.parlamentar_id`, sql`v.data`)} as vagas
       from voto vo join votacao v on v.id = vo.votacao_id
       where ${filtro} order by v.data desc
       limit ${porPagina} offset ${(pagina - 1) * porPagina}`),
@@ -132,6 +145,7 @@ export async function votos(p: Parlamentar, periodo: Periodo, pagina = 1, porPag
       aprovada: v.aprovada as boolean | null,
       fonteUrl: v.fonte_url as string,
       voto: v.voto as string,
+      suplente: suplenteNaVotacao(v.como_suplente as boolean, v.vagas as VagaNaVotacao[] | null),
     })),
     porTipo: contagem.map((c) => ({ voto: String(c.voto), n: num(c.n) })),
     total: contagem.reduce((s, c) => s + num(c.n), 0),
@@ -151,13 +165,13 @@ export async function temasDasVotacoes(p: Parlamentar, periodo: Periodo) {
 
 // ---------- Proposições ----------
 
-export async function proposicoes(p: Parlamentar, periodo: Periodo) {
+export async function proposicoes(p: Parlamentar, periodo: Periodo, limite = 300) {
   const linhas = await db.execute(sql`
     select pr.sigla_tipo, pr.numero, pr.ano, pr.ementa, pr.apresentada_em, pr.situacao, pr.fonte_url
     from autoria a join proposicao pr on pr.id = a.proposicao_id
     where a.parlamentar_id = ${p.id}
       and pr.apresentada_em >= ${periodo.inicio.toISOString()}::date and pr.apresentada_em < ${periodo.fim.toISOString()}::date
-    order by pr.apresentada_em desc, pr.numero desc limit 300`);
+    order by pr.apresentada_em desc, pr.numero desc limit ${limite}`);
   const lista = linhas.map((l) => ({
     rotulo: `${l.sigla_tipo} ${l.numero}/${l.ano}`,
     siglaTipo: String(l.sigla_tipo),
@@ -174,11 +188,33 @@ export async function proposicoes(p: Parlamentar, periodo: Periodo) {
 
 // ---------- Gastos ----------
 
-export async function gastos(p: Parlamentar, periodo: Periodo) {
+/** Despesas pelo mês de competência do período (mesmo filtro da aba Gastos e das médias). */
+function filtroDespesas(p: Parlamentar, periodo: Periodo) {
   const ini = periodo.inicio.getFullYear() * 100 + periodo.inicio.getMonth() + 1;
   const fimData = new Date(periodo.fim.getTime() - 1);
   const fim = fimData.getFullYear() * 100 + fimData.getMonth() + 1;
-  const filtro = sql`parlamentar_id = ${p.id} and (ano * 100 + mes) between ${ini} and ${fim}`;
+  return sql`parlamentar_id = ${p.id} and (ano * 100 + mes) between ${ini} and ${fim}`;
+}
+
+/** Todos os lançamentos da cota no período (download em CSV). */
+export async function despesasDoPeriodo(p: Parlamentar, periodo: Periodo) {
+  const linhas = await db.execute(sql`
+    select data, ano, mes, categoria, fornecedor, cnpj_cpf, valor, documento_url, fonte_url from despesa
+    where ${filtroDespesas(p, periodo)} order by ano, mes, data nulls last, id`);
+  return linhas.map((l) => ({
+    data: l.data ? String(l.data) : null,
+    competencia: `${l.ano}-${String(l.mes).padStart(2, "0")}`,
+    categoria: String(l.categoria),
+    fornecedor: l.fornecedor as string | null,
+    cnpjCpf: l.cnpj_cpf as string | null,
+    valor: num(l.valor),
+    documentoUrl: l.documento_url as string | null,
+    fonteUrl: String(l.fonte_url),
+  }));
+}
+
+export async function gastos(p: Parlamentar, periodo: Periodo) {
+  const filtro = filtroDespesas(p, periodo);
   const [total, categorias, mensal, fornecedores] = await Promise.all([
     db.execute(sql`select coalesce(sum(valor), 0) as total, count(*) as n from despesa where ${filtro}`),
     db.execute(sql`select categoria, sum(valor) as total from despesa where ${filtro} group by 1 order by 2 desc`),
@@ -358,6 +394,21 @@ interface VagaNaVotacao {
  * Situação de quem votou como suplente: de quem era a vaga (certa), candidatos possíveis, ou só que era
  * suplente (vaga não identificada). Nulo se votou como titular.
  */
+/** Na data `data`, `pid` exercia o mandato como suplente? (Mesma regra no perfil e na página da votação.) */
+const sqlComoSuplente = (pid: SQL, data: SQL) => sql`exists (
+  select 1 from exercicio e
+  where e.parlamentar_id = ${pid} and e.como_suplente
+    and ${data} >= e.inicio and ${data} < coalesce(e.fim, 'infinity')
+)`;
+
+/** De quem era a vaga que `pid` ocupava na data (pode haver candidatos "possíveis" na Câmara). */
+const sqlVagas = (pid: SQL, data: SQL) => sql`(
+  select json_agg(json_build_object(
+    'nome', t.nome, 'casa', t.casa, 'idExterno', t.id_externo, 'certeza', s.certeza) order by t.nome)
+  from substituicao s join parlamentar t on t.id = s.titular_id
+  where s.suplente_id = ${pid} and ${data} >= s.inicio and ${data} < coalesce(s.fim, 'infinity')
+)`;
+
 export function suplenteNaVotacao(comoSuplente: boolean, vagas: VagaNaVotacao[] | null) {
   const todas = vagas ?? [];
   const certas = todas.filter((v) => v.certeza !== "possivel");
@@ -370,19 +421,8 @@ export async function detalhesVotacao(votacaoId: number) {
   const [votos, orientacoes] = await Promise.all([
     db.execute(sql`
       select p.id, p.casa, p.id_externo, p.nome, p.uf, coalesce(vo.partido, p.partido) as partido, vo.voto,
-        -- Na data da votação, exercia o mandato como suplente?
-        exists (
-          select 1 from exercicio e
-          where e.parlamentar_id = p.id and e.como_suplente
-            and v.data >= e.inicio and v.data < coalesce(e.fim, 'infinity')
-        ) as como_suplente,
-        -- De quem era a vaga (pode haver candidatos "possíveis" na Câmara).
-        (
-          select json_agg(json_build_object(
-            'nome', t.nome, 'casa', t.casa, 'idExterno', t.id_externo, 'certeza', s.certeza) order by t.nome)
-          from substituicao s join parlamentar t on t.id = s.titular_id
-          where s.suplente_id = p.id and v.data >= s.inicio and v.data < coalesce(s.fim, 'infinity')
-        ) as vagas
+        ${sqlComoSuplente(sql`p.id`, sql`v.data`)} as como_suplente,
+        ${sqlVagas(sql`p.id`, sql`v.data`)} as vagas
       from voto vo
       join parlamentar p on p.id = vo.parlamentar_id
       join votacao v on v.id = vo.votacao_id

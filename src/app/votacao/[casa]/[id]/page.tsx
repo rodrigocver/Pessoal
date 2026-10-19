@@ -6,6 +6,7 @@ import { CASAS, formatarData, urlParlamentar, type SlugCasa } from "@/lib/format
 import { corVoto } from "@/lib/votos";
 import { ComoCalculamos, Secao } from "@/components/ComoCalculamos";
 import { SeusNaVotacao } from "@/components/SeusNaVotacao";
+import { SeloSuplente } from "@/components/SeloSuplente";
 
 type Props = { params: Promise<{ casa: string; id: string }> };
 
@@ -155,32 +156,6 @@ export default async function PaginaVotacao({ params }: Props) {
 
 type ItemVoto = Awaited<ReturnType<typeof detalhesVotacao>>["lista"][number];
 
-/** Selo "suplente" e, quando se sabe, de quem era a vaga. */
-function SeloSuplente({ x }: { x: ItemVoto }) {
-  if (!x.suplente) return null;
-  const { titulares, certo } = x.suplente;
-  return (
-    <span className="block text-xs text-suave">
-      <span className="mr-1 rounded bg-alerta/15 px-1.5 py-0.5 font-medium text-texto">suplente</span>
-      {titulares.length === 0 ? (
-        "vaga não identificada"
-      ) : (
-        <>
-          {certo ? "na vaga de " : titulares.length === 1 ? "provavelmente na vaga de " : "na vaga de um destes: "}
-          {titulares.map((t, i) => (
-            <span key={t.idExterno}>
-              {i > 0 && ", "}
-              <Link href={urlParlamentar(t)} className="underline">
-                {t.nome}
-              </Link>
-            </span>
-          ))}
-        </>
-      )}
-    </span>
-  );
-}
-
 function ListaVotos({ itens, semVoto = false }: { itens: ItemVoto[]; semVoto?: boolean }) {
   return (
     <ul className="grid gap-x-4 gap-y-1 py-1 text-sm sm:grid-cols-2">
@@ -193,7 +168,7 @@ function ListaVotos({ itens, semVoto = false }: { itens: ItemVoto[]; semVoto?: b
                 {x.partido}-{x.uf}
               </span>
             </Link>
-            <SeloSuplente x={x} />
+            <SeloSuplente suplente={x.suplente} />
           </span>
           {!semVoto && <span className={`shrink-0 font-medium ${corVoto(x.voto)}`}>{x.voto}</span>}
         </li>

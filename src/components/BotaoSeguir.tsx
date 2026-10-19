@@ -9,7 +9,14 @@ export function BotaoSeguir({ parlamentarId }: { parlamentarId: number }) {
   const conta = useConta();
   const [enviando, iniciar] = useTransition();
   const base = "rounded-full px-3 py-1.5 text-sm font-medium transition-colors";
-  if (!conta?.logado)
+  // Enquanto descobre se há login (página vem igual para todos da CDN), o botão espera, sem levar a "Entrar".
+  if (!conta)
+    return (
+      <button type="button" disabled className={`${base} border border-destaque text-destaque opacity-60`}>
+        + Acompanhar
+      </button>
+    );
+  if (!conta.logado)
     return (
       <Link href="/entrar" className={`${base} border border-destaque text-destaque`}>
         + Acompanhar

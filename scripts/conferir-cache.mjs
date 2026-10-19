@@ -10,6 +10,7 @@ const ISR = [
   "/parlamentar/[casa]/[id]/opengraph-image",
   "/votacao/[casa]/[id]",
   "/comparar/[[...sel]]",
+  "/dados/[casa]/[id]/[arquivo]",
 ];
 const faltam = [...ESTATICAS.filter((r) => !m.routes[r]), ...ISR.filter((r) => !m.dynamicRoutes[r])];
 if (faltam.length) {

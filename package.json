@@ -17,7 +17,9 @@
     "db:up": "docker compose up -d",
     "test:integracao": "vitest run --config vitest.integracao.config.mts",
     "verificar": "npm run lint && npm run typecheck && npm test && npm run test:integracao",
-    "conferir:cache": "node scripts/conferir-cache.mjs"
+    "conferir:cache": "node scripts/conferir-cache.mjs",
+    "e2e:preparar": "tsx tests/e2e/preparar-banco.ts",
+    "test:e2e": "npm run e2e:preparar && DATABASE_URL=${DATABASE_URL_TESTE:-postgres://fiscaliza:fiscaliza@localhost:5432/fiscaliza_teste} npm run build && playwright test"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",
@@ -33,7 +35,9 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.10.2",
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "1.56.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^22.20.5",
     "@types/react": "^19",
@@ -42,6 +46,7 @@
     "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "15.5.28",
+    "playwright-core": "1.56.1",
     "prettier": "^3.9.10",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",

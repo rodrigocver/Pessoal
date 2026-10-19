@@ -1,6 +1,7 @@
 ---
 titulo: "Testes de ponta a ponta das páginas principais no CI"
 rotulos: ["infra", "ajuda bem-vinda"]
+status: feito
 ---
 ## Contexto
 Os testes cobrem funções e consultas, mas não as páginas. Já houve erro 500 que só apareceu abrindo a página no
@@ -16,3 +17,8 @@ navegador. O CI já sobe um Postgres para os testes de integração.
 ## Pronto quando
 - O CI roda os testes em menos de 3 minutos.
 - Uma página quebrada de propósito faz o CI falhar.
+
+## Feito
+- Playwright (tela de celular) + axe: 17 páginas, busca, redirecionamentos, 404, CSV e fluxo logado (sessão de
+  teste criada no banco). `npm run test:e2e`; no CI depois do build, com os rastros guardados em caso de falha.
+- 22 testes em ~20 s. Conferido que uma página quebrada de propósito faz o teste falhar.

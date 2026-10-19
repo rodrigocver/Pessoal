@@ -20,6 +20,7 @@ import {
   votosEmComum,
 } from "@/lib/consultas";
 import { calcularEstatisticas } from "@/ingest/estatisticas";
+import { csvDoPerfil } from "@/lib/exportar";
 import sitemap from "@/app/sitemap";
 import { resolverPeriodo } from "@/lib/periodo";
 import { filtrarParlamentares, type FiltrosBusca } from "@/lib/busca";
@@ -177,6 +178,14 @@ describe("afastamentos e suplentes", () => {
   });
 });
 
+describe("suplentes na aba Votações do perfil", () => {
+  it("marca os votos dados como suplente, com a mesma regra da página da votação", async () => {
+    const beto = (await votos(c.beto, ano2025)).lista.find((v) => v.idExterno === "v1")!;
+    expect(beto.suplente).toEqual({ titulares: [{ nome: "Davi Rocha", casa: "CD", idExterno: "4" }], certo: true });
+    expect((await votos(c.ana, ano2025)).lista.every((v) => v.suplente === null)).toBe(true);
+  });
+});
+
 describe("suplentes na página de votação", () => {
   it("marca quem votou como suplente e de quem era a vaga", async () => {
     const v = await obterVotacao("CD", "v1");
@@ -317,5 +326,30 @@ describe("sitemap", () => {
     expect(urls).toContain("/parlamentar/camara/1");
     expect(urls).toContain("/parlamentar/senado/3");
     expect(urls.filter((u) => u.startsWith("/parlamentar/"))).toHaveLength(4);
+  });
+});
+
+describe("CSV do perfil", () => {
+  const linhas = (csv: string) =>
+    csv
+      .replace(/^\uFEFF/, "")
+      .trim()
+      .split("\r\n");
+
+  it("mesmo recorte e mesmos números das abas", async () => {
+    const presencaCsv = linhas(await csvDoPerfil(c.ana, "presenca", ano2025));
+    const p = await presenca(c.ana, ano2025);
+    expect(presencaCsv[0]).toBe("data_hora;sessao;presente");
+    expect(presencaCsv.slice(1)).toHaveLength(p.total);
+    expect(presencaCsv.filter((l) => l.endsWith(";sim"))).toHaveLength(p.presentes);
+
+    const votosCsv = linhas(await csvDoPerfil(c.beto, "votacoes", ano2025));
+    expect(votosCsv.slice(1)).toHaveLength((await votos(c.beto, ano2025)).total);
+    // Beto votou a v1 como suplente de Davi Rocha.
+    expect(votosCsv.some((l) => l.includes(";sim;Davi Rocha;"))).toBe(true);
+
+    const gastosCsv = linhas(await csvDoPerfil(c.ana, "gastos", ano2025));
+    const soma = gastosCsv.slice(1).reduce((s, l) => s + Number(l.split(";")[5].replace(",", ".")), 0);
+    expect(soma).toBeCloseTo((await gastos(c.ana, ano2025)).total);
   });
 });

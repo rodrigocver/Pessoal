@@ -44,3 +44,7 @@ next-env.d.ts
 
 # Backup local do repositório (git bundle)
 *.bundle
+
+# Testes de ponta a ponta
+/test-results/
+/playwright-report/

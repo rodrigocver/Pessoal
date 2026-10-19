@@ -25,10 +25,10 @@ Depois de publicadas, o GitHub passa a ser a fonte da verdade: discussão e anda
 | 23 | ✅ [Link para o perfil oficial do parlamentar na Câmara ou no Senado](issues/23-link-perfil-oficial.md) | boa primeira issue, interface |
 | 24 | ✅ [sitemap.xml e robots.txt](issues/24-sitemap-robots.md) | boa primeira issue, infra |
 | 29 | ✅ [Comparação: patrimônio declarado e receitas de campanha da última eleição](issues/29-comparar-patrimonio.md) | boa primeira issue, interface |
-| 25 | [Aba Votações do perfil: marcar votos dados como suplente](issues/25-votos-como-suplente-no-perfil.md) | funcionalidade, interface, ajuda bem-vinda |
-| 26 | [Resumo mensal: incluir presença em comissões (Câmara) e relatorias (Senado)](issues/26-resumo-mensal-comissoes.md) | funcionalidade, métricas |
-| 27 | [Baixar os dados do perfil em CSV](issues/27-baixar-csv.md) | funcionalidade, interface, ajuda bem-vinda |
-| 28 | [Testes de ponta a ponta das páginas principais no CI](issues/28-testes-ponta-a-ponta.md) | infra, ajuda bem-vinda |
+| 25 | ✅ [Aba Votações do perfil: marcar votos dados como suplente](issues/25-votos-como-suplente-no-perfil.md) | funcionalidade, interface, ajuda bem-vinda |
+| 26 | ✅ [Resumo mensal: incluir presença em comissões (Câmara) e relatorias (Senado)](issues/26-resumo-mensal-comissoes.md) | funcionalidade, métricas |
+| 27 | ✅ [Baixar os dados do perfil em CSV](issues/27-baixar-csv.md) | funcionalidade, interface, ajuda bem-vinda |
+| 28 | ✅ [Testes de ponta a ponta das páginas principais no CI](issues/28-testes-ponta-a-ponta.md) | infra, ajuda bem-vinda |
 | 31 | [TSE: incluir eleições de 2014 e 2010](issues/31-tse-eleicoes-anteriores.md) | ingestão, ajuda bem-vinda, v2 |
 | 30 | [Mostrar nomes de doadores pessoas físicas?](issues/30-nomes-doadores.md) | discussão, segurança |
 

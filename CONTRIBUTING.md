@@ -105,6 +105,11 @@ Tipos usados: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `perf`.
   (`fiscaliza_teste`, criado pelo `docker compose up -d`). Eles **apagam os dados** desse banco; por segurança
   só rodam em bancos cujo nome termina em `_teste`. Mudou uma métrica? Ajuste o cenário em
   `tests/integracao/dados.ts` e os valores esperados.
+- `npm run test:e2e` abre o site no navegador (Playwright, tela de celular): prepara o mesmo banco de teste, faz o
+  build **com ele** e testa todas as páginas, com o axe em cada uma, a busca, os redirecionamentos, o CSV e o fluxo
+  de quem está logado. Como o build fica com os dados de teste, rode `npm run build` de novo antes de voltar a usar
+  `npm start` com o seu banco. No primeiro uso: `npx playwright install chromium`. Página nova? Inclua em
+  `tests/e2e/paginas.spec.ts`.
 - Toda função de conversão de dados novos precisa de teste com um exemplo real da fonte.
 - Correção de bug: inclua um teste que falhava antes da correção.
 

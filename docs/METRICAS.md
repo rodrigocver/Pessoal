@@ -43,7 +43,7 @@ e no resumo mensal.
     ou federação, com posse até 15 dias depois da saída do titular (45 para saídas definitivas) e saída até 2 dias
     da volta dele. Uma posse preenche uma vaga só. Se sobrar mais de um candidato, vale o suplente já identificado
     em outro afastamento do mesmo titular; se nem assim, todos aparecem como **possíveis**.
-- **Votou como suplente** (página de votação): na data da votação, o parlamentar estava num período de exercício
+- **Votou como suplente** (página de votação e aba Votações do perfil): na data da votação, o parlamentar estava num período de exercício
   como suplente (Câmara: condição "Suplente" no histórico; Senado: mandato de 1º/2º suplente). A vaga vem das
   substituições acima; no Senado, se o afastamento do titular for anterior a 2023 (suplente efetivado após
   falecimento ou renúncia), usamos o campo "Titular" do mandato do suplente.
@@ -85,6 +85,9 @@ o que é publicado nos dados abertos, pode ser conferida por qualquer pessoa e v
   de 2023, ativos no período. O Senado **não publica presença** em reuniões de comissão.
 - **Membros:** comissões de que foi membro no período, com cargo e datas (Câmara: `orgaosDeputados-L{n}`; Senado:
   `/senador/{codigo}/comissoes`). Grupos e frentes parlamentares aparecem à parte.
+- **No resumo mensal:** deputados, "esteve em X de Y reuniões deliberativas das comissões em que é titular" (soma
+  das comissões, mesma regra acima, no mês); senadores, número de relatorias designadas no mês. Sem reunião ou
+  relatoria no mês, a linha não aparece.
 - A Câmara não publica o histórico de relatorias nos dados abertos (o serviço de relatores responde "método não
   suportado").
 
@@ -140,6 +143,13 @@ eleições suplementares que constam no arquivo do ano), com dados abertos do Tr
 - **Receitas de campanha:** soma das receitas da prestação de contas do candidato, por origem. Doações de pessoas
   físicas aparecem só como total e número de doadores distintos, sem nomes; partidos e outros candidatos aparecem
   pelo nome.
+
+## Baixar os dados
+
+Cada aba de presença, votações, projetos e gastos tem um link para baixar o mesmo recorte em CSV
+(`/dados/camara/{id}/{aba}-{periodo}.csv`): as linhas que formam os números da tela, geradas pelas mesmas consultas.
+Formato para planilhas em português: separador `;`, vírgula decimal, datas `AAAA-MM-DD` (horário de Brasília) e
+UTF-8 com BOM. Cada linha traz o link da fonte oficial.
 
 ## Médias da casa e do partido
 

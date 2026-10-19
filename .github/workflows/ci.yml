@@ -34,10 +34,25 @@ jobs:
       - run: npm run test:integracao
         env:
           DATABASE_URL_TESTE: postgres://fiscaliza:fiscaliza@localhost:5432/fiscaliza_teste
+      # Cenário conhecido no banco de teste, antes do build: as páginas estáticas (início, índice da busca,
+      # sitemap) são geradas no build a partir dele, e os testes de ponta a ponta contam com esses dados.
+      - run: npm run e2e:preparar
+        env:
+          DATABASE_URL_TESTE: postgres://fiscaliza:fiscaliza@localhost:5432/fiscaliza_teste
       - run: npm run build
         env:
-          # O build gera as páginas estáticas (início, índice da busca, sitemap) lendo o banco; usa o de teste,
-          # já migrado pelo passo anterior.
           DATABASE_URL: postgres://fiscaliza:fiscaliza@localhost:5432/fiscaliza_teste
           AUTH_SECRET: ci
       - run: npm run conferir:cache
+      - run: npx playwright install --with-deps chromium
+      # Abre as páginas no navegador (celular), roda o axe em cada uma e testa busca, redirecionamentos, CSV e o
+      # fluxo de quem está logado.
+      - run: npx playwright test
+        env:
+          DATABASE_URL_TESTE: postgres://fiscaliza:fiscaliza@localhost:5432/fiscaliza_teste
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright
+          path: test-results/
+          retention-days: 7

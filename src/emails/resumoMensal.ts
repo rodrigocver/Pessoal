@@ -60,6 +60,7 @@ export function renderResumoMensal({
   <div style="color:#5f5f5a;font-size:14px">${esc(r.p.partido ?? "")}-${esc(r.p.uf ?? "")}</div>
   ${r.mandato.map((m) => `<p style="margin:12px 0 0;padding:8px 12px;background:#fdf3e4;border-radius:8px;font-size:14px"><b>${esc(m)}</b></p>`).join("")}
   <p style="margin:12px 0 4px">${linhaPresenca(r)}</p>
+  ${r.comissoes ? `<p style="margin:4px 0">${esc(r.comissoes)}</p>` : ""}
   <p style="margin:4px 0">Votações nominais: ${r.votos.total}</p>
   ${votos ? `<ul style="padding-left:18px;margin:8px 0">${votos}</ul>` : ""}
   <p style="margin:4px 0">Projetos apresentados: ${r.proposicoes.length}</p>
@@ -94,6 +95,7 @@ ${blocos.join("")}
       `${r.p.nome} (${r.p.partido}-${r.p.uf})`,
       ...r.mandato.map((m) => `  ! ${m}`),
       `  ${linhaPresenca(r)}`,
+      ...(r.comissoes ? [`  ${r.comissoes}`] : []),
       `  Votações nominais: ${r.votos.total}`,
       ...r.votos.destaques.map((v) => `    - ${v.voto}: ${v.proposicao}`),
       `  Projetos apresentados: ${r.proposicoes.length}`,

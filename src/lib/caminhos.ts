@@ -61,3 +61,13 @@ export function lerComparar(segs: string[] | undefined): { a?: string; b?: strin
     periodo: s[4],
   };
 }
+
+/** Arquivo CSV de uma aba do perfil: `/dados/camara/204534/votacoes-2025.csv`. */
+export const caminhoCsv = (p: { casa: "CD" | "SF"; idExterno: string }, aba: string, periodo: string) =>
+  `/dados/${slugDaCasa(p.casa)}/${p.idExterno}/${aba}-${periodo}.csv`;
+
+/** Inverso do nome do arquivo de `caminhoCsv`. */
+export function lerArquivoCsv(arquivo: string): { aba: string; periodo: string } | null {
+  const m = /^([a-z]+)-([a-z0-9]+)\.csv$/.exec(arquivo);
+  return m ? { aba: m[1], periodo: m[2] } : null;
+}
