@@ -1,0 +1,29 @@
+// Ambiente pronto para contribuir (GitHub Codespaces ou VS Code com Dev Containers): Node 22, Postgres com os
+// bancos de desenvolvimento e de teste, dependências instaladas e dados de exemplo carregados.
+// Depois de abrir: npm run dev (o site abre na aba "Portas"). Guia: docs/PRIMEIRA-CONTRIBUICAO.md
+{
+  "name": "Fiscaliza",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": { "label": "Site", "onAutoForward": "openBrowser" },
+    "5432": { "label": "Postgres", "onAutoForward": "silent" }
+  },
+  // .env só é criado se ainda não existir; exemplo só carrega num banco vazio.
+  "postCreateCommand": "cp -n .env.example .env; npm ci && npm run exemplo",
+  "hostRequirements": { "cpus": 2, "memory": "4gb" },
+  "customizations": {
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode", "bradlc.vscode-tailwindcss"],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+      }
+    },
+    "codespaces": {
+      "openFiles": ["docs/PRIMEIRA-CONTRIBUICAO.md"]
+    }
+  }
+}

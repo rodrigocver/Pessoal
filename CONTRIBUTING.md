@@ -31,18 +31,25 @@ Valem para qualquer mudança. Pull requests que os contrariem não serão aceito
 
 ## Ambiente local
 
-Pré-requisitos: Node 22+ e Docker (ou um Postgres 16 instalado). Nenhuma conta externa é necessária.
+**Mais fácil: no navegador.** Abra o projeto no [GitHub Codespaces](https://codespaces.new/rodrigocver/fiscaliza):
+o ambiente vem com banco, dependências e dados de exemplo; é só rodar `npm run dev`. Passo a passo em
+[docs/PRIMEIRA-CONTRIBUICAO.md](docs/PRIMEIRA-CONTRIBUICAO.md). A mesma configuração (`.devcontainer/`) funciona
+no VS Code com a extensão Dev Containers.
+
+**No seu computador:** Node 22+ e Docker (ou um Postgres 16 instalado). Nenhuma conta externa é necessária.
 
 ```bash
 git clone <seu-fork>
 cd <pasta>
 npm install
 docker compose up -d            # Postgres local
-cp .env.example .env            # e gere AUTH_SECRET: npx auth secret
-npm run db:migrate
-npm run ingest                  # dados do ano corrente (~3 min)
+cp .env.example .env            # no Windows (PowerShell): Copy-Item .env.example .env
+npm run exemplo                 # dados de exemplo em segundos (o mesmo cenário dos testes)
 npm run dev                     # http://localhost:3000
 ```
+
+- **Dados reais:** `npm run ingest` (ano corrente, ~3 min) ou `npm run ingest -- --desde 2023` (legislatura,
+  ~20 min). `npm run exemplo -- --forcar` volta aos dados de exemplo.
 
 - Para a legislatura inteira: `npm run ingest -- --desde 2023` (~10 min).
 - **Login local:** o link de acesso aparece no terminal do `npm run dev`.

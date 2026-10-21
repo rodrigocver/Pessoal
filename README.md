@@ -1,6 +1,6 @@
 # Fiscaliza
 
-[![CI](https://github.com/rodrigocver/Pessoal/actions/workflows/ci.yml/badge.svg)](https://github.com/rodrigocver/Pessoal/actions/workflows/ci.yml)
+[![CI](https://github.com/rodrigocver/fiscaliza/actions/workflows/ci.yml/badge.svg)](https://github.com/rodrigocver/fiscaliza/actions/workflows/ci.yml)
 [![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](LICENSE)
 [![Contribuições bem-vindas](https://img.shields.io/badge/contribui%C3%A7%C3%B5es-bem--vindas-brightgreen.svg)](CONTRIBUTING.md)
 
@@ -20,23 +20,30 @@ sempre com a fonte e a explicação de [como cada número é calculado](docs/MET
 
 Toda ajuda conta: código, design, textos, testes ou um número que não bate com a fonte oficial.
 
-1. Leia o [guia de contribuição](CONTRIBUTING.md) — princípios do projeto e como rodar localmente.
-2. Escolha uma tarefa no [backlog](.planning/BACKLOG.md) ou nas issues com o rótulo
-   **`boa primeira issue`**.
-3. Achou um dado diferente da fonte? Abra uma issue **"Dado divergente"**.
+[![Abrir no GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/rodrigocver/fiscaliza)
+
+1. Primeira vez? Siga o passo a passo **[Sua primeira contribuição](docs/PRIMEIRA-CONTRIBUICAO.md)**: ambiente
+   pronto no navegador (Codespaces), com dados de exemplo, sem instalar nada.
+2. Leia o [guia de contribuição](CONTRIBUTING.md) — princípios do projeto.
+3. Escolha uma tarefa nas issues com o rótulo **`boa primeira issue`**.
+4. Achou um dado diferente da fonte? Abra uma issue **"Dado divergente"**.
 
 ## Rodando localmente
 
-Node 22+ e Docker. Nenhuma conta externa é necessária.
+Sem instalar nada: abra no [Codespaces](https://codespaces.new/rodrigocver/fiscaliza) e rode `npm run dev`
+(ou use o VS Code com a extensão Dev Containers: a configuração está em `.devcontainer/`).
+
+No seu computador: Node 22+ e Docker. Nenhuma conta externa é necessária.
 
 ```bash
 npm install
 docker compose up -d            # Postgres local
-cp .env.example .env            # gere AUTH_SECRET com: npx auth secret
-npm run db:migrate
-npm run ingest                  # dados do ano corrente (~3 min); --desde 2023 para a legislatura
+cp .env.example .env            # no Windows (PowerShell): Copy-Item .env.example .env
+npm run exemplo                 # dados de exemplo em segundos (ou: npm run ingest, dados reais, ~3 min)
 npm run dev                     # http://localhost:3000
 ```
+
+Para o site no ar (sem instalar nada), veja [DEPLOY.md](DEPLOY.md).
 
 O link de login aparece no terminal do `npm run dev`, e o resumo mensal (`npm run resumo-mensal`)
 é gravado em `.emails/`. Atrás de um proxy HTTP, rode a ingestão com `NODE_USE_ENV_PROXY=1`.

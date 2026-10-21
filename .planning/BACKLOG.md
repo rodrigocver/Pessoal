@@ -23,17 +23,17 @@ Publicadas no GitHub em 19/10/2026; a discussão e o andamento ficam lá.
 
 | # | Tarefa | Rótulos |
 |---|---|---|
-| 32 | [GitHub #1](https://github.com/rodrigocver/Pessoal/issues/1) · [Botão para alternar entre tema claro e escuro](issues/32-tema-claro-escuro.md) | boa primeira issue, interface |
-| 33 | [GitHub #2](https://github.com/rodrigocver/Pessoal/issues/2) · [Feed RSS de cada parlamentar](issues/33-feed-rss.md) | boa primeira issue, funcionalidade |
-| 34 | [GitHub #3](https://github.com/rodrigocver/Pessoal/issues/3) · [Atualizações automáticas de dependências (Dependabot)](issues/34-dependabot.md) | boa primeira issue, infra |
-| 35 | [GitHub #4](https://github.com/rodrigocver/Pessoal/issues/4) · [Página de cada partido](issues/35-pagina-partido.md) | funcionalidade, interface, métricas, ajuda bem-vinda |
-| 36 | [GitHub #5](https://github.com/rodrigocver/Pessoal/issues/5) · [Página de cada proposição, com todas as votações nominais](issues/36-pagina-proposicao.md) | funcionalidade, interface, ajuda bem-vinda |
-| 37 | [GitHub #6](https://github.com/rodrigocver/Pessoal/issues/6) · [Histórico de trocas de partido no perfil](issues/37-trocas-de-partido.md) | funcionalidade, ingestão, ajuda bem-vinda |
-| 40 | [GitHub #9](https://github.com/rodrigocver/Pessoal/issues/9) · [Avisar quando a ingestão diária falhar](issues/40-alerta-falha-ingestao.md) | infra, ingestão, ajuda bem-vinda |
-| 41 | [GitHub #10](https://github.com/rodrigocver/Pessoal/issues/10) · [Orçamento de desempenho no CI (Lighthouse)](issues/41-orcamento-desempenho.md) | infra, interface, ajuda bem-vinda |
-| 42 | [GitHub #11](https://github.com/rodrigocver/Pessoal/issues/11) · [Linha do tempo do mandato no perfil](issues/42-linha-do-tempo-mandato.md) | funcionalidade, interface, ajuda bem-vinda |
-| 38 | [GitHub #7](https://github.com/rodrigocver/Pessoal/issues/7) · [Discursos em plenário (Câmara e Senado)](issues/38-discursos.md) | v2, funcionalidade, ingestão, ajuda bem-vinda |
-| 39 | [GitHub #8](https://github.com/rodrigocver/Pessoal/issues/8) · [Emendas parlamentares (Portal da Transparência)](issues/39-emendas-parlamentares.md) | v2, funcionalidade, ingestão, discussão |
+| 32 | [GitHub #1](https://github.com/rodrigocver/fiscaliza/issues/1) · [Botão para alternar entre tema claro e escuro](issues/32-tema-claro-escuro.md) | boa primeira issue, interface |
+| 33 | [GitHub #2](https://github.com/rodrigocver/fiscaliza/issues/2) · [Feed RSS de cada parlamentar](issues/33-feed-rss.md) | boa primeira issue, funcionalidade |
+| 34 | [GitHub #3](https://github.com/rodrigocver/fiscaliza/issues/3) · [Atualizações automáticas de dependências (Dependabot)](issues/34-dependabot.md) | boa primeira issue, infra |
+| 35 | [GitHub #4](https://github.com/rodrigocver/fiscaliza/issues/4) · [Página de cada partido](issues/35-pagina-partido.md) | funcionalidade, interface, métricas, ajuda bem-vinda |
+| 36 | [GitHub #5](https://github.com/rodrigocver/fiscaliza/issues/5) · [Página de cada proposição, com todas as votações nominais](issues/36-pagina-proposicao.md) | funcionalidade, interface, ajuda bem-vinda |
+| 37 | [GitHub #6](https://github.com/rodrigocver/fiscaliza/issues/6) · [Histórico de trocas de partido no perfil](issues/37-trocas-de-partido.md) | funcionalidade, ingestão, ajuda bem-vinda |
+| 40 | [GitHub #9](https://github.com/rodrigocver/fiscaliza/issues/9) · [Avisar quando a ingestão diária falhar](issues/40-alerta-falha-ingestao.md) | infra, ingestão, ajuda bem-vinda |
+| 41 | [GitHub #10](https://github.com/rodrigocver/fiscaliza/issues/10) · [Orçamento de desempenho no CI (Lighthouse)](issues/41-orcamento-desempenho.md) | infra, interface, ajuda bem-vinda |
+| 42 | [GitHub #11](https://github.com/rodrigocver/fiscaliza/issues/11) · [Linha do tempo do mandato no perfil](issues/42-linha-do-tempo-mandato.md) | funcionalidade, interface, ajuda bem-vinda |
+| 38 | [GitHub #7](https://github.com/rodrigocver/fiscaliza/issues/7) · [Discursos em plenário (Câmara e Senado)](issues/38-discursos.md) | v2, funcionalidade, ingestão, ajuda bem-vinda |
+| 39 | [GitHub #8](https://github.com/rodrigocver/fiscaliza/issues/8) · [Emendas parlamentares (Portal da Transparência)](issues/39-emendas-parlamentares.md) | v2, funcionalidade, ingestão, discussão |
 
 ## Para a comunidade (novas)
 

@@ -1,0 +1,23 @@
+# Usado pelo devcontainer.json. O app compartilha a rede do Postgres, então "localhost:5432" funciona como no
+# README e o .env.example serve sem mudanças.
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity
+    network_mode: service:db
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: fiscaliza
+      POSTGRES_PASSWORD: fiscaliza
+      POSTGRES_DB: fiscaliza
+    volumes:
+      - dados:/var/lib/postgresql/data
+      - ../docker/criar-banco-teste.sql:/docker-entrypoint-initdb.d/criar-banco-teste.sql:ro
+
+volumes:
+  dados:

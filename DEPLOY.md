@@ -20,7 +20,7 @@ que aparece (cada visita gera uma chave nova):
 
 ## 2. Dados — GitHub Actions
 O GitHub cria as tabelas e baixa os dados oficiais; depois atualiza tudo sozinho todo dia.
-1. Em https://github.com/rodrigocver/Pessoal → **Settings → Secrets and variables → Actions → New repository
+1. Em https://github.com/rodrigocver/fiscaliza → **Settings → Secrets and variables → Actions → New repository
    secret**, crie:
    - `DATABASE_URL` = string **Session pooler** (porta 5432);
    - `REVALIDAR_SEGREDO` = **chave B**.
@@ -28,7 +28,7 @@ O GitHub cria as tabelas e baixa os dados oficiais; depois atualiza tudo sozinho
    Espere ficar verde (~20 minutos). Se ficar vermelho, abra a execução e me mande o erro.
 
 ## 3. Site — Vercel
-1. Entre em https://vercel.com com o GitHub → **Add New → Project** → importe o repositório **Pessoal**.
+1. Entre em https://vercel.com com o GitHub → **Add New → Project** → importe o repositório **fiscaliza**.
 2. Em **Environment Variables**, adicione:
 
 | Nome | Valor |

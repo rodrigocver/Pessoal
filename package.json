@@ -19,7 +19,8 @@
     "verificar": "npm run lint && npm run typecheck && npm test && npm run test:integracao",
     "conferir:cache": "node scripts/conferir-cache.mjs",
     "e2e:preparar": "tsx tests/e2e/preparar-banco.ts",
-    "test:e2e": "npm run e2e:preparar && DATABASE_URL=${DATABASE_URL_TESTE:-postgres://fiscaliza:fiscaliza@localhost:5432/fiscaliza_teste} npm run build && playwright test"
+    "test:e2e": "npm run e2e:preparar && DATABASE_URL=${DATABASE_URL_TESTE:-postgres://fiscaliza:fiscaliza@localhost:5432/fiscaliza_teste} npm run build && playwright test",
+    "exemplo": "tsx scripts/exemplo.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",
