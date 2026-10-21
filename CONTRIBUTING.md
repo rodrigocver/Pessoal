@@ -31,7 +31,7 @@ Valem para qualquer mudança. Pull requests que os contrariem não serão aceito
 
 ## Ambiente local
 
-**Mais fácil: no navegador.** Abra o projeto no [GitHub Codespaces](https://codespaces.new/rodrigocver/fiscaliza):
+**Mais fácil: no navegador.** Abra o projeto no [GitHub Codespaces](https://codespaces.new/rodrigocver/fiscaliza_bsb):
 o ambiente vem com banco, dependências e dados de exemplo; é só rodar `npm run dev`. Passo a passo em
 [docs/PRIMEIRA-CONTRIBUICAO.md](docs/PRIMEIRA-CONTRIBUICAO.md). A mesma configuração (`.devcontainer/`) funciona
 no VS Code com a extensão Dev Containers.

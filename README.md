@@ -1,6 +1,6 @@
 # Fiscaliza
 
-[![CI](https://github.com/rodrigocver/fiscaliza/actions/workflows/ci.yml/badge.svg)](https://github.com/rodrigocver/fiscaliza/actions/workflows/ci.yml)
+[![CI](https://github.com/rodrigocver/fiscaliza_bsb/actions/workflows/ci.yml/badge.svg)](https://github.com/rodrigocver/fiscaliza_bsb/actions/workflows/ci.yml)
 [![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](LICENSE)
 [![Contribuições bem-vindas](https://img.shields.io/badge/contribui%C3%A7%C3%B5es-bem--vindas-brightgreen.svg)](CONTRIBUTING.md)
 
@@ -20,7 +20,7 @@ sempre com a fonte e a explicação de [como cada número é calculado](docs/MET
 
 Toda ajuda conta: código, design, textos, testes ou um número que não bate com a fonte oficial.
 
-[![Abrir no GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/rodrigocver/fiscaliza)
+[![Abrir no GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/rodrigocver/fiscaliza_bsb)
 
 1. Primeira vez? Siga o passo a passo **[Sua primeira contribuição](docs/PRIMEIRA-CONTRIBUICAO.md)**: ambiente
    pronto no navegador (Codespaces), com dados de exemplo, sem instalar nada.
@@ -30,7 +30,7 @@ Toda ajuda conta: código, design, textos, testes ou um número que não bate co
 
 ## Rodando localmente
 
-Sem instalar nada: abra no [Codespaces](https://codespaces.new/rodrigocver/fiscaliza) e rode `npm run dev`
+Sem instalar nada: abra no [Codespaces](https://codespaces.new/rodrigocver/fiscaliza_bsb) e rode `npm run dev`
 (ou use o VS Code com a extensão Dev Containers: a configuração está em `.devcontainer/`).
 
 No seu computador: Node 22+ e Docker. Nenhuma conta externa é necessária.

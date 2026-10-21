@@ -7,7 +7,7 @@ navegador: não é preciso instalar nada no computador. Leva uns 10 minutos até
 
 1. Entre (ou crie uma conta grátis) em https://github.com.
 2. Na página do projeto, clique em **Code → Codespaces → Create codespace**, ou use o link direto:
-   https://codespaces.new/rodrigocver/fiscaliza
+   https://codespaces.new/rodrigocver/fiscaliza_bsb
 3. Espere uns 3 minutos. Um editor (VS Code) abre no navegador, com tudo instalado: o banco de dados, as
    bibliotecas e **dados de exemplo** (quatro parlamentares fictícios: Ana Souza, Beto Lima, Carla Dias e Davi
    Rocha, com votações e gastos de 2025).
@@ -32,7 +32,7 @@ Quer dados reais? `npm run ingest` baixa o ano atual das fontes oficiais (uns 3 
 
 ## 3. Escolha uma tarefa
 
-Abra as [issues com o rótulo "boa primeira issue"](https://github.com/rodrigocver/fiscaliza/issues?q=is%3Aopen+label%3A%22boa+primeira+issue%22).
+Abra as [issues com o rótulo "boa primeira issue"](https://github.com/rodrigocver/fiscaliza_bsb/issues?q=is%3Aopen+label%3A%22boa+primeira+issue%22).
 Cada uma diz o contexto, os arquivos a mexer e quando está pronta. Comente "vou fazer esta" para ninguém
 trabalhar em dobro, e pergunte lá mesmo se algo não estiver claro.
 
