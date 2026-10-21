@@ -15,7 +15,22 @@ on:
 concurrency: ingestao
 
 jobs:
+  # Antes da publicação (DEPLOY.md), não há banco: pula com um aviso em vez de falhar todo dia.
+  configurado:
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.c.outputs.ok }}
+    steps:
+      - id: c
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -n "$DATABASE_URL" ]; then echo "ok=1" >> "$GITHUB_OUTPUT"
+          else echo "::notice::Banco ainda não configurado (DEPLOY.md, passo 2). Nada a fazer."; fi
+
   ingerir:
+    needs: configurado
+    if: needs.configurado.outputs.ok == '1'
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:

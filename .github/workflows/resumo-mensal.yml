@@ -13,7 +13,23 @@ on:
 concurrency: resumo-mensal
 
 jobs:
+  # Sem banco ou sem serviço de e-mail (DEPLOY.md, passos 2 e 4), não há o que enviar: pula com um aviso.
+  configurado:
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.c.outputs.ok }}
+    steps:
+      - id: c
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          AUTH_RESEND_KEY: ${{ secrets.AUTH_RESEND_KEY }}
+        run: |
+          if [ -n "$DATABASE_URL" ] && [ -n "$AUTH_RESEND_KEY" ]; then echo "ok=1" >> "$GITHUB_OUTPUT"
+          else echo "::notice::Banco ou e-mail (Resend) ainda não configurados (DEPLOY.md). Nada a enviar."; fi
+
   enviar:
+    needs: configurado
+    if: needs.configurado.outputs.ok == '1'
     runs-on: ubuntu-latest
     # Partes em paralelo: cada usuário cai sempre na mesma parte (--parte k/n). Com milhões de usuários, o tempo
     # é limitado pela taxa de envio do Resend; aumente as partes junto com o limite da conta.
