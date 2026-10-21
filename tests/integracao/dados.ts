@@ -124,33 +124,27 @@ export async function criarCenario() {
   await db.insert(schema.despesa).values([
     {
       casa: "CD",
-      chave: "d1",
       parlamentarId: ana.id,
       ano: 2025,
       mes: 3,
       categoria: "TELEFONIA",
       valor: "100.50",
-      fonteUrl,
     },
     {
       casa: "CD",
-      chave: "d2",
       parlamentarId: ana.id,
       ano: 2025,
       mes: 4,
       categoria: "COMBUSTÍVEIS",
       valor: "200.00",
-      fonteUrl,
     },
     {
       casa: "CD",
-      chave: "d3",
       parlamentarId: ana.id,
       ano: 2024,
       mes: 12,
       categoria: "TELEFONIA",
       valor: "999.00",
-      fonteUrl,
     },
   ]);
 

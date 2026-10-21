@@ -221,8 +221,6 @@ export const despesa = pgTable(
   {
     id: serial("id").primaryKey(),
     casa: casaEnum("casa").notNull(),
-    // As fontes não têm um id estável para todo registro; usamos um hash dos campos.
-    chave: text("chave").notNull(),
     parlamentarId: integer("parlamentar_id")
       .notNull()
       .references(() => parlamentar.id, { onDelete: "cascade" }),
@@ -234,12 +232,11 @@ export const despesa = pgTable(
     cnpjCpf: text("cnpj_cpf"),
     valor: numeric("valor", { precision: 12, scale: 2 }).notNull(),
     documentoUrl: text("documento_url"),
-    ...origem,
+    // Sem fonte_url nem chave por linha: são ~1 milhão de linhas e o banco gratuito tem 500 MB. A fonte de cada
+    // linha sai de fonteDespesa(casa, ano); a ingestão substitui o ano inteiro, sem precisar de chave.
+    atualizadoEm: timestamp("atualizado_em", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [
-    uniqueIndex("despesa_casa_chave").on(t.casa, t.chave),
-    index("despesa_parlamentar_ano_mes").on(t.parlamentarId, t.ano, t.mes),
-  ],
+  (t) => [index("despesa_parlamentar_ano_mes").on(t.parlamentarId, t.ano, t.mes)],
 );
 
 /**

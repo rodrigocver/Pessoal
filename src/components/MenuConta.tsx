@@ -26,11 +26,11 @@ export function MenuConta() {
         <Link href="/conta" className="text-suave hover:text-texto">
           Conta
         </Link>
-      ) : (
+      ) : process.env.NEXT_PUBLIC_LOGIN_ATIVO ? (
         <Link href="/entrar" className="rounded-full bg-destaque px-3 py-1.5 font-medium text-fundo">
           Entrar
         </Link>
-      )}
+      ) : null}
     </>
   );
 }

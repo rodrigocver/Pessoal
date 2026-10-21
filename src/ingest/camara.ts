@@ -1,7 +1,7 @@
 import { and, eq, inArray, sql as dsql } from "drizzle-orm";
 import { db, schema } from "@/db/client";
-import { CAMARA_API } from "./fontes";
-import { baixarCsv, baixarJson, hash, lotes } from "./util";
+import { CAMARA_API, fonteDespesa } from "./fontes";
+import { baixarCsv, baixarJson, lotes } from "./util";
 
 const ARQUIVOS = "https://dadosabertos.camara.leg.br/arquivos";
 const arquivoJson = (nome: string, ano: number) => `${ARQUIVOS}/${nome}/json/${nome}-${ano}.json`;
@@ -277,30 +277,16 @@ export async function ingerirProposicoes(ano: number): Promise<number> {
 // ---------- Cota parlamentar (CEAP) ----------
 
 /**
- * Converte as linhas do CSV da cota em despesas. A fonte não tem id único por linha
- * (há parcelas e lançamentos repetidos), então a chave é o hash da linha + nº da ocorrência.
+ * Converte as linhas do CSV da cota em despesas. Linhas idênticas são lançamentos distintos (parcelas): todas
+ * entram. A gravação substitui o ano inteiro, então não há chave por linha (economiza espaço no banco).
  */
 export function mapDespesas(linhas: Record<string, string>[], deputados: Map<string, number>) {
-  const ocorrencias = new Map<string, number>();
   return linhas.flatMap((l) => {
     const parlamentarId = deputados.get(l.ideCadastro);
     if (!parlamentarId) return []; // lideranças partidárias e deputados de outras legislaturas
-    const base = hash(
-      l.ideCadastro,
-      l.ideDocumento,
-      l.numParcela,
-      l.txtNumero,
-      l.datEmissao,
-      l.vlrLiquido,
-      l.txtCNPJCPF,
-      l.numMes,
-    );
-    const n = (ocorrencias.get(base) ?? 0) + 1;
-    ocorrencias.set(base, n);
     return [
       {
         casa: "CD" as const,
-        chave: `${base}-${n}`,
         parlamentarId,
         ano: Number(l.numAno),
         mes: Number(l.numMes),
@@ -310,7 +296,6 @@ export function mapDespesas(linhas: Record<string, string>[], deputados: Map<str
         cnpjCpf: l.txtCNPJCPF || null,
         valor: (Number(l.vlrLiquido.replace(",", ".")) || 0).toFixed(2),
         documentoUrl: l.urlDocumento || null,
-        fonteUrl: `https://www.camara.leg.br/cotas/Ano-${l.numAno}.csv.zip`,
       },
     ];
   });
@@ -318,12 +303,12 @@ export function mapDespesas(linhas: Record<string, string>[], deputados: Map<str
 
 export async function ingerirDespesas(ano: number): Promise<number> {
   const deputados = await mapaDeputados();
-  const linhas = await baixarCsv(`https://www.camara.leg.br/cotas/Ano-${ano}.csv.zip`, { zip: true });
+  const linhas = await baixarCsv(fonteDespesa("CD", ano), { zip: true });
   const despesas = mapDespesas(linhas, deputados);
   return db.transaction(async (tx) => {
     // O arquivo anual é a verdade: substitui o ano inteiro (lançamentos podem ser estornados).
     await tx.delete(schema.despesa).where(and(eq(schema.despesa.casa, "CD"), eq(schema.despesa.ano, ano)));
-    for (const lote of lotes(despesas, 2000)) await tx.insert(schema.despesa).values(lote).onConflictDoNothing();
+    for (const lote of lotes(despesas, 2000)) await tx.insert(schema.despesa).values(lote);
     return despesas.length;
   });
 }

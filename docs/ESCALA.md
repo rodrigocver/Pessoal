@@ -65,6 +65,7 @@ O código não depende de servidor próprio, mas cada serviço tem limites de pl
 |---|---|
 | **Vercel** | Plano Pro (o Hobby não permite uso comercial e tem cota de banda baixa). Ligar o **Firewall** com limite de pedidos para `/api/eu`, `/api/auth/*` e ações (`POST`), que são os únicos pontos que chegam ao banco. A banda é o maior custo: 4–15 kB comprimidos por página (HTML), mais os scripts, que ficam no cache do navegador. |
 | **Supabase (Postgres)** | Usar o **Transaction pooler** (porta 6543) no site e `DATABASE_POOL_MAX=3`. O tráfego anônimo não chega ao banco; o plano deve ser escolhido pelo número de usuários **logados** ativos (cada um consulta `/api/eu` no máximo a cada 10 minutos). |
+| **Tamanho do banco** | 317 MB em out/2026 (legislatura desde 2023 e eleições desde 2010), cabendo nos 500 MB do Supabase gratuito. A cota parlamentar cresce ~70 MB por ano: o plano pago será necessário em ~2 anos (a página `/status` e o painel do Supabase mostram o uso). |
 | **Resend** | O plano gratuito envia 100 e-mails/dia. Para o resumo mensal de muitos usuários, um plano com limite de envio compatível e domínio verificado. A conta padrão aceita 2 pedidos/s, ou seja, 200 e-mails/s em lote (~1 milhão em 1h30). Para mais, peça aumento do limite e aumente as partes do workflow. |
 | **GitHub Actions** | Sem mudança: a ingestão não depende do número de usuários; o resumo mensal já roda em partes. |
 | **Imagens** | As fotos oficiais passam pela otimização de imagens da Vercel (cerca de 900 imagens, guardadas na CDN). |

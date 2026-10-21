@@ -1,66 +1,76 @@
-# Colocar no ar (Fase 7)
+# Colocar o site no ar
 
-Tudo já está pronto no código. Falta só criar as contas e copiar as chaves para os lugares certos.
-Todas têm plano gratuito suficiente para começar. Tempo estimado: ~40 minutos, de preferência no computador.
+Depois destes passos, qualquer pessoa usa o Fiscaliza só abrindo um endereço (ex.: `https://fiscaliza.vercel.app`),
+no celular ou no computador, sem instalar nada. No celular, dá para "Adicionar à tela inicial" e usar como app.
 
-## 1. GitHub — liberar o acesso do Claude ao repositório
-Necessário para os commits desta sessão chegarem ao GitHub.
-- Instale o app do Claude no repositório `rodrigocver/Pessoal`: https://github.com/apps/claude/installations/select_target
-- Ou reconecte o GitHub em https://claude.ai/connect-github
+Tudo é feito **no navegador**, sem instalar programas. Os três serviços têm plano gratuito e aceitam entrar com a
+conta do GitHub. Tempo: ~30 minutos, mais ~20 minutos esperando a primeira carga de dados.
 
-## 2. Banco de dados — Supabase (ou Neon)
-1. Crie um projeto em https://supabase.com (região São Paulo).
-2. Em **Project Settings → Database → Connection string**, copie:
-   - a string **Session pooler** (porta 5432) → usada pelas tarefas agendadas;
-   - a string **Transaction pooler** (porta 6543) → usada pelo site na Vercel.
-3. No seu computador, com a string de sessão em `DATABASE_URL` no `.env`:
-   ```bash
-   npm run db:migrate
-   npm run ingest -- --desde 2023      # carga histórica, ~10 min
-   ```
-   (Também dá para rodar a carga pelo GitHub: Actions → "Ingestão de dados" → Run workflow → desde = 2023.)
+Você vai gerar duas chaves secretas. Para cada uma, abra https://generate-secret.vercel.app/32 e copie o texto
+que aparece (cada visita gera uma chave nova):
+- **chave A** → `AUTH_SECRET`
+- **chave B** → `REVALIDAR_SEGREDO`
 
-## 3. E-mail — Resend
-1. Crie a conta em https://resend.com e verifique um domínio (ou use o domínio de teste para começar).
-2. Crie uma **API key**.
-3. Defina o remetente, ex.: `Fiscaliza <nao-responda@seu-dominio.com.br>`.
+## 1. Banco de dados — Supabase
+1. Entre em https://supabase.com com o GitHub e clique em **New project**.
+   - Nome: `fiscaliza`. Região: **South America (São Paulo)**. Crie uma senha para o banco e **guarde-a**.
+2. Com o projeto criado, clique em **Connect** (no topo) e copie duas strings, trocando `[YOUR-PASSWORD]` pela senha:
+   - **Session pooler** (porta **5432**) → vai para o GitHub (passo 2);
+   - **Transaction pooler** (porta **6543**) → vai para a Vercel (passo 3).
 
-## 4. Login com Google (opcional — o login por e-mail já funciona com o Resend)
-1. Em https://console.cloud.google.com → **APIs e serviços → Credenciais → Criar ID do cliente OAuth** (tipo: aplicativo da Web).
-2. URI de redirecionamento autorizado: `https://SEU-SITE/api/auth/callback/google`.
-3. Guarde o **Client ID** e o **Client secret**.
+## 2. Dados — GitHub Actions
+O GitHub cria as tabelas e baixa os dados oficiais; depois atualiza tudo sozinho todo dia.
+1. Em https://github.com/rodrigocver/Pessoal → **Settings → Secrets and variables → Actions → New repository
+   secret**, crie:
+   - `DATABASE_URL` = string **Session pooler** (porta 5432);
+   - `REVALIDAR_SEGREDO` = **chave B**.
+2. Vá em **Actions → Ingestão de dados → Run workflow**, preencha **desde** com `2023` e clique em **Run workflow**.
+   Espere ficar verde (~20 minutos). Se ficar vermelho, abra a execução e me mande o erro.
 
-## 5. Site — Vercel
-1. Em https://vercel.com, **Add New → Project** e importe o repositório.
-2. Em **Settings → Environment Variables**, cadastre:
+## 3. Site — Vercel
+1. Entre em https://vercel.com com o GitHub → **Add New → Project** → importe o repositório **Pessoal**.
+2. Em **Environment Variables**, adicione:
 
-| Variável | Valor |
+| Nome | Valor |
 |---|---|
-| `DATABASE_URL` | string do **Transaction pooler** (porta 6543) |
-| `AUTH_SECRET` | gere com `npx auth secret` |
-| `AUTH_RESEND_KEY` | API key do Resend |
-| `EMAIL_FROM` | remetente do passo 3 |
-| `APP_URL` | URL do site, ex.: `https://fiscaliza.vercel.app` |
-| `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` | opcional, passo 4 |
-| `REVALIDAR_SEGREDO` | gere com `openssl rand -hex 32`; o mesmo valor vai no GitHub (passo 6) |
-| `DATABASE_POOL_MAX` | `3` (poucas conexões por instância; ver `docs/ESCALA.md`) |
+| `DATABASE_URL` | string **Transaction pooler** (porta 6543) |
+| `DATABASE_POOL_MAX` | `3` |
+| `AUTH_SECRET` | **chave A** |
+| `REVALIDAR_SEGREDO` | **chave B** (a mesma do GitHub) |
 
-3. Faça o deploy.
+3. Clique em **Deploy**. Ao terminar, a Vercel mostra o endereço do site (ex.: `https://pessoal-xyz.vercel.app`).
+   Para um nome melhor: **Settings → Domains** (ex.: `fiscaliza.vercel.app`, ou um domínio próprio).
+4. De volta ao GitHub, **Settings → Secrets and variables → Actions → Variables → New repository variable**:
+   `APP_URL` = endereço do site. Assim, depois de cada atualização diária, o site renova as páginas sozinho.
 
-## 6. Tarefas agendadas — GitHub Actions
-No repositório: **Settings → Secrets and variables → Actions**.
-- **Secrets:** `DATABASE_URL` (string do **Session pooler**), `AUTH_RESEND_KEY`, `EMAIL_FROM`, `REVALIDAR_SEGREDO`
-  (o mesmo da Vercel: depois de cada ingestão, o site renova as páginas em cache)
-- **Variables:** `APP_URL`
+**Pronto: o site já está no ar** para consulta de todos os parlamentares. Mande o endereço para quem quiser.
+Sem o passo 4 abaixo, o site funciona sem contas: o botão "Entrar" e o "Acompanhar" não aparecem.
 
-Os agendamentos já estão em `.github/workflows/`:
-- **Ingestão de dados:** todo dia às 06:17 (Brasília). Aos domingos, recarrega a legislatura inteira.
-- **Resumo mensal:** dia 1º às 10:07 (Brasília), em 4 partes paralelas.
+## 4. Contas e resumo mensal por e-mail (quando quiser)
+Para os usuários criarem a própria lista e receberem o resumo mensal:
+1. Crie a conta em https://resend.com e, em **Domains**, verifique um domínio seu (sem domínio, o Resend só envia
+   para o seu próprio e-mail, o que serve para testar).
+2. Crie uma **API key**.
+3. Na **Vercel** (Settings → Environment Variables) e no **GitHub** (Secrets), adicione:
+   - `AUTH_RESEND_KEY` = a API key;
+   - `EMAIL_FROM` = remetente, ex.: `Fiscaliza <nao-responda@seu-dominio.com.br>`.
+4. Na Vercel, **Deployments → ⋯ → Redeploy**. O "Entrar" aparece no site.
 
-Para milhões de acessos, veja os limites de cada serviço em `docs/ESCALA.md` antes de divulgar.
+Login com Google (opcional): em https://console.cloud.google.com → **APIs e serviços → Credenciais → Criar ID do
+cliente OAuth** (aplicativo da Web), com o URI de redirecionamento `https://SEU-SITE/api/auth/callback/google`.
+Adicione `AUTH_GOOGLE_ID` e `AUTH_GOOGLE_SECRET` na Vercel e faça o Redeploy.
 
-## 7. Conferir
-- [ ] Abrir o site, buscar um parlamentar e ver as quatro abas.
-- [ ] Criar conta pelo link do e-mail e acompanhar alguém.
-- [ ] Em **Conta → Ver como fica o resumo do último mês**, conferir o e-mail.
-- [ ] Rodar manualmente Actions → "Resumo mensal" com o seu e-mail na lista e ver se chega.
+## O que roda sozinho depois
+- **Todo dia às 06:17 (Brasília):** atualização dos dados; aos domingos, recarga da legislatura e das eleições.
+- **Dia 1º às 10:07:** resumo mensal por e-mail (quando o passo 4 estiver feito), em 4 partes paralelas.
+- **A cada mudança no código** enviada ao GitHub, a Vercel publica a nova versão.
+
+## Conferir
+- [ ] Abrir o site no celular, buscar um parlamentar e ver as abas.
+- [ ] Abrir `/status`: as tarefas aparecem com a última atualização.
+- [ ] (Com o passo 4) Criar conta pelo link do e-mail, acompanhar alguém e ver **Conta → Ver como fica o resumo**.
+
+Para muitos acessos ao mesmo tempo (milhões), veja os limites de cada serviço em `docs/ESCALA.md` antes de divulgar.
+
+## Para quem desenvolve
+Rodar no próprio computador (Node.js 22 e Docker) está no `README.md`. Não é necessário para usar o site.

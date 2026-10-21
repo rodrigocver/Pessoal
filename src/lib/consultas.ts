@@ -4,6 +4,7 @@ import type { Periodo } from "./periodo";
 import { reuniaoConta, sessaoConta } from "./exercicio";
 import { POSICOES } from "./votos";
 import type { ItemIndice } from "./busca";
+import { fonteDespesa } from "@/ingest/fontes";
 
 const { parlamentar } = schema;
 export type Parlamentar = typeof parlamentar.$inferSelect;
@@ -199,7 +200,7 @@ function filtroDespesas(p: Parlamentar, periodo: Periodo) {
 /** Todos os lançamentos da cota no período (download em CSV). */
 export async function despesasDoPeriodo(p: Parlamentar, periodo: Periodo) {
   const linhas = await db.execute(sql`
-    select data, ano, mes, categoria, fornecedor, cnpj_cpf, valor, documento_url, fonte_url from despesa
+    select casa, data, ano, mes, categoria, fornecedor, cnpj_cpf, valor, documento_url from despesa
     where ${filtroDespesas(p, periodo)} order by ano, mes, data nulls last, id`);
   return linhas.map((l) => ({
     data: l.data ? String(l.data) : null,
@@ -209,7 +210,7 @@ export async function despesasDoPeriodo(p: Parlamentar, periodo: Periodo) {
     cnpjCpf: l.cnpj_cpf as string | null,
     valor: num(l.valor),
     documentoUrl: l.documento_url as string | null,
-    fonteUrl: String(l.fonte_url),
+    fonteUrl: fonteDespesa(l.casa as Casa, num(l.ano)),
   }));
 }
 

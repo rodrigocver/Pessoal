@@ -41,18 +41,21 @@ export default function Inicio() {
           </div>
         ))}
       </section>
-      <section className="rounded-2xl bg-destaque-suave p-5">
-        <h2 className="font-semibold">Resumo mensal no seu e-mail</h2>
-        <p className="mt-1 text-sm text-suave">
-          Crie uma conta para salvar sua lista e receber, todo mês, o que seus parlamentares fizeram.
-        </p>
-        <Link
-          href="/entrar"
-          className="mt-3 inline-block rounded-full bg-destaque px-4 py-2 text-sm font-medium text-fundo"
-        >
-          Criar conta grátis
-        </Link>
-      </section>
+      {/* Convite para criar conta só quando há login configurado (DEPLOY.md). */}
+      {process.env.NEXT_PUBLIC_LOGIN_ATIVO && (
+        <section className="rounded-2xl bg-destaque-suave p-5">
+          <h2 className="font-semibold">Resumo mensal no seu e-mail</h2>
+          <p className="mt-1 text-sm text-suave">
+            Crie uma conta para salvar sua lista e receber, todo mês, o que seus parlamentares fizeram.
+          </p>
+          <Link
+            href="/entrar"
+            className="mt-3 inline-block rounded-full bg-destaque px-4 py-2 text-sm font-medium text-fundo"
+          >
+            Criar conta grátis
+          </Link>
+        </section>
+      )}
     </div>
   );
 }

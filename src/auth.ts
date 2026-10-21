@@ -4,13 +4,14 @@ import Google from "next-auth/providers/google";
 import Resend from "next-auth/providers/resend";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { db, schema } from "@/db/client";
+import { emailDesenvolvimento } from "@/lib/login";
 
 // Provedores habilitados conforme as variáveis de ambiente (contas externas só na Fase 7).
 const providers: Provider[] = [];
 if (process.env.AUTH_GOOGLE_ID) providers.push(Google);
 if (process.env.AUTH_RESEND_KEY) {
   providers.push(Resend({ from: process.env.EMAIL_FROM ?? "Fiscaliza <nao-responda@fiscaliza.app>" }));
-} else {
+} else if (emailDesenvolvimento()) {
   // Desenvolvimento: o link mágico é impresso no terminal em vez de enviado por e-mail.
   providers.push({
     id: "email-dev",
@@ -36,4 +37,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 });
 
 export const provedorEmail = process.env.AUTH_RESEND_KEY ? "resend" : "email-dev";
+export const temEmail = Boolean(process.env.AUTH_RESEND_KEY) || emailDesenvolvimento();
 export const temGoogle = Boolean(process.env.AUTH_GOOGLE_ID);

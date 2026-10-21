@@ -86,10 +86,9 @@ describe("mapDespesas", () => {
   it("ignora quem não é deputado conhecido (ex.: lideranças)", () => {
     expect(mapDespesas([{ ...linha, ideCadastro: "" }], deputados)).toEqual([]);
   });
-  it("mantém linhas idênticas como despesas distintas com chaves únicas", () => {
+  it("mantém linhas idênticas como despesas distintas (parcelas)", () => {
     const r = mapDespesas([linha, linha], deputados);
     expect(r).toHaveLength(2);
-    expect(r[0].chave).not.toBe(r[1].chave);
     expect(r[0]).toMatchObject({
       parlamentarId: 10,
       ano: 2025,

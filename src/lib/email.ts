@@ -74,7 +74,13 @@ export async function enviarEmails(lote: Email[]): Promise<string[]> {
   return r.data.map((x) => x.id);
 }
 
-export const baseUrl = () => (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+// Na Vercel, sem APP_URL, usa o endereço de produção que a própria Vercel informa (VERCEL_PROJECT_PRODUCTION_URL).
+export const baseUrl = () =>
+  (
+    process.env.APP_URL ??
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null) ??
+    "http://localhost:3000"
+  ).replace(/\/$/, "");
 export const urlDescadastro = (token: string) => `${baseUrl()}/descadastrar?token=${encodeURIComponent(token)}`;
 export const urlDescadastroUmClique = (token: string) =>
   `${baseUrl()}/api/descadastrar?token=${encodeURIComponent(token)}`;

@@ -16,6 +16,8 @@ export function BotaoSeguir({ parlamentarId }: { parlamentarId: number }) {
         + Acompanhar
       </button>
     );
+  // Site ainda sem login configurado: nada para acompanhar.
+  if (!conta.logado && !process.env.NEXT_PUBLIC_LOGIN_ATIVO) return null;
   if (!conta.logado)
     return (
       <Link href="/entrar" className={`${base} border border-destaque text-destaque`}>

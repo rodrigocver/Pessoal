@@ -1,5 +1,10 @@
 export const CAMARA_API = "https://dadosabertos.camara.leg.br/api/v2";
 export const SENADO_API = "https://legis.senado.leg.br/dadosabertos";
+export const CEAPS_API = "https://adm.senado.gov.br/adm-dadosabertos/api/v1/senadores/despesas_ceaps";
+
+/** Arquivo oficial de onde vem cada despesa da cota (um por casa e ano; não é guardado em cada linha). */
+export const fonteDespesa = (casa: "CD" | "SF", ano: number) =>
+  casa === "CD" ? `https://www.camara.leg.br/cotas/Ano-${ano}.csv.zip` : `${CEAPS_API}/${ano}`;
 
 /** Primeira legislatura com dados no Fiscaliza (2023–2027). */
 export const PRIMEIRA_LEGISLATURA = 57;

@@ -1,10 +1,8 @@
 import { and, eq, inArray, sql as dsql } from "drizzle-orm";
 import { db, schema } from "@/db/client";
-import { SENADO_API } from "./fontes";
+import { CEAPS_API, SENADO_API } from "./fontes";
 import { getJson } from "./http";
 import { lotes } from "./util";
-
-const CEAPS_API = "https://adm.senado.gov.br/adm-dadosabertos/api/v1/senadores/despesas_ceaps";
 
 async function mapaSenadores(): Promise<Map<string, number>> {
   const linhas = await db
@@ -298,13 +296,15 @@ export const categoriaSenado = (t: string | null) =>
 export async function ingerirDespesasSenado(ano: number): Promise<number> {
   const senadores = await mapaSenadores();
   const itens = await getJson<DespesaSenadoApi[]>(`${CEAPS_API}/${ano}`, { timeoutMs: 600_000 });
+  // A API às vezes repete o mesmo lançamento (mesmo id): fica um só.
+  const vistos = new Set<number>();
   const despesas = itens.flatMap((d) => {
     const parlamentarId = senadores.get(String(d.codSenador));
-    if (!parlamentarId) return [];
+    if (!parlamentarId || vistos.has(d.id)) return [];
+    vistos.add(d.id);
     return [
       {
         casa: "SF" as const,
-        chave: String(d.id),
         parlamentarId,
         ano: d.ano,
         mes: d.mes,
@@ -314,13 +314,12 @@ export async function ingerirDespesasSenado(ano: number): Promise<number> {
         cnpjCpf: d.cpfCnpj,
         valor: d.valorReembolsado.toFixed(2),
         documentoUrl: null,
-        fonteUrl: `${CEAPS_API}/${ano}`,
       },
     ];
   });
   return db.transaction(async (tx) => {
     await tx.delete(schema.despesa).where(and(eq(schema.despesa.casa, "SF"), eq(schema.despesa.ano, ano)));
-    for (const lote of lotes(despesas, 2000)) await tx.insert(schema.despesa).values(lote).onConflictDoNothing();
+    for (const lote of lotes(despesas, 2000)) await tx.insert(schema.despesa).values(lote);
     return despesas.length;
   });
 }
